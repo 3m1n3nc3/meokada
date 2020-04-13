@@ -1,0 +1,20 @@
+<div class="timeline-posts content-shadow pp_blog_posts" data-article-id="<?php echo $post_data['id'];?>">
+    <div class="header">
+        <h2><a href="<?php echo un2url('blog/article/'.$post_data['id']);?>" data-ajax="ajax_loading.php?app=article&amp;apph=article&amp;id=<?php echo $post_data['id'];?>"><?php echo $post_data['title'];?></a></h2>
+        <div>
+			<span class="time-ago" title="<?php echo(ToDate($post_data['created_at'])) ?>"><?php echo(time2str($post_data['created_at'])); ?></span>
+			<span class="middot">·</span>
+			<span><?php echo $post_data['category_name'];?></span>
+			<span class="middot">·</span>
+			<span><?php echo $post_data['view'];?> {{LANG views}}</span>
+		</div>
+    </div>
+    <div class="post-images fluid">
+        <a href="<?php echo un2url('blog/article/'.$post_data['id']);?>" class="image-lightbox">
+            <img src="<?php echo $post_data['full_thumbnail'];?>" class="img-res">
+        </a>
+    </div>
+	<p class="caption" data-caption="">
+        <?php echo trim(strip_tags( br2nl( html_entity_decode(str_replace("&nbsp;",'',$post_data['content'])) ) ));?>
+    </p>
+</div>

@@ -1,0 +1,47 @@
+<tr id="list-<?php echo($cd['challenge']['id']); ?>" data-id="<?php echo($cd['challenge']['id']); ?>">
+	<td>
+		<input type="checkbox" id="check-video-<?php echo($cd['challenge']['id']); ?>" class="delete-checkbox filled-in"><label for="check-video-<?php echo($cd['challenge']['id']); ?>"></label>
+	</td>
+	<td>
+		<span>
+			<?php echo($cd['challenge']['id']);?>
+		</span>
+	</td>
+	<td>
+		<a href="javascript:void(0)" class="edit-challenge" data-id="<?php echo($cd['challenge']['id']); ?>"> 
+			<?php echo($cd['challenge']['name']); ?>
+		</a>
+	</td>
+	<td>
+		<span>
+			<a href="<?php echo(chal2url($cd['challenge']['id'])); ?>">
+				<?php echo(chal2url($cd['challenge']['id'])); ?>
+			</a>
+		</span>
+	</td>
+	<td>
+		<span>
+			<?php echo $cd['challenge']['status'] == '1' ? 'Active' : 'Inactive'; ?>
+		</span>
+	</td>
+	<td>
+		<span>
+			<?php echo $cd['challenge']['pro_level'] == '2' ? 'Pro' : ($cd['challenge']['pro_level'] == '1' ? 'Standard' : 'Free for all'); ?>
+		</span>
+	</td>
+	<td>
+		<span>
+			<?php echo(date('D d M Y', strtotime($cd['challenge']['start_date']))); ?>
+		</span>
+	</td>
+	<td>
+		<span>
+			<?php echo(date('D d M Y', strtotime($cd['challenge']['close_date']))); ?>
+		</span>
+	</td>
+	<td>
+		<button class="btn btn-danger waves-effect waves-light delete-challenge" data-id="<?php echo($cd['challenge']['id']); ?>">
+			DELETE
+		</button>
+	</td>
+</tr>

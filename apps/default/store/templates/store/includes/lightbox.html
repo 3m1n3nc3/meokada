@@ -1,0 +1,155 @@
+<?php
+update_store_image_view($context['post_data']['id']);
+?>
+<div class="light__box" data-post-id="<?php echo($context['post_data']['id']) ?>">
+	<div class="lightbox-ol"></div>
+	<div class="lightbox-outer">
+		<div class="lightbox-inner">
+			<input type="text" value="<?php echo(pid2url($context['post_data']['id'])) ?>" id="copyLink" class="copyPostlink" tabindex='-1' aria-hidden='true'>
+
+            <?php if( !isset( $context['post_data']['standalone'] ) ){ ?>
+			<div class="pp_mobi_light_control">
+				<div class="pp_light_close pull-right" onclick="$('.light__box').remove();window.history.pushState('', '', site_url( '' ) );">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+				</div>
+			</div>
+			<?php } ?>
+
+			<div class="post-data">
+				<div class="posts-media-renderer" style="position: relative;">
+					<div id="post-data-cr" class="carousel slide carousel-fade" data-ride="carousel" data-interval="false">
+						<div class="carousel-inner">
+							<div class="item active">
+								<img src="<?php echo(media($context['post_data']['small_file'])) ?>" alt="Image" class="img-res" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="posts-votes">
+					<div class="posts-votes-inner">
+						<div class="heading">
+							<div class="avatar">
+								<img src="<?php echo(media($context['post_data']['avatar'])) ?>" class="img-circle">
+							</div>
+							<div class="uname">
+								<h6><a href="<?php echo(un2url($context['post_data']['username'])) ?>"  data-ajax="ajax_loading.php?app=profile&apph=profile&uname=<?php echo($context['post_data']['username']) ?>"><?php echo($context['post_data']['username']) ?></a>
+									<?php if ($context['post_data']['is_verified'] > 0) { ?>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#00BCD4" class="verified-color feather feather-check-circle"><path d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"></path></svg>
+									<?php } ?>
+								</h6>
+								<span><time><?php echo(time2str($context['post_data']['created_date'])) ?></time></span>
+							</div>
+                            <?php if( !isset( $context['post_data']['standalone'] ) ){ ?>
+							<div class="pp_light_close" onclick="$('.light__box').remove();window.history.pushState('', '', site_url( 'store' ) );">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+							</div>
+                            <?php } ?>
+						</div>
+						<div class="pp_store_pic_details">
+							<h3><?php echo $context['post_data']['title'];?></h3>
+							<table class="table">
+								<tbody>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11,13.5V21.5H3V13.5H11M12,2L17.5,11H6.5L12,2M17.5,13C20,13 22,15 22,17.5C22,20 20,22 17.5,22C15,22 13,20 13,17.5C13,15 15,13 17.5,13Z" /></svg> {{LANG category}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo $context['post_data']['category_name']; ?></td>
+									</tr>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M20,8H4V6H20M20,18H4V12H20M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" /></svg> {{LANG price}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo $context['currency_symbol'].$context['post_data']['price']; ?></td>
+									</tr>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z" /></svg> {{LANG license_type}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo str_replace('_',' ',$context['post_data']['license']); ?></td>
+									</tr>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21,15H23V17H21V15M21,11H23V13H21V11M23,19H21V21C22,21 23,20 23,19M13,3H15V5H13V3M21,7H23V9H21V7M21,3V5H23C23,4 22,3 21,3M1,7H3V9H1V7M17,3H19V5H17V3M17,19H19V21H17V19M3,3C2,3 1,4 1,5H3V3M9,3H11V5H9V3M5,3H7V5H5V3M1,11V19A2,2 0 0,0 3,21H15V11H1M3,19L5.5,15.79L7.29,17.94L9.79,14.72L13,19H3Z" /></svg> {{LANG resolution}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo $context['post_data']['dimensions']; ?></td>
+									</tr>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M10,14.29L6.5,19H17.46L14.75,15.46L12.78,17.8L10,14.29M5,21V7H18.96V21H5M12,2.4L14.61,5.03H9.37L12,2.4M5,5.03C4.5,5.03 4,5.22 3.61,5.61C3.2,6 3,6.46 3,7V21C3,21.5 3.2,22 3.61,22.39C4,22.8 4.5,23 5,23H18.96C19.5,23 19.96,22.8 20.37,22.39C20.77,22 21,21.5 21,21V7C21,6.46 20.77,6 20.37,5.61C19.96,5.22 19.5,5.03 18.96,5.03H16L12,1L7.96,5.03H5Z" /></svg> {{LANG image_type}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo $context['post_data']['ext']; ?></td>
+									</tr>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" /></svg> {{LANG views}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo $context['post_data']['views']; ?></td>
+									</tr>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" /></svg> {{LANG downloads}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo $context['post_data']['downloads']; ?></td>
+									</tr>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M11 8C11 10.21 9.21 12 7 12C4.79 12 3 10.21 3 8C3 5.79 4.79 4 7 4C9.21 4 11 5.79 11 8M11 14.72V20H0V18C0 15.79 3.13 14 7 14C8.5 14 9.87 14.27 11 14.72M24 20H13V3H24V20M16 11.5C16 10.12 17.12 9 18.5 9C19.88 9 21 10.12 21 11.5C21 12.88 19.88 14 18.5 14C17.12 14 16 12.88 16 11.5M22 7C20.9 7 20 6.11 20 5H17C17 6.11 16.11 7 15 7V16C16.11 16 17 16.9 17 18H20C20 16.9 20.9 16 22 16V7Z" /></svg> {{LANG sells}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo $context['post_data']['sells']; ?></td>
+									</tr>
+									<tr>
+										<td class="pp_store_pic_details_name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M5.5,7A1.5,1.5 0 0,1 4,5.5A1.5,1.5 0 0,1 5.5,4A1.5,1.5 0 0,1 7,5.5A1.5,1.5 0 0,1 5.5,7M21.41,11.58L12.41,2.58C12.05,2.22 11.55,2 11,2H4C2.89,2 2,2.89 2,4V11C2,11.55 2.22,12.05 2.59,12.41L11.58,21.41C11.95,21.77 12.45,22 13,22C13.55,22 14.05,21.77 14.41,21.41L21.41,14.41C21.78,14.05 22,13.55 22,13C22,12.44 21.77,11.94 21.41,11.58Z" /></svg> {{LANG tags}}</td>
+										<td class="pp_store_pic_details_detail"><?php echo $context['post_data']['tags']; ?></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+                        
+                        <?php
+                        if($context['post_data']["user_id"] !== $context["user"]["user_id"]){
+                        	if (!empty($config['paypal_id']) && !empty($config['paypal_secret'])) {
+                                if( !is_store_item_purchased($context['post_data']['id']) ){
+                        ?>
+							<button onclick='Pxpx_GetPayPalLink("store",<?php echo $context['post_data']['price']; ?>,"<?php echo $context['post_data']['title']; ?>",<?php echo $context['post_data']['id']; ?>);' class="btn btn-info btn_links paypal_btn" data-ajax="ajax_loading.php?app=settings&amp;apph=settings&amp;user=admin&amp;page=general">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M8.32,21.97C8.21,21.92 8.08,21.76 8.06,21.65C8.03,21.5 8,21.76 8.66,17.56C9.26,13.76 9.25,13.82 9.33,13.71C9.46,13.54 9.44,13.54 10.94,13.53C12.26,13.5 12.54,13.5 13.13,13.41C16.38,12.96 18.39,11.05 19.09,7.75C19.13,7.53 19.17,7.34 19.18,7.34C19.18,7.33 19.25,7.38 19.33,7.44C20.36,8.22 20.71,9.66 20.32,11.58C19.86,13.87 18.64,15.39 16.74,16.04C15.93,16.32 15.25,16.43 14.05,16.46C13.25,16.5 13.23,16.5 13,16.65C12.83,16.82 12.84,16.79 12.45,19.2C12.18,20.9 12.08,21.45 12.04,21.55C11.97,21.71 11.83,21.85 11.67,21.93L11.56,22H10C8.71,22 8.38,22 8.32,21.97V21.97M3.82,19.74C3.63,19.64 3.5,19.47 3.5,19.27C3.5,19 6.11,2.68 6.18,2.5C6.27,2.32 6.5,2.13 6.68,2.06L6.83,2H10.36C14.27,2 14.12,2 15,2.2C17.62,2.75 18.82,4.5 18.37,7.13C17.87,10.06 16.39,11.8 13.87,12.43C13,12.64 12.39,12.7 10.73,12.7C9.42,12.7 9.32,12.71 9.06,12.85C8.8,13 8.59,13.27 8.5,13.6C8.46,13.67 8.23,15.07 7.97,16.7C7.71,18.33 7.5,19.69 7.5,19.72L7.47,19.78H5.69C4.11,19.78 3.89,19.78 3.82,19.74V19.74Z" /></svg> {{LANG buy}}
+							</button>
+                        <?php }else{ ?>
+							<a href="<?php echo(pxp_link('download.php?id='.$context['post_data']['id'].'&hash='.$context['csrf_token'])); ?><?php //echo media($context['post_data']['full_file']);?>" target="_blank" class="btn btn-info btn_links paypal_btn">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" /></svg> {{LANG download}}
+							</a>
+                        <?php } } } ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</div>
+
+<script>
+    <?php if( !isset( $context['post_data']['standalone'] ) ){ ?>
+	jQuery(document).ready(function($) {
+
+		var lbox = $(".light__box");
+
+		lbox.find('.lightbox-outer').click(function(event) {
+			if ($(event.target).hasClass('lightbox-outer')) {
+				$('.light__box').remove();
+				window.history.pushState("", "", site_url( 'store' ) );
+			}
+		});
+
+		$(document).keyup(function(e) {
+		    if (e.keyCode == 27) {
+		    	$('.light__box').remove();
+		    	window.history.pushState("", "", site_url( 'store' ) );
+		    }
+		});
+
+	});
+    <?php } ?>
+function copyLinkfn() {
+  var copyText = document.getElementById("copyLink");
+  copyText.select();
+  document.execCommand("copy");
+}
+
+</script>
+<?php if( isset( $context['post_data']['standalone'] ) ){ ?>
+<style>
+    .light__box {
+        z-index: 0;
+    }
+    footer{
+        position: fixed;
+        left: 50%;
+        bottom: -50px;
+        transform: translate(-50%, -50%);
+        margin: 0 auto;
+    }
+</style>
+<?php } ?>

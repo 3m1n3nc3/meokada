@@ -1,0 +1,315 @@
+<?php 
+$page = (!empty($_GET['page-id'])) ? $_GET['page-id'] : 1;
+$filter_keyword = (!empty($_GET['query'])) ? $admin::secure($_GET['query']) : '';
+$filter_type    = '';
+$admin::$db->pageLimit = 50;
+$t_users = T_CHALLENGE; 
+
+
+if (!empty($filter_keyword)) { 
+
+    if (is_numeric($filter_keyword)) {
+        $admin::$db->where('`id`', "$filter_keyword");
+    } else {
+        $admin::$db->where('`name`',"%$filter_keyword%",'LIKE');
+    } 
+}
+
+$challenge = $admin::$db->orderBy('id', 'DESC')->paginate(T_CHALLENGE, $page, array(
+    'id',
+    'name',
+    'pro_level',
+    'status',
+    'start_date',
+    'close_date'
+));
+
+if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
+	header("Location: " . pxp_acp_link('manage-challenges'));
+	exit();
+}
+?>
+<div class="clearfix">
+    <div class="block-header">
+        <h2 class="breadcrumb">Posts <i class="material-icons">keyboard_arrow_right</i> Manage Challenges</h2>
+    </div>
+    <!-- Vertical Layout -->
+    <div class="row">
+        <div class="col-lg-12 col-md-12">
+            <div class="card">
+                <div class="header">
+                    <h2>Manage Challenges</h2>
+                </div>
+                <div class="body">
+                    <div class="clearfix">
+                        <div class="col-md-6" style="margin-bottom:0;">
+                            <form method="get" action="<?php echo pxp_acp_link('manage-challenges'); ?>">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-float">
+                                            <div class="form-line">
+                                                <input type="text" name="query" id="query" class="form-control" value="<?php echo($filter_keyword); ?>">
+                                                <label class="form-label search-form">Search for ID, Post Description</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <button class="btn btn-info">Search</button>
+                                        <button type="button" class="btn btn-success waves-effect" id="create-challenge">Create Challenge</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive1">
+                        <table class="table table-bordered table-striped table-hover table-users">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="check-all" class="filled-in check-all" ><label for="check-all"></label></th>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Challenge Link</th>
+                                    <th>Status</th>
+                                    <th>Subscription</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    if (!empty($challenge)) {
+                                        foreach ($challenge as $key => $context['challenge']) {
+                                            $context['challenge'] = o2array($context['challenge']);
+                                            echo $admin->loadPage('manage-challenges/list');
+                                        }
+                                    }
+                                    else{
+                                        echo $admin::createHtmlEl('tr',null,$admin::createHtmlEl('td',array(
+                                            'colspan' => 6,
+                                            'class' => 'empty-table',
+                                        ),"No challenges found"));
+                                    }  
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php if (!empty($challenge)): ?>
+                        <div class="clearfix">
+                            <nav class="clearfix pagination-nav">
+                                <div class="left col-md-5">
+                                    <ul class="pagination">
+                                        <li>
+                                            <span>
+                                                <?php echo "Showing $page out of " . $admin::$db->totalPages; ?>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="clearfix col-md-7 right">
+                                    <ul class="pagination pull-right">
+                                        <li>
+                                            <a href="<?php echo pxp_acp_link('manage-posts?page-id=1'); ?>" class="waves-effect" title='First Page'>
+                                                <i class="material-icons">first_page</i>
+                                            </a>
+                                        </li>
+
+                                        <?php if ($page > 1) { ?>
+                                        <li>
+                                            <a href="<?php echo pxp_acp_link('manage-posts?page-id=' . ($page - 1)); ?>" class="waves-effect" title='Previous Page'>
+                                                <i class="material-icons">chevron_left</i>
+                                            </a>
+                                        </li>
+                                        <?php } ?>
+
+                                        <?php 
+                                            $nums = 0;
+                                            $nums_pages = ($page > 4) ? ($page - 4) : $page;
+                                            for ($i=$nums_pages; $i <= $admin::$db->totalPages; $i++) { 
+                                            if ($nums < 20) {?>
+
+                                            <li class="<?php echo ($page == $i) ? 'active' : ''; ?>">
+                                                <a href="<?php echo pxp_acp_link('manage-challenges?page-id=' . ($i)); ?>" class="waves-effect">
+                                                <?php echo $i ?>
+                                                </a>
+                                            </li>
+                                            <?php } $nums++;
+                                            }
+                                        ?>
+
+                                        <?php if ($admin::$db->totalPages > $page) { ?>
+                                        <li>
+                                            <a href="<?php echo pxp_acp_link('manage-challenges?page-id=' . ($page + 1)); ?>" class="waves-effect" title="Next Page">
+                                                <i class="material-icons">chevron_right</i>
+                                            </a>
+                                        </li>
+                                        <?php } ?>
+
+                                        <li>
+                                            <a href="<?php echo pxp_acp_link('manage-challenges?page-id=' . ($admin::$db->totalPages)); ?>" class="waves-effect" title='Last Page'>
+                                                <i class="material-icons">last_page</i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="clearfix"></div>
+                <button type="button" class="btn btn-info waves-effect delete-selected" disabled style="margin-bottom: 10px;margin-left: 10px;">DELETE SELECTED<span></span></button>
+                <br>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+<!-- #END# Vertical Layout -->
+<div id="delete-modal" class="modal fade" role="dialog" data-id="">
+    <div class="modal-dialog">
+        <div class="modal-content modal-col-red">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DELETE POST</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to continue? this action can't be undo</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link waves-effect delete-button" data-dismiss="modal" data-type="challenge">DELETE</button>
+                <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="edit-modal" class="modal fade" role="dialog" data-id="">
+    <div class="modal-dialog">
+        <div class="modal-content modal-col-red">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">CHALLENGE DETAILS</h4>
+            </div>
+            <form action="<?php echo pxp_acp_link('manage-challenges'); ?>" class="challenge-form">
+                <div class="form-alert"></div>
+                <div class="modal-body">
+                    <input type="hidden" id="set_challenge_id" name="challenge_id" value="">
+                    <div class="form-group">
+                        <label for="set_challenge_title">Challenge Title</label>
+                        <input type="text" class="form-control" id="set_challenge_title" name="challenge_title">
+                    </div> 
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="close_date">Stop Date</label>
+                        <input type="date" class="form-control" id="close_date" name="close_date">
+                    </div> 
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div> 
+                    <div class="form-group">
+                        <label for="pro_level">Subscription</label>
+                        <select class="form-control" id="pro_level" name="pro_level">
+                            <option value="2">Pro</option>
+                            <option value="1">Standard</option>
+                            <option value="0">Free for all</option>
+                        </select>
+                    </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-link waves-effect save-button" data-type="challenge">SAVE</button>
+                    <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">CLOSE</button>
+                </div>
+            </form> 
+        </div>
+    </div>
+</div>
+
+<script>
+    $('.check-all').on('click', function(event) {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+    });
+    $('.delete-checkbox, .check-all').change(function(event) {
+        $('.delete-selected').attr('disabled', false);
+        $('.delete-selected').find('span').text(' (' + $('.delete-checkbox:checked').size() + ')');
+    }); 
+    $('.delete-selected').on('click', function(event) {
+        event.preventDefault();
+        data = new Array();
+        $('td input:checked').parents('tr').each(function () {
+            data.push($(this).attr('data-id'));
+        });
+        if (confirm('Are you sure that you want to delete the selected challenge(s)?')) {
+            $('.delete-selected').attr('disabled', true);
+            $('.delete-selected').text('Please wait..');
+            $.post(acpajax_url('delete-challenge'), {ids: data}, function () {
+                alert('Challenge successfully deleted!');
+                $.each( data, function( index, value ){
+                    $('#list-' + value).remove();
+                });
+                $('.delete-selected').text('DELETE SELECTED');
+            });
+        }
+    });
+
+    $(function () {
+        $(document).on('click', '.delete-challenge',function(event) {
+            event.preventDefault();
+            $('#delete-modal .delete-button').attr('data-id', $(this).attr('data-id')); 
+            $('#delete-modal').attr('data-id', $(this).attr('data-id')).modal('show');
+        });
+        $(document).on('click', '.edit-challenge',function(event) {
+            event.preventDefault();
+            $('#edit-modal #set_challenge_id').val($(this).data('id')); console.log(this + $(this).data('id'));
+            $('#edit-modal').attr('data-id', $(this).attr('data-id')).modal('show');
+        });
+        $(document).on('click', '#create-challenge',function(event) {
+            event.preventDefault(); 
+            $('#edit-modal').modal('show');
+        });
+    });
+
+    jQuery(document).ready(function($) {
+        var challengeform = $("form.challenge-form");
+
+        challengeform.ajaxForm({
+            url: acpajax_url('create-challenge'),
+            type: 'POST',
+            dataType: 'json',
+            beforeSubmit: function(arr,form){
+                $(form).find('button[type=submit]').text('Please wait.').attr('disabled', 'true');
+            },
+            success: function(data, status, xhr, form){
+                if (data.status == 200) {
+                    $(form).find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-success',
+                        text:'Settings has been updated successfully'
+                    }));
+                    setTimeout(function(){
+                        challengeform.find('div.form-alert .alert').slideUp('fast',function(){
+                            $(this).remove(); 
+                        $('#edit-modal').modal('hide');
+                        location.reload(true);
+                        })    
+                    },2000); 
+                }
+                else{
+                    $(form).find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-warning',
+                        text: data.error
+                    }));
+                }
+
+                challengeform.find('button[type=submit]').text('Save').removeAttr('disabled');
+            }
+        });
+    });
+</script>
