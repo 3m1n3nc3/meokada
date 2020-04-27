@@ -238,13 +238,14 @@ if (empty($page_content)) {
                             </a>
                         </li>
 
-                        <?php if (admin_access($admin_role, 3)):?>
                         <li class="<?php echo $admin->activeMenu('settings'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle">
                                 <i class="material-icons">settings</i>
                                 <span>Settings</span>
                             </a>
                             <ul class="ml-menu">
+                                
+                                <?php if (admin_access($admin_role, 3)):?>
                                 <li class="<?php echo $admin->activeMenu('general-settings'); ?>">
                                     <a href="<?php echo pxp_acp_link('general-settings'); ?>" class=" waves-effect waves-block">General Settings</a>
                                 </li>
@@ -260,17 +261,24 @@ if (empty($page_content)) {
                                 <li class="<?php echo $admin->activeMenu('s3'); ?>">
                                     <a href="<?php echo pxp_acp_link('s3'); ?>" class=" waves-effect waves-block">Storage Settings</a>
                                 </li> 
+                                <?php endif;?>
+
                                 <li class="<?php echo $admin->activeMenu('ads'); ?>">
                                     <a href="<?php echo pxp_acp_link('ads'); ?>" class=" waves-effect waves-block">Ads Settings</a>
                                 </li>
+                                
+                                <?php if (admin_access($admin_role, 3)):?>
                                 <li class="<?php echo $admin->activeMenu('playtube_support'); ?>">
                                     <a href="<?php echo pxp_acp_link('playtube_support'); ?>" class=" waves-effect waves-block">Playtube Support</a>
                                 </li> 
                                 <li class="<?php echo $admin->activeMenu('payment-settings'); ?>">
                                     <a href="<?php echo pxp_acp_link('payment-settings'); ?>" class=" waves-effect waves-block">Payment Settings</a>
                                 </li> 
+                                <?php endif;?>
                             </ul>
                         </li>
+
+                        <?php if (admin_access($admin_role, 3)):?>
                         <li class="<?php echo $admin->activeMenu('langs'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle">
                                 <i class="material-icons">language</i>
