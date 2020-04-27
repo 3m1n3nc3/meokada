@@ -69,10 +69,12 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                             <tbody>
                                 <?php 
                                     if (!empty($users)) {
-                                        foreach ($users as $key => $context['user']) { 
+                                        foreach ($users as $key => $context['user']) {
+                                            if ($context['user']->admin <= $context['me']['admin']) {
                                                 $context['user'] = $admin->userData($context['user']);
                                                 $context['user'] = o2array($context['user']);
-                                                echo $admin->loadPage('manage-users/list'); 
+                                                echo $admin->loadPage('manage-users/list');
+                                            }
                                         }
                                     }
 

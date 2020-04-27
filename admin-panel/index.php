@@ -14,7 +14,7 @@ if (!empty($_GET['page'])) {
 }
 
 $context['theme_url'] = $site_url.'/apps/'.$config['theme']; 
-$context['me']        = $admin->getLoggedInUser();
+$context['me']        = o2array($admin->getLoggedInUser());
 
 $page_content = '';
 $pages        = array(
