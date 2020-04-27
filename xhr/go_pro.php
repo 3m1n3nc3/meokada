@@ -46,7 +46,7 @@ if ($action == 'get_paypal_link' && IS_LOGGED && !empty($config['paypal_id']) &&
     }
     if (!empty($_POST['type']) && $post_type == 'community' && !empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0) {
         $sum  = Generic::secure($_POST['amount']);
-        $type = 'community';
+        $type = 'community'; 
         $dec  = 'Join ' . $community['title'] . ' Community';
     }
     

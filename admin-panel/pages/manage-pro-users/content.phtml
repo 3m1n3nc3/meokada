@@ -23,7 +23,7 @@ if (!empty($filter_keyword)) {
 } 
 
 else {
-	$users = $admin::$db->where('is_pro',1)->where('is_standard','1', 'OR')->orderBy('is_pro', 'DESC')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
+	$users = $admin::$db->where('is_pro',1)->where('is_standard','1', '=','OR')->where('community','0', '!=' 'OR')->orderBy('is_pro', 'DESC')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
 }
 
 if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
@@ -82,6 +82,9 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                                             if ($context['user']->admin <= $context['me']['admin']) {
                                                 $context['user'] = $admin->userData($context['user']);
                                                 $context['user'] = o2array($context['user']);
+                                                if ($context['user']['community']) {
+                                                    $context['community'] = $admin->listCommunityPlans($context['user']['community']); 
+                                                }
                                                 echo $admin->loadPage('manage-pro-users/list');
                                             }
                                         }
