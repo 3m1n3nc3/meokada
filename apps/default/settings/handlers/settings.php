@@ -43,7 +43,6 @@ $context['page_title'] = lang('profile_settings');
 $context['page'] = $page;
 $context['me'] = $me;
 $context['settings'] = $me;
-
 if ($page == 'blocked') {
 	$blocked = $user->getBlockedUsers();
 	$blocked = (is_array($blocked) == true) ? $blocked : array();
@@ -62,7 +61,10 @@ if ($page == 'withdraw' && $config['withdraw_system'] != 'on') {
 	exit();
 }
 if ($page == 'withdraw'){
-	$context['user_withdrawals']  = $db->where('user_id',$context['me']['user_id'])->get(T_WITHDRAWAL); 
+	$context['user_withdrawals']   = $db->where('user_id',$context['me']['user_id'])->get(T_WITHDRAWAL); 
+	$context['require_paypal']     = empty($config['paystack_secret']) ? true : false; 
+	$context['require_paypal_ast'] = empty($config['paystack_secret']) ? '*' : '';
+	$context['bank_options']       = $user->bankOption($me['bank_name']);
 }
 
 if ($page == 'manage_sessions') {

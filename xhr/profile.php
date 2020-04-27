@@ -96,7 +96,7 @@ if ($action == 'create_ad') {
 			$data['message'] = lang('media_not_supported');
 		}
 	}
-}
+} 
 if ($action == 'edit_ad') {
 	$bidding_array = array('clicks','views');
 	$appears_array = array('post','sidebar');

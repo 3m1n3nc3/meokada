@@ -2,7 +2,7 @@
 
 	<div class="explore-postset" id="<?php echo($post_data['post_id']) ?>" style="position: relative;">
 		<?php if ($post_data['type'] == 'video') { 
-			if ($post_data['is_should_hide']) {	?>
+			if (!empty($post_data['is_should_hide'])) {	?>
 			<div class="is_should_hide show_m_reprted-<?php echo($post_data['post_id']) ?>">
 					<img src="<?php echo(media($post_data['thumb'])) ?>" width="100%" height="100%">
 			</div>

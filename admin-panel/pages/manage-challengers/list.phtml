@@ -1,0 +1,63 @@
+<tr id="list-<?php echo($cd['post']['post_id']); ?>" data-id="<?php echo($cd['post']['post_id']); ?>">
+	<td><input type="checkbox" id="check-video-<?php echo($cd['post']['post_id']); ?>" class="delete-checkbox filled-in"><label for="check-video-<?php echo($cd['post']['post_id']); ?>"></label></td>
+	<td>
+		<span>
+			<?php echo($cd['post']['post_id']); ?>
+		</span>
+	</td>
+	<td>
+		<span>
+			<a href="<?php echo(chal2url($cd['challenge']['id'])); ?>">
+				<?php echo($cd['challenge']['name'] ?? 'Removed Challenge'); ?>
+			</a>
+		</span>
+	</td>
+	<td>
+		<a href="<?php echo(un2url($cd['post']['username'])); ?>">
+			<img src="<?php echo(media($cd['post']['avatar'])); ?>" class="td-avatar" alt="post avatar">
+			<?php echo($cd['_user']->fullName($cd['post'])); ?>
+		</a>
+	</td>
+	<td>
+		<span>
+			<a href="<?php echo(pid2url($cd['post']['post_id'])); ?>">
+				<?php echo(pid2url($cd['post']['post_id'])); ?>
+			</a>
+		</span>
+	</td>
+	<td>
+		<span>
+			<?php echo($cd['post']['likes']); ?>
+		</span>
+	</td>
+	<td>
+		<span>
+			<?php echo(time2str($cd['post']['time'])); ?>
+		</span>
+	</td>
+	<td>
+    <?php if ($config['payouts_approval'] == 'on'):?>
+		<?php if ($cd['post']['approved']): ?>
+		<button class="btn btn-warning waves-effect waves-light approve-challenge" 
+			data-id="<?php echo($cd['post']['post_id']); ?>" 
+			data-action="0" 
+			data-staction="disapprove" 
+			data-challenge="<?php echo($cd['challenge']['id']??'');?>">
+			DISAPPROVE
+		</button>
+		<?php else: ?>
+		<button class="btn btn-success waves-effect waves-light approve-challenge" 
+			data-id="<?php echo($cd['post']['post_id']); ?>"
+			data-action="1" 
+			data-staction="approve" 
+			data-challenge="<?php echo($cd['challenge']['id']??'');?>">
+			APPROVE
+		</button>
+		<?php endif; ?>
+	<?php endif; ?>
+
+		<button class="btn btn-danger waves-effect waves-light delete-content" data-id="<?php echo($cd['post']['post_id']);?>">
+			DELETE
+		</button>
+	</td>
+</tr>

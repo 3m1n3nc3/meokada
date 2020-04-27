@@ -18,7 +18,7 @@ if (!empty($boost_post_query)) {
 	$boost_post = $posts->postData('');
 }
 
-$challenge = $posts->challengData();
+$challenge = $posts->challengeData();
 
 if (!empty($challenge)) {
 	$context['challenge'] = o2array($challenge);

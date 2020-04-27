@@ -847,6 +847,7 @@ function Pxp_DeleteFollowRequest(self,user_id) {
 		}
 	});
 }
+
 function like_post(post_id,zis){
 	if (not(is_logged())) {
 		redirect('welcome');

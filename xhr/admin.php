@@ -5,7 +5,47 @@ if (empty(IS_ADMIN)) {
 	echo "Unknown dolphin";
 	exit();
 }
+elseif ($action == 'request-otp' && IS_LOGGED) {
+	$admin  = new Admin();
+	
+	$data['status'] = 400;
+    $data['message'] = 'An error occurred';
 
+	if (!empty($_POST['action']) && $_POST['action'] == 'verify') 
+	{ 
+		$action = array(
+			'otp'           => ($_POST['otp'] ?? '123123'),
+			'reason'        => 'transfer',
+			'transfer_code' => ($_SESSION['transfer']['code'] ?? '')
+		);
+		$data = $admin->paystackProcessor($action)->data;  
+		if ($data['status'] && (is_numeric($_POST['otp']) || $_POST['otp'] !== 'resend')) {
+	        if ($admin->updateBalance($_SESSION['transfer']['r_id'], true)) {
+				unset($_SESSION['transfer']);
+	        }
+		}
+	}
+	else
+	{
+		if (!empty($_POST['action'])) 
+		{
+			$action = Generic::secure($_POST['action']);
+			$data = $admin->paystackProcessor('otp_state', $action)->data;
+
+			if ($action == 'enable' && $data['status']) 
+			{
+				$admin->updateSettings(['paystack_otp' => 'on']);
+			}
+			elseif (is_numeric($action) && $data['status']) 
+			{ 
+				$admin->updateSettings(['paystack_otp' => 'off']);
+			}
+
+			$data['message'] = $data['message'] ?? lang('changes_saved'); 
+		}
+	}
+	$data['status'] = is_numeric($data['status']) ? $data['status'] : ($data['status'] ? 200 : 400);
+} 
 elseif ($action == 'general-settings' && !empty($_POST)) {
 	$admin  = new Admin();
 	$update = $_POST;
@@ -29,6 +69,37 @@ elseif ($action == 'general-settings' && !empty($_POST)) {
 		}
 	}
 
+	else{
+		$data['status'] = 400;
+		$data['error']  = $error;
+	}
+}
+elseif ($action == 'community-settings' && !empty($_POST['id'])) {
+	$admin  = new Admin(); 
+	
+	$data   = array('status' => 304);
+	$error  = ''; 
+
+	for ($i = 0; $i < count($_POST['id']); $i++) {
+		$update['id']          = $admin::secure($_POST['id'][$i]);
+		$update['title']       = $admin::secure($_POST['title'][$i]);
+		$update['price']       = $admin::secure($_POST['price'][$i]);
+		$update['entry_bonus'] = $admin::secure($_POST['entry_bonus'][$i]);
+		$update['description'] = $admin::secure($_POST['description'][$i]);
+		if (empty($update['title'])) {
+			$error .= 'Title for Settings '.($i+1).' cannot be empty'; 
+		} elseif (empty($update['price'])) {
+			$error .= 'Price for Settings '.($i+1).' cannot be empty'; 
+		} else {
+			$query = $admin->updateCommunityChallengeSettings($update); 
+		}
+	}
+
+	if (empty($error)) {
+		if ($query == true) {
+			$data['status'] = 200;
+		}
+	}
 	else{
 		$data['status'] = 400;
 		$data['error']  = $error;
@@ -238,6 +309,7 @@ elseif ($action == 'delete-challenge') {
 } 
 // Create Challenge
 elseif ($action == 'create-challenge' && !empty($_POST)) {
+	$admin  = new Admin();
 	$data   = array('status' => 304);
 	$error  = false;
 
@@ -253,19 +325,75 @@ elseif ($action == 'create-challenge' && !empty($_POST)) {
     if (empty($error)) { 
 	    $insert_data = array(
 	    	'name'       => Generic::secure($_POST['challenge_title']),
+	    	'info'       => Generic::secure($_POST['challenge_info']),
 	    	'pro_level'  => Generic::secure($_POST['pro_level']),
 	    	'status'     => Generic::secure($_POST['status']),
 	    	'start_date' => Generic::secure($_POST['start_date']),
-	    	'close_date' => Generic::secure($_POST['close_date'])
+	    	'close_date' => Generic::secure($_POST['close_date']),
+	    	'entry_bonus'  => Generic::secure($_POST['entry_bonus']),
+	    	'winner_prize' => Generic::secure($_POST['winner_prize'])
 	    );
-        $id = $db->insert(T_CHALLENGE, $insert_data); 
-        $data['status'] = 200;
+	    if (!empty($_POST['community'])) {
+	    	$insert_data['community'] = Generic::secure($_POST['community']);
+			$community                = $admin->listCommunityPlans($insert_data['community']);
+	    	$insert_data['c_rank']    = $community['price'];
+	    }
+	    if (!empty($_POST['challenge_id'])) {
+	    	$challenge_id = Generic::secure($_POST['challenge_id']);
+
+			$db->where('id', $challenge_id);
+			$id = $db->update(T_CHALLENGE, $insert_data);
+	    } else {
+	        $id = $db->insert(T_CHALLENGE, $insert_data); 
+	    } 
+	    $data['status'] = 200;
     }
 	else
 	{
 		$data['status'] = 400;
 		$data['error']  = $error;
-	}  
+	}   
+}
+
+// Approve Challenge Entry
+elseif ($action == 'approve-challenge-entry' && !empty($_POST)) {
+	$data   = array('status' => 304);
+	$data['message'] = 'Unable to complete request';
+	$error  = false;
+	$post = new Posts;
+
+    if (empty($error)) {   
+
+    	$data = $post->approveChallengeEntry($_POST['id'], $_POST['action'], $_POST['challenge']); 
+
+    }
+	else
+	{
+		$data['status'] = 400;
+		$data['error']  = $error;
+	} 
+}
+
+// Approve Challenge Entry
+elseif ($action == 'pay-challenge-winner' && !empty($_POST)) {
+	$data   = array('status' => 304);
+	$data['message'] = 'Unable to complete request';
+	$error  = false;
+	$post = new Posts;
+
+	$position = !empty($_POST['position']) ? $post::secure($_POST['position']) : null;
+	$nat_win  = !empty($_POST['nat']) ? $post::secure($_POST['nat']) : null;
+
+    if (empty($error)) {   
+
+    	$data = $post->payChallengeWinner($_POST['post_id'], $_POST['challenge'], $position, $nat_win); 
+
+    }
+	else
+	{
+		$data['status'] = 400;
+		$data['error']  = $error;
+	} 
 }
 
 elseif ($action == 'delete-ad' && !empty($_POST['id']) && is_numeric($_POST['id'])) {
@@ -438,6 +566,43 @@ elseif ($action == 'delete-lang') {
 
 		catch (Exception $e) {
 			
+		}
+	}
+}
+elseif ($action == 'info-modal') {
+	$admin = new Admin();
+		
+	$data = array(
+		'sid'  => '',
+		'status'  => 400,
+		'message' => 'Can not save page, please check your input'
+	);
+
+	if (empty($_POST['action'])) { 
+		$save_data['id']       = Generic::secure($_POST['id']);
+		$save_data['title']    = Generic::secure($_POST['title']);
+		$save_data['status']   = Generic::secure($_POST['status']);
+		$save_data['in_pages'] = Generic::secure($_POST['in_pages']);
+		$save_data['content']  = Generic::secure(base64_decode(encode($_POST['content'])));
+
+		$save = $admin->saveInfoModal($save_data);
+		if ($save) {
+			$data  = array(
+				'sid' => $save,
+				'status' => 200,
+				'message' => 'Info Modal content has been successfully saved!'
+			);
+		}
+	} else {
+		if (!empty($_POST['id']) && $_POST['action'] == 'delete') {
+			$admin::$db->where('id',Generic::secure($_POST['id']));
+			$delete = $admin::$db->delete(T_MODAL);
+		
+			if (!empty($delete)) 
+				$data = array(
+					'status'  => 200,
+					'message' => 'Content Deleted'
+				);
 		}
 	}
 }
@@ -796,6 +961,9 @@ elseif ($action == 'approve_receipt') {
             if($receipt){
                 $updated = $db->where('id',$id)->update(T_BANK_TRANSFER,array('approved'=>1,'approved_at'=>time()));
                 if ($updated === true) {
+
+                	$community_receipt = explode('_', $receipt->mode);
+
                     if ($receipt->mode == 'wallet') {
                         $amount = $receipt->price;
                         $result = $db->where('user_id',$receipt->user_id)->update(T_USERS,array('wallet' => $db->inc($amount)));
@@ -874,6 +1042,50 @@ elseif ($action == 'approve_receipt') {
 							$notif->notify($re_data);
 				        }
                     }
+                    elseif ($community_receipt[0] == 'community') {
+						$admin  = new Admin();
+                    	$community = $admin->listCommunityPlans($community_receipt[1]);
+                        $update_array = array(
+                            'community' => $community['id']
+                        );
+                        $db->where('user_id',$receipt->user_id)->update(T_USERS,$update_array);
+                        $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
+                                      'amount' => $community['price'],
+                                      'type' => 'community_' . $community['id'],
+                                      'time' => time()));
+
+                        $notif   = new Notifications();
+				        $re_data = array(
+										'notifier_id' => $me['user_id'],
+										'recipient_id' => $receipt->user_id,
+										'type' => 'bank_pro',
+										'url' => $site_url.'/upgraded?type=community_member&community=' . $community['id'],
+										'time' => time()
+									);
+
+						$notif->notify($re_data);
+                    }
+                    elseif ($receipt->mode == 'standard_member') {
+                        $update_array = array(
+                            'is_standard' => 1 
+                        );
+                        $db->where('user_id',$receipt->user_id)->update(T_USERS,$update_array);
+                        $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
+                                      'amount' => $config['standard_price'],
+                                      'type' => 'standard_member',
+                                      'time' => time()));
+
+                        $notif   = new Notifications();
+				        $re_data = array(
+										'notifier_id' => $me['user_id'],
+										'recipient_id' => $receipt->user_id,
+										'type' => 'bank_pro',
+										'url' => $site_url.'/upgraded?type=standard',
+										'time' => time()
+									);
+
+						$notif->notify($re_data);
+                    }
                     else{
                         $update_array = array(
                             'is_pro' => 1,
@@ -907,34 +1119,151 @@ elseif ($action == 'approve_receipt') {
             );
     }
 }
-elseif ($action == 'withdrawal-requests' && !empty($_POST['id']) && !empty($_POST['action'])) {
-    $request = (is_numeric($_POST['id']) && is_numeric($_POST['action']) && in_array($_POST['action'], array(1,2,3)));
+elseif ($action == 'withdrawal-requests' && !empty(($_POST['id'] ?? $_POST['ids'])) && !empty($_POST['action'])) {
+	$request = false;
+	if (!empty($_POST['id'])) {
+    	$request = (is_numeric($_POST['id']) && is_numeric($_POST['action']) && in_array($_POST['action'], array(1,2,3,4)));
+	}
+	elseif (!empty($_POST['ids']) && is_numeric($_POST['action']) && in_array($_POST['action'], array(1,2,3,4))) {
+		$request = true;
+	}
+    $user  = new User;
+	$admin = new Admin();
 
-    if ($request === true) {
-        $request_id = $user::secure($_POST['id']);
-        if ($_POST['action'] == 1) {
-            $request_data = $db->where('id',$request_id)->getOne(T_WITHDRAWAL);
-            if (!empty($request_data) && $request_data->status != 1) {
-                $requiring = $db->where('user_id',$request_data->user_id)->getOne(T_USERS);
-                if (!empty($requiring)) {
-                    $db->where('user_id',$request_data->user_id)->update(T_USERS,array(
-                        'balance' => ($requiring->balance -= $request_data->amount)
-                    ));
-                }
+    $data['status'] = 400;
+
+    if ($request === true) { 
+
+        $request_id = $user::secure(($_POST['id']??''));
+
+        if ($_POST['action'] == 1) { 
+        	if (!empty($_POST['ids']))
+        	{
+        		foreach ($_POST['ids'] as $request_id) {
+        			$request_id = $user::secure($request_id);
+        			$user->updateBalance($request_id);
+        		}
+            	$data['status'] = 200; 
+        	}
+            elseif ($user->updateBalance($request_id)) {
+            	$data['status'] = 200; 
             }
-
-            $db->where('id',$request_id)->update(T_WITHDRAWAL,array('status' => 1));
         }
 
         else if ($_POST['action'] == 2) {
-            $db->where('id',$request_id)->update(T_WITHDRAWAL,array('status' => 2));
+        	if (!empty($_POST['ids']))
+        	{
+        		foreach ($_POST['ids'] as $request_id) {
+        			$request_id = $user::secure($request_id);
+        			$db->where('id',$request_id)->update(T_WITHDRAWAL,array('status' => 2));
+        		}
+        	}
+            else { 
+            	$db->where('id',$request_id)->update(T_WITHDRAWAL,array('status' => 2));
+            }
+        	$data['status'] = 200;
         }
 
         else if ($_POST['action'] == 3) {
-            $db->where('id',$request_id)->delete(T_WITHDRAWAL);
+        	if (!empty($_POST['ids']))
+        	{
+        		foreach ($_POST['ids'] as $request_id) {
+        			$request_id = $user::secure($request_id);
+        			$db->where('id',$request_id)->delete(T_WITHDRAWAL);
+        		}
+        	}
+            else { 
+            	$db->where('id',$request_id)->delete(T_WITHDRAWAL);
+            }
+        	$data['status'] = 200;
         }
 
-        $data['status'] = 200;
+        elseif($_POST['action'] == 4) 
+     	{           	
+        	if (!empty($_POST['id']))
+        	{
+	            $request_data = o2array($db->where('id',$request_id)->where('paid','0')->getOne(T_WITHDRAWAL));
+
+				$requiring = o2array($db->where('user_id',$request_data['user_id'])->getOne(T_USERS));
+	            $user_data = array(
+		            'type'           => $request_data['account_type'],
+		            'name'           => $user->fullName($requiring),
+		            'description'    => $requiring['about'],
+		            'account_number' => $request_data['account_number'],
+		            'bank_code'      => $request_data['bank_code'],
+		            'amount'         => $request_data['amount']*($config['currency'] == 'NGN' || $config['currency'] == 'GHS' ? 100 : 0)
+		        );
+		        $recipient_code = $request_data['recipient_code'];
+		        if (!$recipient_code) {
+		        	$create_customer = $admin->payUser('create_recipient', $user_data);
+		        	$recipient_code  = $create_customer['data']['recipient_code'] ?? '';
+		        	if ($recipient_code) {
+		        		$db->where('id',$request_id)->update(T_WITHDRAWAL,array('recipient_code' => $recipient_code));
+		        	}
+		        } 
+	        	$user_data['recipient'] = $recipient_code;
+            	$process = $admin->payUser('initiate_transfer', $user_data);
+            	if ($process['status'] && !empty($process['data'])) {
+            		if ($process['data']['status'] == 'otp') {
+            			if (!isset($_SESSION['transfer'])) {
+            				$_SESSION['transfer']['code'] = $process['data']['transfer_code'];
+            				$_SESSION['transfer']['r_id'] = $request_id;
+            			} 
+            			$process['message'] = 'An OTP has been sent to your phone and email.';
+						$process['status']  = 401;
+            		}
+            	} 
+            	$data = $process; 
+		    }
+		    elseif (!empty($_POST['ids']))
+		    {
+		    	$meta  = []; $i = 0;
+        		foreach ($_POST['ids'] as $request_id) 
+        		{
+        			$request_id   = $user::secure($request_id); 
+		            $request_data = o2array($db->where('id',$request_id)->where('paid','0')->getOne(T_WITHDRAWAL));
+
+		            if ($request_data['paid'] != 1)
+		            {
+						$requiring    = o2array($db->where('user_id',$request_data['user_id'])->getOne(T_USERS));
+			            $user_data    = array(
+				            'type'           => $request_data['account_type'],
+				            'name'           => $user->fullName($requiring),
+				            'description'    => $requiring['about'],
+				            'account_number' => $request_data['account_number'],
+				            'bank_code'      => $request_data['bank_code'],
+				            'amount'         => $request_data['amount']*($config['currency'] == 'NGN' || $config['currency'] == 'GHS' ? 100 : 0)
+				        );
+	 
+			        	$create_customer = $admin->payUser('create_recipient', $user_data);
+			        	$recipient_code = $create_customer['data']['recipient_code'] ?? '';
+			        	if ($recipient_code) {
+			        		$db->where('id',$request_id)->update(T_WITHDRAWAL,array('recipient_code' => $recipient_code));
+			        	}
+						
+						if ($recipient_code) {
+				        	$meta[] = array('recipient' => $recipient_code, 'amount' => $request_data['amount']);  
+					    } else {
+							$meta = null;
+						}
+				    } 
+        		}
+
+            	if (!empty($meta)) {
+            		$process = $admin->payUser('initiate_bulk_transfer', ['transfers' => $meta]);
+	            	if (!empty($process['data'])) {
+		        		foreach ($process['data'] as $request_id) 
+		        		{ 
+		        			$user->updateBalance($request_id['recipient'], true, true);
+		        		}
+	            	}
+	            } else {
+	            	$process['message'] = 'No unpaid payment request';
+	            }
+        		$data = $process;
+        		$data['status'] = ($data['status']??null) ? 200 : 400;
+		    }
+        }
     }
 }
 elseif ($action == 'update_design_setting') {

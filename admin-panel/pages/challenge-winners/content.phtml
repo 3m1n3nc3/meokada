@@ -1,0 +1,199 @@
+<?php 
+$page = (!empty($_GET['page-id'])) ? $_GET['page-id'] : 1; 
+$filter_type    = '';
+$admin::$db->pageLimit = 3;
+$t_users = T_USERS;
+$t_posts = T_POSTS;
+$t_likes = T_POST_LIKES;
+$challenge_id = isset($_GET['challenge']) ? $_GET['challenge'] : null;
+
+$postC = $context['_psc'] = new Posts;
+$context['_user']         = new User;
+$context['nat']           = false;
+
+$winners = $postC->getApprovedContestants($challenge_id); 
+
+
+if ($challenge_id) {
+    $_challenge = o2array($postC->challengeData($challenge_id)); 
+} 
+$challenge_title  = !empty($_challenge['name']) ? $_challenge['name'] : ''; 
+
+$countries = $postC->getPartakingCountries($challenge_id);
+
+// echo$admin::$db->getLastQuery();
+
+if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
+	header("Location: " . pxp_acp_link('challenge-winners'));
+	exit();
+}
+?>
+<div class="clearfix">
+    <div class="block-header">
+        <h2 class="breadcrumb">Posts <i class="material-icons">keyboard_arrow_right</i> Challenge Winners</h2>
+    </div>
+    <div class="row"> 
+        <div class="body">
+            <div class="clearfix">
+                <div class="col-md-6" style="margin-bottom:0;">
+                    <form method="get" action="<?php echo pxp_acp_link('challenge-winners'); ?>">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <select name="challenge" id="query" class="form-control">
+                                            <?php echo($postC->selectActiveChallenges()); ?>
+                                        </select> 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-3">
+                                <button class="btn btn-info">Filter <?php echo lang('posts')?></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div> 
+    </div>
+
+    <!-- Winners -->
+    <?php if ($challenge_id && !empty($winners)): ?> 
+
+    <div class="row clearfix m-t-10">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header bg-deep-orange">
+                    <h2 class="header-title">
+                        <?php echo $challenge_title?> Overall Winners
+                    </h2>
+                </div>
+                <div class="body">
+                    <div class="row clearfix">
+                    <?php $i=0; foreach ($winners as $key => $winner) {
+                        $i++;//print_r($winners);
+                        $context['winner']   = o2array($postC->getWinnersOnly($winner->username, $challenge_id)); 
+                        $context['place']    = ($i == 1 ? 'WINNER' : ($i == 2 ? 'FIRST RUNNER UP' : 'SECOND RUNNER UP'));
+                        $context['position'] = $i;
+                        $context['status']   = $postC->challengeIsActive($context['winner']['challenge_id']);
+                        $context['color']     = ($i == 1 ? 'green' : ($i == 2 ? 'blue' : 'amber'));
+                        $context['challenge'] = Generic::toArray($postC->challengeData($context['winner']['challenge_id']));
+                        echo $admin->loadPage('challenge-winners/winners');
+                    }?>  
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="row clearfix m-t-10">
+
+        <!-- National Winners -->
+        <?php if ($challenge_id && !empty($countries)): ?> 
+            <?php $i=0; foreach ($countries as $key => $country) {?>
+
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="card">
+                        <div class="header bg-orange">
+                            <h2 class="header-title">
+                              <?php echo $challenge_title . '  Winners for ' . $context['countries_name'][$country->country_id]?>
+                            </h2>
+                        </div>
+                        <div class="body">
+                            <div class="row clearfix">
+                            <?php $winners = $postC->nationalWinnersOnly($country->country_id, $challenge_id);
+                            $i = 0;
+                            foreach ($winners as $winner) {
+                                $i++;//print_r($winners);
+                                $context['winner']    = o2array($postC->getWinnersOnly($winner->username, $challenge_id));//
+                                $context['place']     = ($i == 1 ? 'WINNER' : ($i == 2 ? 'FIRST RUNNER UP' : 'SECOND RUNNER UP'));
+                                $context['position']  = $i;
+                                $context['nat']       = true;
+                                $context['status']    = $postC->challengeIsActive($context['winner']['challenge_id']);
+                                $context['color']     = ($i == 1 ? 'green' : ($i == 2 ? 'blue' : 'amber'));
+                                $context['challenge'] = Generic::toArray($postC->challengeData($context['winner']['challenge_id']));
+                                echo $admin->loadPage('challenge-winners/winners');
+                            }?> 
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+
+            <?php }?> 
+        <?php elseif (!$challenge_id || (empty($countries) && empty($winners))): ?> 
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card bg-orange text-center"> 
+                    <div class="body">
+                        <h2 class="title bg-orange"><?php echo !$challenge_id ? 'Please select a challenge to view winners' : 'No Winners For ' . $challenge_title . ' Now'?> </h2>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Vertical Layout --> 
+</div>
+
+<!-- #END# Vertical Layout -->
+<div id="actions-modal" class="modal fade" role="dialog" data-id="" data-referrer="">
+    <div class="modal-dialog">
+        <div class="modal-content modal-col-blue">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Approve Payment</h4>
+            </div>
+            <div class="modal-body">
+                <span></span>
+                <p>Are you sure you want to continue? You may not be able to undo this action...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link waves-effect action-button" data-dismiss="modal">APPROVE</button>
+                <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script> 
+    $(function () {  
+
+        $(document).on('click', '.pay_winner',function(event) {
+            event.preventDefault();
+
+            var id        = $(this).data('post_id'); 
+            var challenge = $(this).data('challenge');
+            var title     = $(this).data('title');
+            var prize     = $(this).data('prize');
+            var user_id   = $(this).data('user_id');
+            var referrer  = $(this).attr('id');
+
+            var action_text = 'Approve Payment of '+prize+' in prize money to the winner of '+title;  
+            $('#actions-modal .modal-body span').text('You are about to ' + action_text);
+            $('#actions-modal .action-button').attr('data-post_id', id).attr('data-challenge', challenge); 
+            $('#actions-modal').attr('data-id', user_id).attr('data-referrer', referrer).modal('show');
+        }); 
+
+        $('.action-button').on('click', function(event) {
+            event.preventDefault();
+            var id        = $(this).data('post_id'); 
+            var challenge = $(this).data('challenge');
+            var user_id   = $('#actions-modal').data('id');
+            var referrer  = $('#actions-modal').data('referrer');
+            var position  = $('#'+referrer).data('position');
+            var nat       = $('#'+referrer).data('nat');
+
+            $('.pay_winner, .action-button').attr('disabled', true).text('Please wait..'); 
+            $.post(acpajax_url('pay-challenge-winner'), {post_id:id,challenge:challenge,position:position,nat:nat}, function (response) {
+                var classes = response.status == 200 ? 'modal-col-blue, modal-col-green' : 'modal-col-red, modal-col-orange';
+                $('#actions-modal .modal-title, #actions-modal .modal-footer').html('Request Success');
+                $('#actions-modal .modal-body').html(response.message ? response.message : 'Request Success');
+                $('#actions-modal .modal-content').toggleClass(classes);
+                $('#actions-modal').modal('show');
+                $('.pay_winner').text('APPROVE PRIZE ('+$('#'+referrer).data('prize')+')').removeAttr('disabled');
+                $('.action-button').text('APPROVE').removeAttr('disabled'); 
+                $('.winner_'+user_id).hide();
+            }); 
+        });
+    });
+</script>

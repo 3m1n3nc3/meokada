@@ -14,30 +14,54 @@
 			<h4>{{LANG withdraw}} {{LANG settings}}</h4>
 			<div class="clear"></div>
 		</div>
-		<hr>
-		<br>
+
+		<hr> 
 		<br>
 		<div class="row">
 			<div class="col-md-2"></div>
-			<div class="col-md-8 create_ads_inputs">
-				<div class="pp_mat_input">
-					<input required="true" type="email" name="paypal_email" class="form-control" value="<?php echo($context['me']['paypal_email']) ?>">
-					<span class="bar"></span>
-					<label>{{LANG paypal_email}}*</label>
-				</div>
-				<div class="pp_mat_input">
-					<input required="true" type="number" name="amount" class="form-control" min="50">
-					<span class="bar"></span>
-					<span>{{LANG min}}: <?php echo $context['currency_symbol']; ?>50</span>
-					<label>{{LANG amount}}*</label>
-				</div>
-				<div class="pp_load_loader"><button class="btn btn-info pp_flat_btn" type="submit"><span>{{LANG send}}</span></button></div>
-				<div class="clear"></div>
-				<input type="hidden" name="user_id" value="<?php echo($context['me']['user_id']) ?>">
-				<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>">
-			</div>
-			<div class="col-md-2"></div>
+				<div class="col-md-8 create_ads_inputs">
+ 
+				<?php if (!empty($config['paypal_id']) && !empty($config['paypal_secret'])) {?>
+					<div class="pp_mat_input"> 
+						<input type="hidden" id="require_paypal" value="<?=$context['require_paypal']?>">
+						<input type="email" name="paypal_email" class="form-control" value="<?php echo($context['me']['paypal_email']) ?>">
+						<span class="bar"></span>
+						<label>{{LANG paypal_email}}<?=$context['require_paypal_ast']?></label>
+					</div> 
+				<?php 
+				}
+				if (!empty($config['paystack_secret']) && !empty($config['paystack_public'])) { ?> 
+				<div class="bank_inputs">
+					
+					<input type="hidden" name="bank_name" value="">
+					<input type="hidden" name="account_type" value="">
+
+					<div class="pp_mat_input">
+						<input required="true" type="number" name="account_number" class="form-control" value="<?php echo($context['me']['account_number']) ?>">
+						<span class="bar"></span>
+						<label>{{LANG account_number}}*</label>
+					</div>
+					<div class="pp_mat_input">
+						<select required="true" name="bank_code" class="form-control">
+							<?php echo $context['bank_options']?>
+						</select> 
+						<span class="bar"></span>
+						<label>{{LANG bank}}*</label>
+					</div>
+					<div class="pp_mat_input">
+						<input required="true" type="number" name="amount" class="form-control" min="<?php echo $config['m_withdrawal']?>">
+						<span class="bar"></span>
+						<span>{{LANG min}}: <?php echo $context['currency_symbol'].$config['m_withdrawal']; ?></span>
+						<label>{{LANG amount}}*</label>
+					</div>
+					<div class="pp_load_loader"><button class="btn btn-info pp_flat_btn" type="submit"><span>{{LANG send}}</span></button></div>
+					<div class="clear"></div>
+					<input type="hidden" name="user_id" value="<?php echo($context['me']['user_id']) ?>">
+					<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>">
+				</div> 
+				<?php } ?>
 		</div>
+		<div class="col-md-2"></div>
 	</form>
 	<br>
 	<br>

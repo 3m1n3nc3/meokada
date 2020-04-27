@@ -42,8 +42,8 @@ class Posts extends User{
 			$posts = self::$db->rawQuery($sql);
 		} 
 		catch (Exception $e) {
-			$posts = array();
-		}
+			$posts = array(); 
+		} 
 		
 		foreach ($posts as $key => $post_data) {
 			$post_data->thumb = '';
@@ -70,7 +70,7 @@ class Posts extends User{
 
 		$data = array();
 
-		$post_data = self::$db->rawQuery("SELECT p.*,m.*,u.`username`,u.`user_id` owner_id,u.`avatar`,(SELECT COUNT(l.`id`) FROM `".T_POST_LIKES."` l WHERE l.`post_id` = p.`post_id` ) AS likes, (SELECT COUNT(c.`id`) FROM `".T_POST_COMMENTS."` c WHERE c.`post_id` = p.`post_id`) AS comments FROM `".T_POSTS."` p INNER JOIN `".T_MEDIA."` m ON m.`post_id` = p.`post_id` AND p.`boosted` = 1 INNER JOIN `".T_USERS."` u ON p.`user_id` = u.`user_id` WHERE u.`p_privacy` = '2' AND p.`user_id` NOT IN (SELECT b1.`profile_id` FROM `".T_PROF_BLOCKS."` b1 WHERE b1.`user_id` = '".self::$me->user_id."') AND p.`user_id` NOT IN (SELECT b2.`user_id` FROM `".T_PROF_BLOCKS."` b2 WHERE b2.`profile_id` = '".self::$me->user_id."') GROUP BY p.`post_id` ORDER BY RAND() DESC LIMIT 1");
+		$post_data = self::$db->rawQuery("SELECT p.*,ANY_VALUE(m.id) AS id, ANY_VALUE(m.post_id) AS post_id, ANY_VALUE(m.user_id) AS user_id, ANY_VALUE(m.file) AS file, u.`username`,u.`user_id` owner_id,u.`avatar`,(SELECT COUNT(l.`id`) FROM `".T_POST_LIKES."` l WHERE l.`post_id` = p.`post_id` ) AS likes, (SELECT COUNT(c.`id`) FROM `".T_POST_COMMENTS."` c WHERE c.`post_id` = p.`post_id`) AS comments FROM `".T_POSTS."` p INNER JOIN `".T_MEDIA."` m ON m.`post_id` = p.`post_id` AND p.`boosted` = 1 INNER JOIN `".T_USERS."` u ON p.`user_id` = u.`user_id` WHERE u.`p_privacy` = '2' AND p.`user_id` NOT IN (SELECT b1.`profile_id` FROM `".T_PROF_BLOCKS."` b1 WHERE b1.`user_id` = '".self::$me->user_id."') AND p.`user_id` NOT IN (SELECT b2.`user_id` FROM `".T_PROF_BLOCKS."` b2 WHERE b2.`profile_id` = '".self::$me->user_id."') GROUP BY p.`post_id` ORDER BY RAND() DESC LIMIT 1");
 
 		if (!empty($post_data)) {
 			$post_data = $post_data[0];
@@ -126,7 +126,7 @@ class Posts extends User{
 		catch (Exception $e) {
 			$posts =  array();
 		}
-	
+
 		foreach ($posts as $key => $post_data) {
 			$post_data->thumb = '';
 			$t = $post_data->type;
@@ -171,7 +171,7 @@ class Posts extends User{
 			$posts = self::$db->rawQuery($sql);
 		} 
 		catch (Exception $e) {
-			$posts = array();
+			$posts = array(); 
 		}
 
 		foreach ($posts as $key => $post_data) {
@@ -337,15 +337,357 @@ class Posts extends User{
 		}
 
 		return $code;
+	} 
+
+	public function cpPrize($cid = '', $place = 1, $nat = false)
+	{   
+ 		$c_data = $this->challengeData($cid); 
+ 		
+ 		$prize = (0/100) * $c_data->winner_prize;
+ 		if ($nat) {
+ 			$c_data->winner_prize = (50/100) * $c_data->winner_prize;
+ 		}
+ 		
+ 		if ($place == 1) {
+ 			$prize = $c_data->winner_prize;
+ 		} elseif ($place == 2) {
+ 			$prize = (75/100) * $c_data->winner_prize;
+ 		} elseif ($place == 3) {
+ 			$prize = (50/100) * $c_data->winner_prize;
+ 		} 
+ 		return $prize;
 	}
 
-	public function challengData($cid = null){ 
-		$t_challenge = T_CHALLENGE; 
+	function quickApproveChallengeEntry($post_id, $challenge, $approve = 1)
+	{
+		if (self::$config['payouts_approval'] == 'off')
+		{
+	    	$insert['post_id']  = Generic::secure($post_id); 
+	    	$challenge_id       = Generic::secure($challenge);
 
-		// self::$db->where('p.`post_id`',$this->post_id);
+		    self::$db->where('post_id', $insert['post_id'])
+		    		 ->where('challenge_id', $challenge_id);
+		    $post_data = Generic::toArray(self::$db->getOne(T_POSTS)); 
 
-		$post = self::$db->get($t_challenge);
-		return $post;
+		    self::$db->where('user_id', $post_data['user_id'])
+		    		 ->where('challenge_id', $challenge_id)
+		    		 ->where('approved', 1);
+		    $data_exist = Generic::toArray(self::$db->getOne(T_POSTS)); 
+
+		    if (!$data_exist || $approve == 0) { 
+	    		$insert['approved'] = Generic::secure($approve);
+				self::$db->where('post_id', $insert['post_id']);
+				return self::$db->update(T_POSTS, $insert);
+			}
+		}
+		return false;
+	}
+
+	function approveChallengeEntry($post_id, $action = 0, $challenge)
+	{
+		$user = o2array(self::$me);
+
+		
+		if (self::$config['payouts_approval'] == 'on' && self::$config['auto_approve_paid_challenge'] == 'on') 
+		{
+	    	$insert['post_id']  = Generic::secure($post_id);
+	    	$insert['approved'] = Generic::secure($action);
+	    	$challenge_id       = Generic::secure($challenge);
+
+		    if (!empty($post_id) && $action !== NULL) {
+
+				self::$db->where('post_id', $insert['post_id']);
+				$id = self::$db->update(T_POSTS, $insert);
+				if ($id) {
+
+				    self::$db->where('post_id', $insert['post_id'])
+				    	->where('challenge_id', $challenge_id)
+				    	->where('paid', 0, '<=');
+				    $post_data = Generic::toArray(self::$db->getOne(T_POSTS)); 
+
+					$challenge = $this->toArray($this->challengeData($challenge_id));
+
+					$plan_price = ($user['is_pro'] ? self::$config['pro_price'] : ($user['is_standard'] ? self::$config['standard_price'] : null));
+
+					$community = self::listCommunityPlans($user['community']);
+					if ($community) {
+						$plan_price = $community['price'];
+					}
+
+					$percent = explode('%', $challenge['entry_bonus']); 
+					if (count($percent) == 2) {
+						$challenge['entry_bonus'] = ($percent[0] / 100)*$plan_price;
+					}
+
+	 				// Pay the user for the challenge entry bonus
+					if ($insert['approved'] && $challenge['entry_bonus'] > 0 && $post_data['paid'] <=0) { 
+	                	self::$db->where('user_id', $post_data['user_id'])
+	                		->update(T_USERS, array('balance' => self::$db->inc($challenge['entry_bonus']))); 
+
+						self::$db->where('post_id', $insert['post_id']);
+						self::$db->update(T_POSTS, array('paid' => 1));
+
+						// Notify the user
+				        $notif      = new Notifications();
+				        $notif_data = array(
+							'notifier_id'  => $this->getRandAdminID(),
+							'recipient_id' => $post_data['user_id'],
+							'type' => 'congratulations',
+							'text' => sprintf(lang('challenge_approved'), $challenge['name']),
+							'url'  => pid2url($insert['post_id']),
+							'time' => time()
+						);
+				       	$notif->notify($notif_data);
+					}
+		    	
+			    	$data['message'] = $insert['approved'] ? 'Challenge Approved' : 'Challenge Disapproved';
+			    	$data['status'] = 200;
+			    	return $data;
+				}
+		    } 
+		} else {
+			$this->quickApproveChallengeEntry($post_id, $challenge, $action);
+		}
+    } 
+
+	function payChallengeWinner($post_id, $challenge, $place = 1, $nat = false)
+	{
+    	$challenge_id      = Generic::secure($challenge); 
+ 		$challenge         = $this->toArray($this->challengeData($challenge_id)); 
+    	$insert['post_id'] = Generic::secure($post_id);
+
+    	if ($place) {
+    		$challenge['winner_prize'] = $this->cpPrize($challenge_id, $place, $nat);
+    	}
+
+	    self::$db->where('post_id', $insert['post_id'])
+	    	->where('challenge_id', $challenge_id)->where('paid_winner', 0, '<=');
+	    $post_data = Generic::toArray(self::$db->getOne(T_POSTS));
+
+			// Pay the user for the challenge victory
+		if ($challenge['winner_prize'] > 0 && $post_data['paid_winner'] <=0) { 
+        	self::$db->where('user_id', $post_data['user_id'])
+        		->update(T_USERS, array('balance' => self::$db->inc($challenge['winner_prize']))); 
+
+			self::$db->where('post_id', $insert['post_id']);
+			self::$db->update(T_POSTS, array('paid_winner' => 1)); 
+
+	        $notif      = new Notifications();
+	        $notif_data = array(
+				'notifier_id'  => $this->getRandAdminID(),
+				'recipient_id' => $post_data['user_id'],
+				'type' => 'congratulations',
+				'text' => sprintf(lang('challenge_won'), $challenge['name']),
+				'url'  => self::$config['site_url'].'/winners#' . $insert['post_id'],
+				'time' => time()
+			);
+	       	$notif->notify($notif_data);
+	    	
+	    	$data['message'] = 'Winner\'s wallet has been funded, prize won is now available for cashout to user';
+	    	$data['status'] = 200;
+	    	return $data;
+		}
+	}
+
+	public function challengeData($cid = null)
+	{ 
+		$user = o2array(self::$me);
+		$pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0)));
+		$community = self::listCommunityPlans($user['community']);
+		$c_rank    = ($community && $user['community'] > 0) ? $community['price'] : 0;
+
+		if ($cid) 
+		{
+			self::$db->where('id', $cid);
+			$challenge = self::$db->getOne(T_CHALLENGE);
+		} 
+		elseif (!$user['admin']) 
+		{ 
+			if ($pro_level == 3) {
+				self::$db->where('c_rank', $c_rank, '<=');
+			}
+			self::$db->where('pro_level', $pro_level, '<=');
+			self::$db->where('status', 1, '=');
+			self::$db->where("DATE(`start_date`) <= NOW()");
+			self::$db->where("DATE(close_date) >= NOW()");
+			$challenge = self::$db->get(T_CHALLENGE);
+		}
+		else
+		{
+			$challenge = self::$db->get(T_CHALLENGE);
+		} 
+		
+		return $challenge;
+	}
+
+	public function challengeHashTag($text = '', $cid = null)
+	{ 
+		if ($cid) {
+			$challenge = $this->toArray($this->challengeData($cid));
+			if (!empty($challenge['name'])) {
+				$tag = preg_replace('/[^A-Za-z0-9\-]/', '', $challenge['name']);
+				$tag = strtolower(trim(str_ireplace(' ', '_', $challenge['name'])));
+				$text .= "\n#" . $tag;
+			}
+		}
+		return $text;
+	}
+
+	public function selectActiveChallenges($value = '')
+	{
+		$challenges = self::$db->where('`challenge_id`',"NULL", "!=")->groupBy("`challenge_id`")->get(T_POSTS, NULL, "challenge_id");
+		$options = '';
+		if ($challenges) {
+			foreach ($challenges as $ch) {
+				$challenge = o2Array(self::challengeData($ch->challenge_id)); 
+				$sel = $challenge['id'] == $value ? ' selected="selected"' : '';
+				$options .= $challenge ? '<option value="'. $challenge['id'] .'">'. $challenge['name'] .'</option>' : '';
+			}
+		} else {
+			$options = '
+			<option>There are no active '.strtolower(lang('posts')).'</option>';
+		}
+		return $options;
+	}
+
+	public function challengeIsActive($cid = '')
+	{
+		$challenge = o2Array(self::challengeData($cid)); 
+		$date = date('Y-m-d', strtotime('NOW'));
+		if ($challenge['start_date'] <= $date && $challenge['close_date'] >= $date) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function challengeState($cid = '')
+	{
+		$challenge = o2Array(self::challengeData($cid)); 
+		$date = date('Y-m-d', strtotime('NOW')); 
+		if ($challenge['close_date'] <= $date && $challenge['start_date'] <= $date) {
+			// Challenge has ended
+			return true;
+		}
+		elseif ($challenge['start_date'] <= $date) {
+			return false;
+		}
+	}
+
+	public function getRecentChallenges($page = 1)
+	{  
+		self::$db->pageLimit = 30;
+		$t_users = T_USERS;
+		$t_posts = T_POSTS; 
+		$t_challenge = T_CHALLENGE;  
+ 
+		self::$db->where('p.`challenge_id`',"NULL", "!="); 
+
+		return self::$db->where('p.`approved`',"1")
+			->where("NOW() >= DATE(c.`start_date`)")->where("NOW() <= DATE_ADD(c.`close_date`, INTERVAL 5 DAY)") 
+			->join("`$t_challenge` c",'c.`id` = p.`challenge_id`','INNER')
+			->groupBy("p.`challenge_id`")->paginate("`$t_posts` p", $page, array(  
+		    'p.`challenge_id`', 
+		    'c.`start_date`', 
+		    'c.`close_date`', 
+		    'c.`name`' 
+		));
+	}
+
+	public function getPartakingCountries($challenge_id = null)
+	{  
+		$t_users = T_USERS;
+		$t_posts = T_POSTS; 
+
+		if ($challenge_id) { 
+		    self::$db->where('p.`challenge_id`', $challenge_id);
+		} else {
+		    self::$db->where('p.`challenge_id`',"NULL", "!=");
+		} 
+
+		return self::$db->where('p.`approved`',"1")
+			->join("`$t_users` u",'p.`user_id` = u.`user_id`','INNER')
+			->groupBy("u.`country_id`")->get("`$t_posts` p", NULL, array( 
+		    'u.`country_id`'
+		));
+	}
+
+	public function getApprovedContestants($challenge_id = null)
+	{  
+		self::$db->pageLimit = 3;
+		$t_users = T_USERS;
+		$t_posts = T_POSTS;
+		$t_likes = T_POST_LIKES;  
+
+		if ($challenge_id) {
+		    self::$db->where('p.`challenge_id`', $challenge_id);
+		} else {
+		    self::$db->where('p.`challenge_id`',"NULL", "!=");
+		    // self::$db->groupBy("u.`username`, likes");
+		}
+
+		return self::$db->where('p.`approved`',"1")
+			->join("`$t_users` u",'p.`user_id` = u.`user_id`','INNER')
+			->orderBy('likes', 'DESC')->orderBy('p.`post_id`', 'ASC')->paginate("`$t_posts` p", 1, array( 
+		    'u.`username`', 
+		    "(SELECT COUNT(l.`id`) FROM `$t_likes` l WHERE l.`post_id` = p.`post_id` ) AS likes"
+		));
+	}
+
+	public function getWinnersOnly($username, $challenge_id = null)
+	{   
+	    $t_users = T_USERS;
+	    $t_posts = T_POSTS;
+	    $t_likes = T_POST_LIKES;
+	    self::$db->pageLimit = 3;  
+
+	    if ($challenge_id) {
+	        self::$db->where('p.`challenge_id`', $challenge_id);
+	    } else {
+	        self::$db->where('p.`challenge_id`',"NULL", "!=");
+	    }
+
+	    self::$db->where('u.`username`',$username)->where('p.`approved`',"1"); 
+	    self::$db->join("`$t_users` u",'p.`user_id` = u.`user_id`','INNER'); 
+	    $winner = self::$db->orderBy('`likes`', 'DESC')->getOne("`$t_posts` p", array(
+	        'p.`user_id`',
+	        'p.`post_id`',
+	        'p.`time`',
+	        'u.`avatar`',
+	        'u.`username`',
+	        'u.`fname`',
+	        'u.`lname`',
+	        'p.`challenge_id`',
+	        'p.`approved`',
+	        'p.`paid_winner`',
+	        "(SELECT COUNT(l.`id`) FROM `".$t_likes."` l WHERE l.`post_id` = p.`post_id` ) AS likes"
+	    )); 
+ 
+		$this->setUserByName($username);
+		$user_data = $this->userData($this->getUser()); 
+
+	    return array_merge(o2array($winner), o2array($user_data));
+	}
+
+	public function nationalWinnersOnly($country_id, $challenge_id = null)
+	{  
+	    $t_users = T_USERS;
+	    $t_posts = T_POSTS;
+	    $t_likes = T_POST_LIKES;
+	    self::$db->pageLimit = 3; 
+
+	    if ($challenge_id) {
+	        self::$db->where('p.`challenge_id`', $challenge_id);
+	    } else {
+	        self::$db->where('p.`challenge_id`',"NULL", "!=");
+	        self::$db->groupBy("u.`username`, likes");
+	    }
+
+	    return self::$db->where('p.`approved`',"1")->where('u.`country_id`',$country_id)->join("`$t_users` u",'p.`user_id` = u.`user_id`','INNER')->orderBy('likes', 'DESC')->paginate("`$t_posts` p", 1, array( 
+	        'u.`username`', 
+	        "(SELECT COUNT(l.`id`) FROM `".$t_likes."` l WHERE l.`post_id` = p.`post_id` ) AS likes"
+	    ));
 	}
 
 	public function postData($post = null){

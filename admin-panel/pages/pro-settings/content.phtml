@@ -4,7 +4,7 @@
     </div>
     <!-- Vertical Layout -->
     <div class="row">
-        <div class="col-lg-5 col-md-5">
+        <div class="col-lg-6 col-md-6">
             <div class="card">
                 <div class="header">
                     <h2>Pro System Settings</h2>
@@ -35,20 +35,137 @@
                         <label for="currency">Currency</label>
                         <select class="form-control show-tick" id="currency" name="currency">
                           <option value="USD" <?php echo ($config['currency'] == 'USD')  ? ' selected': '';?>>USD</option>
-		                  <option value="EUR" <?php echo ($config['currency'] == 'EUR')  ? ' selected': '';?>>EUR</option>
-		                  <option value="JPY" <?php echo ($config['currency'] == 'JPY')  ? ' selected': '';?>>JPY</option>
-		                  <option value="TRY" <?php echo ($config['currency'] == 'TRY')  ? ' selected': '';?>>TRY</option>
-		                  <option value="GBP" <?php echo ($config['currency'] == 'GBP')  ? ' selected': '';?>>GBP</option>
-		                  <option value="RUB" <?php echo ($config['currency'] == 'RUB')  ? ' selected': '';?>>RUB</option>
-		                  <option value="PLN" <?php echo ($config['currency'] == 'PLN')  ? ' selected': '';?>>PLN</option>
-		                  <option value="ILS" <?php echo ($config['currency'] == 'ILS')  ? ' selected': '';?>>ILS</option>
-		                  <option value="BRL" <?php echo ($config['currency'] == 'BRL')  ? ' selected': '';?>>BRL</option>
+                          <option value="EUR" <?php echo ($config['currency'] == 'EUR')  ? ' selected': '';?>>EUR</option>
+                          <option value="JPY" <?php echo ($config['currency'] == 'JPY')  ? ' selected': '';?>>JPY</option>
+                          <option value="TRY" <?php echo ($config['currency'] == 'TRY')  ? ' selected': '';?>>TRY</option>
+                          <option value="GBP" <?php echo ($config['currency'] == 'GBP')  ? ' selected': '';?>>GBP</option>
+                          <option value="RUB" <?php echo ($config['currency'] == 'RUB')  ? ' selected': '';?>>RUB</option>
+                          <option value="PLN" <?php echo ($config['currency'] == 'PLN')  ? ' selected': '';?>>PLN</option>
+                          <option value="ILS" <?php echo ($config['currency'] == 'ILS')  ? ' selected': '';?>>ILS</option>
+                          <option value="BRL" <?php echo ($config['currency'] == 'BRL')  ? ' selected': '';?>>BRL</option>
                           <option value="INR" <?php echo ($config['currency'] == 'INR')  ? ' selected': '';?>>INR</option>
+                          <option value="NGN" <?php echo ($config['currency'] == 'NGN')  ? ' selected': '';?>>NGN</option>
                         </select>
                         <div class="clearfix"></div>
                         <br><br>
                         <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
                     </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 col-md-6">
+            <div class="card">
+                <div class="header">
+                    <h2>Standard Account System Settings</h2>
+                </div>
+                <div class="body">
+                    <form class="pro-settings" method="POST">
+                        <div class="form-alert"></div>
+                        <label for="standard_system">Standard Account System <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span></label>
+                        <div class="form-group">
+                            <input type="radio" name="standard_system" id="standard_system-enabled" value="on" <?php echo ($config['standard_system'] == 'on') ? 'checked': '';?>>
+                            <label for="standard_system-enabled">Enabled</label>
+                            <input type="radio" name="standard_system" id="standard_system-disabled" value="off" <?php echo ($config['standard_system'] == 'off') ? 'checked': '';?>>
+                            <label for="standard_system-disabled" class="m-l-20">Disabled</label>
+                        </div>
+                        <div class="form-group form-float">
+                            <div class="form-line">
+                                <input type="text" id="standard_price" name="standard_price" class="form-control" value="<?php echo $config['standard_price'];?>">
+                                <label class="form-label">Price</label>
+                            </div>
+                        </div>
+                        <div class="form-group form-float">
+                            <div class="form-line">
+                                <input type="number" id="standard_boosted_posts" name="standard_boosted_posts" class="form-control" value="<?php echo $config['standard_boosted_posts'];?>">
+                                <label class="form-label">Boosted Post</label>
+                            </div>
+                        </div>
+                        <br>  
+                        <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="header">
+                    <h2>Community Account System Settings</h2>
+                </div>
+                <div class="body">
+                    <form class="pro-settings" method="POST">
+                        <div class="form-alert"></div> 
+                        <label for="community_system">Community Account System Status <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span></label>
+                        <div class="form-group">
+                            <input type="radio" name="community_system" id="community_system-enabled" value="on" <?php echo ($config['community_system'] == 'on') ? 'checked': '';?>>
+                            <label for="community_system-enabled">Enabled</label>
+                            <input type="radio" name="community_system" id="community_system-disabled" value="off" <?php echo ($config['community_system'] == 'off') ? 'checked': '';?>>
+                            <label for="community_system-disabled" class="m-l-20">Disabled</label>
+                            <input type="radio" name="community_system" id="community_system-on_" value="on_" <?php echo ($config['community_system'] == 'on_') ? 'checked': '';?>>
+                            <label for="community_system-on_" class="m-l-20">Hide Settings (Enabled)</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary waves-effect">Save</button>
+                        <hr>
+                    </form>
+
+                    <?php if ($config['community_system'] == 'on'): ?>
+                    <form class="community-settings" method="POST">
+                        <div class="form-alert"></div> 
+
+                        <?php $accounts = $admin->listCommunityPlans(); $i = 0;
+                            if (!empty($accounts)) { ?>
+                                <?php foreach ($accounts as $key => $account) { $i++; ?> 
+
+                                    <label for="pro_system"><?php echo $i. '. ' .$account['title'] ?> <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span></label><br>
+
+                                    <input type="hidden" id="id" name="id[]" value="<?php echo $account['id'] ?>">
+                                    <div class="form-group form-float">
+                                        <div class="form-line">
+                                            <input type="text" id="title" name="title[]" class="form-control" value="<?php echo $account['title'] ?>">
+                                            <label class="form-label">Title</label>
+                                        </div>
+                                    </div> 
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group form-float">
+                                                <div class="form-line">
+                                                    <input type="text" id="price" name="price[]" class="form-control" value="<?php echo $account['price'] ?>">
+                                                    <label class="form-label">Price</label>
+                                                </div>
+                                            </div> 
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group form-float">
+                                                <div class="form-line">
+                                                    <input type="text" id="entry_bonus" name="entry_bonus[]" class="form-control" value="<?php echo $account['entry_bonus'] ?>">
+                                                    <label class="form-label">Entry Bonus (%)</label>
+                                                </div>
+                                            </div> 
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group form-float">
+                                        <div class="form-line">
+                                            <textarea class="form-control" id="description" name="description[]"><?php echo $account['description'] ?></textarea>
+                                            <label class="form-label">Description</label>
+                                        </div>
+                                    </div> 
+                                     
+
+                                <?php }?>
+                            <?php 
+                            } else {
+                                echo $admin::createHtmlEl('tr',null,$admin::createHtmlEl('td',array(
+                                    'colspan' => 6,
+                                    'class' => 'alert alert-warning',
+                                ),"No community accounts found"));
+                            }  
+                        ?>
+
+                        <br>  
+                        <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
+                    </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -87,6 +204,36 @@
                 }
 
                 proform.find('button[type=submit]').text('Save').removeAttr('disabled');
+            }
+        });
+        var communityForm = $("form.community-settings");
+        communityForm.ajaxForm({
+            url: acpajax_url('community-settings'),
+            type: 'POST',
+            dataType: 'json',
+            beforeSubmit: function(arr,form){
+                $(form).find('button[type=submit]').text('Please wait.').attr('disabled', 'true');
+            },
+            success: function(data, status, xhr, form){
+                if (data.status == 200) {
+                    $(form).find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-success',
+                        text:'Settings has been updated successfully'
+                    }));
+                    setTimeout(function(){
+                        communityForm.find('div.form-alert .alert').slideUp('fast',function(){
+                            $(this).remove(); 
+                        })    
+                    },1000);
+                }
+                else{
+                    $(form).find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-warning',
+                        text: data.error
+                    }));
+                }
+
+                communityForm.find('button[type=submit]').text('Save').removeAttr('disabled');
             }
         });
     });

@@ -1,0 +1,47 @@
+<tr id="list-<?php echo($cd['user']['user_id']); ?>">
+	<td>
+		<span>
+			<?php echo($cd['user']['user_id']); ?>
+		</span>
+	</td>
+	<td>
+		<a href="<?php echo($cd['user']['url']); ?>">
+			<img src="<?php echo(media($cd['user']['avatar'])); ?>" class="td-avatar" alt="user avatar">
+			<?php echo($cd['user']['username']); ?>
+		</a>
+	</td>
+	<td>
+		<span>
+			<?php echo($cd['user']['email']); ?>
+		</span>
+	</td>
+	<td>
+		<span>
+			<?php echo($cd['user']['phone']); ?>
+		</span>
+	</td>
+	<td>
+		<span>
+			<h4>
+				<strong class="label label-info">
+					<?php echo($cd['count']); ?>
+				</strong>
+			</h4>
+		</span>
+	</td>
+	<td>
+		<span>
+			<h4>
+			<?php if ($cd['user']['active'] == 1): ?>
+				<strong class="label label-success">
+					Active
+				</strong>
+			<?php else: ?>
+				<strong class="label label-warning">
+					Inactive
+				</strong>
+			<?php endif; ?>
+			</h4>
+		</span>
+	</td> 
+</tr>

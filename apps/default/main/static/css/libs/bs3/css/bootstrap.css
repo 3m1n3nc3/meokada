@@ -6069,9 +6069,9 @@ button.close {
 }
 
 @media screen and (min-width: 768px) {
-  .modal-dialog {
-    width: 600px;
-    margin: 30px auto;
+  .modal-dialog { 
+    max-width: 600px;
+    margin: 1.75rem auto;
   }
   .modal-content {
     -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
@@ -6079,6 +6079,22 @@ button.close {
   }
 }
 
+@media (min-width: 768px) {
+  .modal-lg,
+  .modal-xl {
+    max-width: 800px!important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .modal-xl {
+    max-width: 1140px!important;
+  }
+}
+.modal-body.modal-body-scrollable {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
 .tooltip {
   position: absolute;
   z-index: 1030;

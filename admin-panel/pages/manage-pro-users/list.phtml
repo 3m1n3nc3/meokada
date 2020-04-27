@@ -17,6 +17,19 @@
 	</td>
 	<td>
 		<span>
+			<?php if ($cd['user']['is_pro'] == 1): ?>
+				<strong class="label label-success">
+					Pro
+				</strong>
+			<?php elseif ($cd['user']['is_standard'] == 1): ?>
+				<strong class="label label-warning">
+					Standard
+				</strong>
+			<?php endif; ?>
+		</span>
+	</td>
+	<td>
+		<span>
 			<?php if ($cd['user']['active'] == 1): ?>
 				<strong class="label label-success">
 					Active

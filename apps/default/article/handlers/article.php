@@ -6,7 +6,7 @@ if (IS_LOGGED !== true || $config['blog_system'] == 'off') {
 
 $context['page_link'] = 'article';
 $catid = null;
-$category_name = $context['lang']['article'];
+$category_name = !empty($context['lang']['article']) ? $context['lang']['article'] : '';
 $category_desc = $context['lang']['explore_blog_desc'];
 
 $context['category_name'] = $category_name;
@@ -20,7 +20,7 @@ if( isset($_GET['id']) ){
 
     $catid = Generic::secure($_GET['id']);
 
-    $context['category_name'] = $context['lang'][$catid];
+    $context['category_name'] = !empty($context['lang'][$catid]) ? $context['lang'][$catid] : '';
     $context['category_desc'] = '';
     $context['page_link'] = 'blog/article/'.$catid;
 
@@ -43,5 +43,5 @@ foreach ($posts as $key => $post_data) {
 
 $context['exjs'] = true;
 $context['app_name'] = 'article';
-$context['page_title'] = $context['lang']['article'];
+$context['page_title'] = !empty($context['lang']['article']) ? $context['lang']['article'] : '';
 $context['content'] = $pixelphoto->PX_LoadPage('article/templates/article/index');

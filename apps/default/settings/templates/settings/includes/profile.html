@@ -42,7 +42,7 @@
 			<span class="bar"></span>
 			<label>{{LANG about_u}}</label>
 		</div>
-		<?php if ($context['user']['admin'] == 1 || $context['me']['is_pro']) { ?>
+		<?php if ($context['user']['admin'] >= 1 || $context['me']['is_pro']) { ?>
 		<div class="pp_mat_select">
 			<label class="pp_mat_label">{{LANG profile_style}}</label>
 			<div>

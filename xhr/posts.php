@@ -1,9 +1,11 @@
 <?php 
 
+$text = '';
+
 if ($action == 'new-image' && IS_LOGGED && ($config['upload_images'] == 'on')) {
 
 	$posts     = new Posts();
-	$challenge = $posts->challengData();
+	$challenge = $posts->challengeData();
 
 	if (!empty($challenge)) {
 		$context['challenge'] = o2array($challenge); 
@@ -18,7 +20,7 @@ else if ($action == 'new-video' && IS_LOGGED && ($config['upload_videos'] == 'on
 	$data['status'] = 200;
 
 	$posts     = new Posts();
-	$challenge = $posts->challengData();
+	$challenge = $posts->challengeData();
 
 	if (!empty($challenge)) {
 		$context['challenge'] = o2array($challenge); 
@@ -97,18 +99,25 @@ else if ($action == 'upload-post-images' && IS_LOGGED && ($config['upload_images
             	'type' => 'video',
             );
 
-            if (!empty($_POST['challenge'])) { 
-				$re_data['challenge_id'] = $_POST['challenge'];
-			}
-
             if (!empty($_POST['caption'])) {
 				$text = Generic::cropText($_POST['caption'],500);
 				$re_data['description'] = $text;
 			}
 
+            if (!empty($_POST['challenge'])) { 
+				$re_data['challenge_id'] = $_POST['challenge'];
+				$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
+			} 
+
 			$post_id = $posts->insertPost($re_data);
 
 			if (is_numeric($post_id)) {
+
+				// Auto approve challenge
+	            if (!empty($_POST['challenge'])) {      
+					$posts->approveChallengeEntry($post_id, 1, $_POST['challenge']); 
+				}
+
 				$re_data = array(
 					'post_id' => $post_id,
 					'file' => $video['filename'],
@@ -229,22 +238,28 @@ else if ($action == 'upload-post-images' && IS_LOGGED && ($config['upload_images
 						'type' => 'image',
 					);
 
-		            if (!empty($_POST['challenge'])) { 
-						$re_data['challenge_id'] = $_POST['challenge'];
-					}
-
 					if (!empty($_POST['caption'])) {
 						$text = Generic::cropText($_POST['caption'],$config['caption_len']);
 						$re_data['description'] = $text;
 					}
 
+		            if (!empty($_POST['challenge'])) { 
+						$re_data['challenge_id'] = $_POST['challenge'];
+						$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']); 
+					}
+
 					$post_id = $posts->insertPost($re_data);
 					if (is_numeric($post_id)) {
+
+			            if (!empty($_POST['challenge'])) {  
+							$posts->approveChallengeEntry($post_id, 1, $_POST['challenge']); 
+						}
+
 						foreach ($uploads as $key => $file) {
 							$re_data = array(
 								'post_id' => $post_id,
 								'file' => $file['filename'],
-								'extra' => $file['name']
+								'extra' => $file['filename']//$file['name']
 							);
 							$posts->insertMedia($re_data);
 						}
@@ -340,13 +355,14 @@ else if($action == 'ffmpeg-video-upload' && IS_LOGGED && ($config['upload_videos
 	                	'type' => 'video',
 	                );
 
-		            if (!empty($_POST['challenge'])) { 
-						$re_data['challenge_id'] = $_POST['challenge'];
-					}
-
 	                if (!empty($_POST['caption'])) {
 						$text = Generic::cropText($_POST['caption'],$config['caption_len']);
 						$re_data['description'] = $text;
+					}
+
+		            if (!empty($_POST['challenge'])) { 
+						$re_data['challenge_id'] = $_POST['challenge'];
+						$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
 					}
 
 					$post_id = $posts->insertPost($re_data);
@@ -428,8 +444,8 @@ else if($action == 'upload-post-video' && IS_LOGGED){
 			'size' => $_FILES['thumb']['size'],
 			'type' => $_FILES['thumb']['type'],
 			'allowed' => 'jpeg,jpg,png',
-			'crop' => array(
-				'width' => '600',
+			'crop'    => array(
+				'width'  => '600',
 				'height' => '400',
 			)
 		));
@@ -443,18 +459,25 @@ else if($action == 'upload-post-video' && IS_LOGGED){
             	'type' => 'video',
             );
 
-            if (!empty($_POST['challenge'])) { 
-				$re_data['challenge_id'] = $_POST['challenge'];
-			}
-
             if (!empty($_POST['caption'])) {
 				$text = Generic::cropText($_POST['caption'],500);
 				$re_data['description'] = $text;
 			}
 
+            if (!empty($_POST['challenge'])) { 
+				$re_data['challenge_id'] = $_POST['challenge'];
+				$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
+			} 
+
 			$post_id = $posts->insertPost($re_data);
 
 			if (is_numeric($post_id)) {
+
+				// Auto approve challenge
+	            if (!empty($_POST['challenge'])) {   
+					$posts->approveChallengeEntry($post_id, 1, $_POST['challenge']);  
+				}
+				
 				$re_data = array(
 					'post_id' => $post_id,
 					'file' => $video['filename'],
@@ -523,13 +546,14 @@ else if($action == 'embed-post-video' && IS_LOGGED && ($config['import_videos'] 
             	"$emsrc" => $_POST['video_id'],
             );
 
-            if (!empty($_POST['challenge'])) { 
-				$re_data['challenge_id'] = $_POST['challenge'];
-			}
-
             if (!empty($_POST['caption'])) {
 				$text = Generic::cropText($_POST['caption'],$config['caption_len']);
 				$re_data['description'] = $text;
+			}
+
+            if (!empty($_POST['challenge'])) { 
+				$re_data['challenge_id'] = $_POST['challenge'];
+				$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
 			}
 
 			if($_POST['embed'] == 'mp4' && !empty($_FILES['thumb'])){
@@ -566,6 +590,12 @@ else if($action == 'embed-post-video' && IS_LOGGED && ($config['import_videos'] 
 			}
 			
 			if (is_numeric($post_id)) {
+
+				// Auto approve challenge
+	            if (!empty($_POST['challenge'])) {   
+					$posts->approveChallengeEntry($post_id, 1, $_POST['challenge']);  
+				}
+
 				$em_data = array();
 				$re_data = array(
 					'post_id' => $post_id,
@@ -622,14 +652,16 @@ else if($action == 'embed-post-video' && IS_LOGGED && ($config['import_videos'] 
 				'link' => Generic::secure($_POST['url'])
 			);
 
-            if (!empty($_POST['challenge'])) { 
-				$re_data['challenge_id'] = $_POST['challenge'];
-			}
-
 			if (!empty($_POST['caption'])) {
 				$text = Generic::cropText($_POST['caption'],$config['caption_len']);
 				$re_data['description'] = $text;
 			}
+
+            if (!empty($_POST['challenge'])) { 
+				$re_data['challenge_id'] = $_POST['challenge'];
+				$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
+			}
+
 			$post_id = $posts->insertPost($re_data);
 
 			$posts->setPostId($post_id);
@@ -666,18 +698,25 @@ else if($action == 'import-post-gifs' && IS_LOGGED && ($config['import_images'] 
 	            	"type" => 'gif',
 	            );
 
-	            if (!empty($_POST['challenge'])) { 
-					$re_data['challenge_id'] = $_POST['challenge'];
-				}
-
 	            if (!empty($_POST['caption'])) {
 					$text = Generic::cropText($_POST['caption'],$config['caption_len']);
 					$re_data['description'] = $text;
 				}
 
+	            if (!empty($_POST['challenge'])) { 
+					$re_data['challenge_id'] = $_POST['challenge'];
+					$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
+				}
+
 				$post_id = $posts->insertPost($re_data);
 
 				if (is_numeric($post_id)) {
+
+					// Auto approve challenge
+		            if (!empty($_POST['challenge'])) {   
+						$posts->approveChallengeEntry($post_id, 1, $_POST['challenge']);  
+					}
+
 					$re_data = array(
 						'post_id' => $post_id,
 						'file' => $gif_url,

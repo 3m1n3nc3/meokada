@@ -2,8 +2,7 @@
 $page = (!empty($_GET['page-id'])) ? $_GET['page-id'] : 1;
 $filter_keyword = (!empty($_GET['query'])) ? $admin::secure($_GET['query']) : '';
 $filter_type    = '';
-$admin::$db->pageLimit = 50;
-$t_users = T_CHALLENGE; 
+$admin::$db->pageLimit = 50; 
 
 
 if (!empty($filter_keyword)) { 
@@ -18,11 +17,24 @@ if (!empty($filter_keyword)) {
 $challenge = $admin::$db->orderBy('id', 'DESC')->paginate(T_CHALLENGE, $page, array(
     'id',
     'name',
+    'info',
     'pro_level',
+    'community',
+    'c_rank',
     'status',
     'start_date',
-    'close_date'
+    'close_date',
+    'entry_bonus',
+    'winner_prize'
 ));
+
+$community = '<option value="0">Not Applicable</option>';
+$communities = $admin::listCommunityPlans();
+if ($communities) {
+    foreach ($communities as $comm) {
+        $community .= '<option value="'.$comm['id'].'">'.$comm['title'].'</option>';
+    }
+} 
 
 if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
 	header("Location: " . pxp_acp_link('manage-challenges'));
@@ -45,15 +57,15 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                         <div class="col-md-6" style="margin-bottom:0;">
                             <form method="get" action="<?php echo pxp_acp_link('manage-challenges'); ?>">
                                 <div class="row">
-                                    <div class="col-md-8">
+                                    <div class="col-md-6">
                                         <div class="form-group form-float">
                                             <div class="form-line">
                                                 <input type="text" name="query" id="query" class="form-control" value="<?php echo($filter_keyword); ?>">
-                                                <label class="form-label search-form">Search for ID, Post Description</label>
+                                                <label class="form-label search-form">Search for ID, Title</label>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4 col-md-4">
+                                    <div class="col-md-6">
                                         <button class="btn btn-info">Search</button>
                                         <button type="button" class="btn btn-success waves-effect" id="create-challenge">Create Challenge</button>
                                     </div>
@@ -186,7 +198,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
 </div>
 
 <div id="edit-modal" class="modal fade" role="dialog" data-id="">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-scrollable" style="overflow-y: initial;">
         <div class="modal-content modal-col-red">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -194,11 +206,15 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
             </div>
             <form action="<?php echo pxp_acp_link('manage-challenges'); ?>" class="challenge-form">
                 <div class="form-alert"></div>
-                <div class="modal-body">
+                <div class="modal-body bg-orange" style="height: 600px; overflow-y: auto;">
                     <input type="hidden" id="set_challenge_id" name="challenge_id" value="">
                     <div class="form-group">
                         <label for="set_challenge_title">Challenge Title</label>
                         <input type="text" class="form-control" id="set_challenge_title" name="challenge_title">
+                    </div> 
+                    <div class="form-group">
+                        <label for="set_challenge_info">Challenge Description</label>
+                        <textarea type="text" class="form-control" id="set_challenge_info" name="challenge_info"></textarea>
                     </div> 
                     <div class="form-group">
                         <label for="start_date">Start Date</label>
@@ -218,10 +234,27 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                     <div class="form-group">
                         <label for="pro_level">Subscription</label>
                         <select class="form-control" id="pro_level" name="pro_level">
-                            <option value="2">Pro</option>
-                            <option value="1">Standard</option>
                             <option value="0">Free for all</option>
+                            <option value="1">Standard</option>
+                            <option value="2">Pro</option>
+                            <option value="3">Community</option>
                         </select>
+                    </div> 
+                    <div class="form-group">
+                        <label for="community">Community</label>
+                        <select class="form-control" id="community" name="community">
+                            <?php echo $community?>
+                        </select>
+                    </div>
+                    <?php if ($config['payouts_approval'] == 'on'):?>
+                    <div class="form-group">
+                        <label for="entry_bonus">Acceptance Bonus (<?php echo $config['currency']?> / %)</label>
+                        <input type="text" class="form-control" id="entry_bonus" name="entry_bonus">
+                    </div> 
+                    <?php endif;?>
+                    <div class="form-group">
+                        <label for="winner_prize">Grand Price (<?php echo $config['currency']?>)</label>
+                        <input type="number" class="form-control" id="winner_prize" name="winner_prize">
                     </div> 
                 </div>
                 <div class="modal-footer">
@@ -269,7 +302,17 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
         $(document).on('click', '.edit-challenge',function(event) {
             event.preventDefault();
             $('#edit-modal #set_challenge_id').val($(this).data('id')); console.log(this + $(this).data('id'));
+            $('#edit-modal #set_challenge_title').val($(this).data('title'));
+            $('#edit-modal #set_challenge_info').val($(this).data('info'));
+            $('#edit-modal #start_date').val($(this).data('start_date'));
+            $('#edit-modal #close_date').val($(this).data('close_date'));
+            $('#edit-modal #status').val($(this).data('status')).change();
+            $('#edit-modal #pro_level').val($(this).data('pro_level')).change();
+            $('#edit-modal #community').val($(this).data('c_rank')).change();
+            $('#edit-modal #entry_bonus').val($(this).data('entry_bonus')).change();
+            $('#edit-modal #winner_prize').val($(this).data('winner_prize')).change();
             $('#edit-modal').attr('data-id', $(this).attr('data-id')).modal('show');
+            $('#edit-modal').find('button[type=submit]').text('Save').removeAttr('disabled');
         });
         $(document).on('click', '#create-challenge',function(event) {
             event.preventDefault(); 
@@ -291,7 +334,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 if (data.status == 200) {
                     $(form).find('div.form-alert').scroll2().html($('<div>',{
                         class:'alert alert-success',
-                        text:'Settings has been updated successfully'
+                        text:'Challenges has been updated successfully'
                     }));
                     setTimeout(function(){
                         challengeform.find('div.form-alert .alert').slideUp('fast',function(){
@@ -309,7 +352,15 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 }
 
                 challengeform.find('button[type=submit]').text('Save').removeAttr('disabled');
-            }
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = 'An Error Occurred - ' + xhr.status + ': ' + xhr.statusText + '<br> ' + error;  
+                console.log(errorMessage); 
+            } 
         });
+    });
+
+    $(document).on('click', 'button#create-challenge',function(event) {
+        $('form.challenge-form').trigger('reset');
     });
 </script>

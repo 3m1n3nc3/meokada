@@ -12,19 +12,19 @@
 	  <div class="form-group">
     	<textarea class="form-control pp_make_post" name="caption" rows="3" placeholder="{lang('add_post_caption')}"></textarea>
     </div>
+    {if $context.challenge}
     <div class="form-group pp_mat_select">
-      <label class="pp_mat_label">Challenge</label>
+      <label class="pp_mat_label">{lang('select_challenge')}</label>
       <div> 
-        {if $context.challenge}
         <select name="challenge" class="form-control" id="challenge"> 
-          {foreach $context.challenge as $challenge}  
-            <option value="{$challenge.id}"> {$challenge.name} </option> 
+          {foreach $context.challenge as $challenge}   
+            <option value="{$challenge.id}" title="{$challenge.info}"> {$challenge.name} (Win Upto: {$context.currency_symbol} {$challenge.winner_prize}) </option> 
           {/foreach} 
-        </select>
-        {/if}  
+        </select> 
       </div>
       <div class="clear"></div>
     </div>
+    {/if} 
   	<div class="images-renderer">
   		<div class="select-images" onclick="$('#upload-images').trigger('click');">
     		<span>

@@ -87,6 +87,11 @@ class User extends Generic{
 		return $this->fetchUser();
 	}
 
+    // return a random admin user_id
+	public function getRandAdminID() {
+		return self::$db->where('admin', 0, '!=')->orderBy("RAND()")->getValue(T_USERS, "user_id");
+	} 
+
 	// export user data from class
 	public static function getStaticUser($user_id = 0) {
 		if (!empty($user_id)) {
@@ -236,13 +241,70 @@ class User extends Generic{
 
 	// check if user is admin
 	public function isAdmin() {
-		return ($this->user_data->admin == 1) ? true : false;
+		return ($this->user_data->admin >= 1) ? true : false;
 	}
 
 
 	// check if user is authorized for an action
 	public function isOwner( $user_id = 0) {
 		return ($this->user_data->user_id == $user_id) ? true : false;
+	}
+
+	// pay affiliate commissions after upgrades
+	public function payUpgradeCommissions($user_id = null, $plan_type = null) {
+ 
+		$user_data = self::$me;
+		if ($user_id) {
+			$user_data = $this->getUserDataById($user_id);
+		}
+		
+		$percent = self::$config['amount_percent_ref'];
+		$plan_price = ($plan_type == 'pro' ? self::$config['pro_price'] : ($plan_type == 'standard' ? self::$config['standard_price'] : null));
+    	
+    	$user_data = o2array($user_data);
+		$referrer  = o2array($this->getUserDataById($user_data['referrer'])); 
+		 
+		if ($plan_type == 'community') 
+		{
+			$plan_price     = 0; 
+			$percent        = self::$config['community_percent_ref'];
+			$user_community = self::listCommunityPlans($user_data['community']);
+			$ref_community  = self::listCommunityPlans($referrer['community']);
+			if ($user_community) {
+				if ($ref_community['price'] >= $user_community['price']) {
+					$plan_price = $user_community['price']; 
+				}
+			}
+		} 
+
+		$balance    = ($percent / 100)*$plan_price;
+        $notif      = new Notifications();
+        $notif_data = array(
+			'notifier_id'  => $user_data['user_id'],
+			'recipient_id' => $referrer['user_id'],
+			'type' => 'congratulations',
+			'text' => sprintf(lang('ref_earning'), Pxp_GetCurrency(self::$config['currency']).$balance), 
+			'url'  => self::$config['site_url'].'/settings/withdraw/' . $referrer['user_id'],
+			'time' => time()
+		);
+
+		$unpaid = 0;
+		if (self::$config['affiliate_system'] == 1 && self::$config['affiliate_type'] == 1 && $balance>0) {
+			if ($plan_type == 'community' && !$user_data['r_com_paid']) {
+				$r_paid['r_com_paid'] = 1;
+				$unpaid = 1;
+			} elseif (($plan_type == 'pro' || $plan_type == 'standard') && !$user_data['r_pro_paid']) {
+				$r_paid['r_pro_paid'] = 1;
+				$unpaid = 1;
+			}
+			if ($unpaid) {
+				self::$db->where('user_id', $user_data['user_id'])->update(T_USERS, $r_paid);
+				$r_data['balance'] = self::$db->inc($balance);
+
+	       		$notif->notify($notif_data);
+				self::$db->where('user_id', $referrer['user_id'])->update(T_USERS, $r_data);
+			}
+		}
 	}
 
 	// register a new user
@@ -1391,6 +1453,85 @@ class User extends Generic{
 		return $data;
 	}
 
+	public function updateBalance($request_id = '', $paid = false, $recipient = false)
+	{  
+		global $admin,$context,$config,$me;
+
+		$request_id = self::secure($request_id);
+
+        if ($paid) {
+			self::$db->where('paid','0');
+		} 
+		
+		$whereProp = $recipient ? 'recipient_code' : 'id';
+        $request_data = self::$db->where($whereProp, $request_id)->getOne(T_WITHDRAWAL);
+
+        $check_to_proceed = false;
+        if ($paid == true || $recipient == true)
+        {
+        	$check_to_proceed = true;
+        	$request_id = $request_data->id;
+        }
+        
+        if ($request_data->status != 1) $check_to_proceed = true; 
+
+        if (!empty($request_data) && $check_to_proceed) { 
+            $requiring = self::$db->where('user_id',$request_data->user_id)->getOne(T_USERS);
+            if (!empty($requiring)) {
+                self::$db->where('user_id',$request_data->user_id)->update(T_USERS,array(
+                    'balance' => ($requiring->balance -= $request_data->amount)
+                ));
+            }
+        	self::$db->where('id',$request_id)->update(T_WITHDRAWAL,array('status' => 1)); 
+        	if ($paid) {
+        		self::$db->where('id',$request_id)->update(T_WITHDRAWAL,array('paid' => 1)); 
+        	}
+        	return true;
+        }
+
+        return false;
+	}
+
+	public function fullName($name = array())
+	{ 
+		if (!empty($name['fname']) && !empty($name['lname'])) {
+			$name = $name['fname'] . ' ' . $name['lname']; 
+		}
+		elseif (!empty($name['fname'])) {
+			$name = $name['fname'];
+		}
+		elseif (!empty($name['lname'])) {
+			$name = $name['lname'];
+		}
+		elseif (!empty($name['username'])) {
+			$name = ucwords($name['username']);
+		}
+		if (!is_array($name)) {
+			return $name;
+		}
+	}
+
+	public function bankOption($selected = '')
+	{ 
+		$admin = new Admin;
+		$process = $admin->paystackProcessor('bank')->data; 
+		if (!empty($process['data']))
+		{	
+			$select = '';
+			foreach ($process['data'] as $option) {
+				$selected = ($selected == $option['name']) ? ' selected="selected"' : $selected; 
+				$select .= 
+					'<option value="' . $option['code'] . '" data-type="' . $option['type'] . '"' . $selected . '>' . $option['name'] . 
+					'</option>';
+			}	
+		}
+		else
+		{
+			$select = '<option readonly selected>No bank available check your connection</option>';
+		}
+		return $select; 
+	}  
+
 	function getUserAffiliates()
 	{
 		$users = self::$db->where('referrer', self::$me->user_id)->get(T_USERS);
@@ -1401,9 +1542,7 @@ class User extends Generic{
 			}
 		}
 		return $data;
-	}
-
-
+	} 
 }
 
 	

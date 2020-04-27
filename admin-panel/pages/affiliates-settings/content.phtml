@@ -22,28 +22,34 @@
                         <label for="affiliate_type">User will earn money when</label>
                         <select class="form-control show-tick" id="affiliate_type" name="affiliate_type">
                           <option value="0" <?php echo ($config['affiliate_type'] == 0) ? 'selected': '';?> >New user is registred</option>
-                          <!-- <option value="1" <?php echo ($config['affiliate_type'] == 1) ? 'selected': '';?> >New user is registred & bought a pro package</option> -->
+                          <option value="1" <?php echo ($config['affiliate_type'] == 1) ? 'selected': '';?> >New user is registred & bought a pro package</option>
                         </select>
                         <div class="clearfix"></div>
                         <br><br>
-                        <!-- <div class="form-group form-float">
+                        <div class="form-group form-float">
                             <div class="form-line">
-                                <input type="text" id="m_withdrawal" name="m_withdrawal" class="form-control" value="<?php echo $wo['config']['m_withdrawal']?>">
+                                <input type="text" id="m_withdrawal" name="m_withdrawal" class="form-control" value="<?php echo $config['m_withdrawal']?>">
                                 <label class="form-label">Minimum withdrawal request</label>
                             </div>
-                        </div><br> -->
+                        </div><br>
                         <div class="form-group form-float amount_ref">
                             <div class="form-line">
                                 <input type="text" id="amount_ref" name="amount_ref" class="form-control" value="<?php echo $config['amount_ref']?>">
                                 <label class="form-label">Amount <small>The price you'll pay for each new referred user. Default 0.10</small></label>
                             </div>
                         </div>
-                        <!-- <div class="form-group form-float amount_percent_ref">
+                        <div class="form-group form-float amount_percent_ref">
                             <div class="form-line">
                                 <input type="number" min="0" max="100" id="amount_percent_ref" name="amount_percent_ref" class="form-control" value="<?php echo $config['amount_percent_ref']?>">
-                                <label class="form-label">Amount % <small>The price you'll pay for each new referred user. After he join any pro package.</small></label>
+                                <label class="form-label">Amount % <small>How much user earns when their referrals buy any pro package.</small></label>
                             </div>
-                        </div> -->
+                        </div>
+                        <div class="form-group form-float community_percent_ref">
+                            <div class="form-line">
+                                <input type="number" min="0" max="100" id="community_percent_ref" name="community_percent_ref" class="form-control" value="<?php echo $config['community_percent_ref']?>">
+                                <label class="form-label">Community Amount % <small>How much user earns when their referrals join any community.</small></label>
+                            </div>
+                        </div>
                         <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
                     </form>
                 </div>

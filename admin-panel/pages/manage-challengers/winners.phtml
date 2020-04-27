@@ -1,0 +1,11 @@
+            <div class="col-md-4 m-b-10">
+                <div class="info-box bg-<?php echo($cd['color']); ?> hover-expand-effect m-b-0">
+                    <div class="icon">
+                        <img src="<?php echo(media($cd['winner']['avatar'])); ?>" class="td-avaftar" width="85px" alt="post avatar">
+                    </div>
+                    <div class="content">
+                        <div class="text"><?php echo($cd['status']); ?></div>
+                        <div class="number"><?php echo($cd['_user']->fullName($cd['winner'])); ?></div>
+                    </div>
+                </div>
+            </div>

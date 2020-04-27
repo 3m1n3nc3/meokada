@@ -4,14 +4,16 @@ if (empty($_GET['page'])) {
     header("Location: $site_url/admin-panel/dashboard");
     exit();
 }
-
 $page  = 'dashboard';
 $admin = new Admin();
+
+$admin_role = $context['user']['admin'];
 
 if (!empty($_GET['page'])) {
     $page = $admin::secure($_GET['page']);
 }
 
+$context['theme_url'] = $site_url.'/apps/'.$config['theme'];
 
 $page_content = '';
 $pages        = array(
@@ -27,9 +29,11 @@ $pages        = array(
     ),
     'users' => array(
         'manage-users',
+        'payment-requests',
         'manage-verification-requests',
         'blacklist',
         'affiliates-settings',
+        'manage-referrers',
         'manage-business-requests',
         'manage_fundings'
     ),
@@ -39,7 +43,6 @@ $pages        = array(
     ),
     'advertisement' => array(
         'ads-settings',
-        'payment-requests',
         'manage-ads'
     ),
     'bank-receipts' => array(
@@ -50,7 +53,9 @@ $pages        = array(
     ),
     'posts' => array(
         'manage-posts',
-        'manage-challenges'
+        'manage-challenges',
+        'manage-challengers',
+        'challenge-winners'
     ),
     'blogs' => array(
         'manage-articles',
@@ -83,6 +88,7 @@ $pages        = array(
         'add-language',
     ),
     'pages' => array(
+        'modal',
         'terms',
         'privacy-and-policy',
         'about-us',
@@ -136,6 +142,7 @@ if (empty($page_content)) {
         <link href="<?php echo pxp_acp_link('plugins/bootstrap-toggle/bootstrap-toggle.min.css');?>" rel="stylesheet" />
         <link href="<?php echo pxp_acp_link('plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css'); ?>" rel="stylesheet">
         <link href="<?php echo pxp_acp_link('plugins/bootstrap-select/css/bootstrap-select.css');?>" rel="stylesheet" />
+        <link href="<?php echo $context['theme_url'] ?>/main/static/js/libs/toast/src/jquery.m.toast.css">  
         <script src="<?php echo pxp_acp_link('plugins/jquery/jquery.min.js');?>"></script>
         <script>
             function acpajax_url(path) {
@@ -229,6 +236,8 @@ if (empty($page_content)) {
                                 <span>Dashboard</span>
                             </a>
                         </li>
+
+                        <?php if (admin_access($admin_role, 3)):?>
                         <li class="<?php echo $admin->activeMenu('settings'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle">
                                 <i class="material-icons">settings</i>
@@ -279,6 +288,8 @@ if (empty($page_content)) {
                                 </li>
                             </ul>
                         </li>
+                        <?php endif;?>
+
                         <li class="<?php echo $admin->activeMenu('users'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle">
                                 <i class="material-icons">account_circle</i>
@@ -288,6 +299,11 @@ if (empty($page_content)) {
                                 <li class="<?php echo $admin->activeMenu('manage-users'); ?>">
                                     <a href="<?php echo pxp_acp_link('manage-users'); ?>" class="waves-effect waves-block">
                                         Manage users
+                                    </a>
+                                </li>
+                                <li class="<?php echo $admin->activeMenu('payment-requests'); ?>">
+                                    <a href="<?php echo pxp_acp_link('payment-requests'); ?>" class="waves-effect waves-block">
+                                        Payment Requests
                                     </a>
                                 </li>
                                 <li class="<?php echo $admin->activeMenu('manage-verification-requests'); ?>">
@@ -310,11 +326,19 @@ if (empty($page_content)) {
                                         Black List
                                     </a>
                                 </li>
+                                <li class="<?php echo $admin->activeMenu('manage-referrers'); ?>">
+                                    <a href="<?php echo pxp_acp_link('manage-referrers'); ?>" class="waves-effect waves-block">
+                                        View Referrers
+                                    </a>
+                                </li>
+                                
+                                <?php if (admin_access($admin_role, 3)):?>
                                 <li class="<?php echo $admin->activeMenu('affiliates-settings'); ?>">
                                     <a href="<?php echo pxp_acp_link('affiliates-settings'); ?>" class="waves-effect waves-block">
                                         Affiliates Settings
                                     </a>
                                 </li>
+                                <?php endif;?>
                             </ul>
                             
                         </li>
@@ -324,11 +348,14 @@ if (empty($page_content)) {
                                 <span>Pro System</span>
                             </a>
                             <ul class="ml-menu">
+
+                                <?php if (admin_access($admin_role, 3)):?>
                                 <li class="<?php echo $admin->activeMenu('pro-settings'); ?>">
                                     <a href="<?php echo pxp_acp_link('pro-settings'); ?>" class="waves-effect waves-block">
                                         Pro Settings
                                     </a>
                                 </li>
+                                <?php endif;?>
                                 <li class="<?php echo $admin->activeMenu('manage-pro-users'); ?>">
                                     <a href="<?php echo pxp_acp_link('manage-pro-users'); ?>" class="waves-effect waves-block">
                                         Manage Pro Users
@@ -348,16 +375,14 @@ if (empty($page_content)) {
                                         Manage Ads
                                     </a>
                                 </li>
+
+                                <?php if (admin_access($admin_role, 3)):?>
                                 <li class="<?php echo $admin->activeMenu('ads-settings'); ?>">
                                     <a href="<?php echo pxp_acp_link('ads-settings'); ?>" class="waves-effect waves-block">
                                         Ads Settings
                                     </a>
                                 </li>
-                                <li class="<?php echo $admin->activeMenu('payment-requests'); ?>">
-                                    <a href="<?php echo pxp_acp_link('payment-requests'); ?>" class="waves-effect waves-block">
-                                        Payment Requests
-                                    </a>
-                                </li>
+                                <?php endif;?>
                             </ul>
                         </li>
 
@@ -379,16 +404,26 @@ if (empty($page_content)) {
                                 <span>Posts</span>
                             </a>
                             <ul class="ml-menu"> 
-                                <li class="<?php echo $admin->activeMenu('manage-challenges'); ?>">
-                                    <a href="<?php echo pxp_acp_link('manage-challenges'); ?>" class="waves-effect waves-block">
-                                        Challenges
-                                    </a>
-                                </li> 
                                 <li class="<?php echo $admin->activeMenu('manage-posts'); ?>">
                                     <a href="<?php echo pxp_acp_link('manage-posts'); ?>" class="waves-effect waves-block">
                                         Manage posts
                                     </a>
                                 </li>
+                                <li class="<?php echo $admin->activeMenu('manage-challengers'); ?>">
+                                    <a href="<?php echo pxp_acp_link('manage-challengers'); ?>" class="waves-effect waves-block">
+                                        Challenge Entries
+                                    </a>
+                                </li>
+                                <li class="<?php echo $admin->activeMenu('challenge-winners'); ?>">
+                                    <a href="<?php echo pxp_acp_link('challenge-winners'); ?>" class="waves-effect waves-block">
+                                        Challenge Winners
+                                    </a>
+                                </li>
+                                <li class="<?php echo $admin->activeMenu('manage-challenges'); ?>">
+                                    <a href="<?php echo pxp_acp_link('manage-challenges'); ?>" class="waves-effect waves-block">
+                                        Challenge Categories
+                                    </a>
+                                </li> 
                             </ul>
                         </li>
                         <li class="<?php echo $admin->activeMenu('image_store'); ?>">
@@ -439,24 +474,6 @@ if (empty($page_content)) {
                             </ul>
                         </li>
 
-                        <li class="<?php echo $admin->activeMenu('design'); ?>">
-                            <a href="javascript:void(0);" class="menu-toggle waves-effect waves-block">
-                                <i class="material-icons">color_lens</i>
-                                <span>Design</span>
-                            </a>
-                            <ul class="ml-menu" style="display: none;">
-                                <li class="<?php echo $admin->activeMenu('themes'); ?>">
-                                    <a href="<?php echo pxp_acp_link('themes'); ?>" class="waves-effect waves-block">
-                                        Themes
-                                    </a>
-                                </li>
-                                <li class="<?php echo $admin->activeMenu('manage-site-design'); ?>">
-                                    <a href="<?php echo pxp_acp_link('manage-site-design'); ?>" class="waves-effect waves-block">
-                                        Change Site Design
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
                         <li class="<?php echo $admin->activeMenu('reports'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle waves-effect waves-block">
                                 <i class="material-icons">flag</i>
@@ -486,12 +503,38 @@ if (empty($page_content)) {
                                 </li>
                             </ul>
                         </li> -->
+                        
+                        <?php if (admin_access($admin_role, 3)):?>
+                        <li class="<?php echo $admin->activeMenu('design'); ?>">
+                            <a href="javascript:void(0);" class="menu-toggle waves-effect waves-block">
+                                <i class="material-icons">color_lens</i>
+                                <span>Design</span>
+                            </a>
+                            <ul class="ml-menu" style="display: none;">
+                                <li class="<?php echo $admin->activeMenu('themes'); ?>">
+                                    <a href="<?php echo pxp_acp_link('themes'); ?>" class="waves-effect waves-block">
+                                        Themes
+                                    </a>
+                                </li>
+                                <li class="<?php echo $admin->activeMenu('manage-site-design'); ?>">
+                                    <a href="<?php echo pxp_acp_link('manage-site-design'); ?>" class="waves-effect waves-block">
+                                        Change Site Design
+                                    </a>
+                                </li>
+                            </ul>
+                        </li> 
+ 
                         <li class="<?php echo $admin->activeMenu('pages'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle waves-effect waves-block">
                                 <i class="material-icons">web</i>
                                 <span>Pages</span>
                             </a>
                             <ul class="ml-menu">
+                                <li class="<?php echo $admin->activeMenu('modal'); ?>">
+                                    <a href="<?php echo pxp_acp_link('modal'); ?>" class=" waves-effect waves-block">
+                                        Notice Modal
+                                    </a>
+                                </li>
                                 <li class="<?php echo $admin->activeMenu('terms'); ?>">
                                     <a href="<?php echo pxp_acp_link('terms'); ?>" class=" waves-effect waves-block">
                                         Terms of use
@@ -545,6 +588,7 @@ if (empty($page_content)) {
                                 <span>FAQs &amp; Docs</span>
                             </a>
                         </li>
+                        <?php endif;?>
                     </ul>
                 </div>
                 <div class="legal">
@@ -568,7 +612,7 @@ if (empty($page_content)) {
                 <?php echo $page_content; ?>
             </div>
         </section>
-        
+         
         <script src="<?php echo pxp_acp_link('plugins/bootstrap/js/bootstrap.js');?>"></script>
         <script src="<?php echo pxp_acp_link('plugins/jquery-datatable/jquery.dataTables.js'); ?>"></script>
         <script src="<?php echo pxp_acp_link('plugins/jquery-datatable/skin/bootstrap/js/dataTables.bootstrap.js'); ?>"></script>
@@ -594,6 +638,7 @@ if (empty($page_content)) {
         <script src="<?php echo pxp_acp_link('js/script.js');?>"></script>
         <script src="<?php echo pxp_acp_link('plugins/bootstrap-toggle/bootstrap-toggle.min.js');?>"></script>
         <script src="<?php echo pxp_acp_link('plugins/jquery-form/jquery-form.v3.51.0.js');?>"></script>
+        <script src="<?php echo $context['theme_url'] ?>/main/static/js/libs/toast/src/jquery.m.toast.js"></script>
     </body>
 
 </html>

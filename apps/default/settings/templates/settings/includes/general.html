@@ -17,6 +17,11 @@
 			<span class="bar"></span>
 			<label>{{LANG email}}*</label>
 		</div>
+		<div class="pp_mat_input" style="margin-bottom: 1.7em;">
+			<input required="true" type="phone" name="phone" class="form-control" value="<?php echo($context['me']['phone']) ?>">
+			<span class="bar"></span>
+			<label>{{LANG phone}}</label>
+		</div>
 		<div class="pp_mat_select">
 			<label class="pp_mat_label">{{LANG gender}}*</label>
 			<div>
@@ -47,7 +52,7 @@
 			<div class="clear"></div>
 		</div>
 
-		<?php if ($context['user']['admin'] == 1) { ?>
+		<?php if ($context['user']['admin'] >= 1) { ?>
 		<br>
 			<div class="pp_mat_input" style="margin-bottom: 1.7em;">
 				<input required="true" type="wallet" name="wallet" class="form-control" value="<?php echo($context['me']['wallet']) ?>">

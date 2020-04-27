@@ -60,7 +60,7 @@ if ($context['loggedin'] === true) {
 	require_once($countries);
 	
 	$context['countries_name'] = $countries_name; 
-	$context['is_admin']       = (($me['admin'] == 1) ? true : false);
+	$context['is_admin']       = (($me['admin'] >= 1) ? true : false);
 	$_SESSION['lang']          = $me['language'];
 }
 

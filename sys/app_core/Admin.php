@@ -120,6 +120,20 @@ class Admin extends User{
 		return true;
 	}
 
+	public function updateCommunityChallengeSettings($up_data = array()){
+		if (empty($up_data)) {
+			return false;
+		} 
+		try {
+			self::$db->where('id', $up_data['id'])->update(T_COMMUNITY, $up_data);
+		} 
+		catch (Exception $e) {
+			return false;
+		} 
+
+		return true;
+	}
+
 	function Pxp_UploadLogo($data = array(),$type = 'logo') {
 	    if (isset($data['file']) && !empty($data['file'])) {
 	        $data['file'] =  self::secure($data['file']);
@@ -164,5 +178,136 @@ class Admin extends User{
 		        }
 		    }
 	    }
+	}
+
+	public function payUser($action = '', $user_data = array())
+	{
+		global $admin,$context,$config,$me;
+
+        $data = array( 
+            'currency'       =>  $config['currency'],
+            'source'         => 'balance',
+            'reason'         => 'Transfer from ' . $config['site_name'] 
+        );
+
+        $user_data = array_merge($user_data, $data);
+
+        $process = array();
+
+        if ($user_data) 
+        {
+			$process = $this->paystackProcessor($action, $user_data)->data;
+        }
+		return $process;
+	} 
+
+	public function paystackProcessor($action = 'balance', $post_data = array()) 
+	{
+		global $admin,$context,$config,$me;
+
+    	require_once('sys/import3p/Paystack/src/autoload.php'); 
+
+        $secret = $config['paystack_secret'];
+        $paystack = new Yabacon\Paystack($secret);
+
+        $data = array();
+        // print_r($post_data);
+        
+        $domain_path = pathinfo($_SERVER['SERVER_NAME'], PATHINFO_FILENAME);
+	    $arr = array("localhost","127.0.0.1","::1", $domain_path.".te", $domain_path.".test");
+
+	    if( !in_array( $_SERVER['SERVER_NAME'], $arr ) OR $config['offline_access'] == 'on' ){
+	        if ($action == 'balance') 
+	        {
+	        	$response = $paystack->balance->getList();
+	        	if ($response) 
+	        	{
+	        		// ResultSet: [currency], [balance]
+	        		$data = self::toArray($response);
+	        	}
+	        }
+	        elseif ($action == 'bank') 
+	        {
+	        	$response = $paystack->bank->getList();
+	        	if ($response) 
+	        	{
+	        		// ResultSet:  [name], [slug], [code], [longcode], [gateway], [pay_with_bank], 
+	        		// [active], [is_deleted], [country], [currency], [type], [id], [createdAt], [updatedAt]
+	        		$data = self::toArray($response);
+	        	}
+	        }
+	        elseif ($action == 'create_recipient') 
+	        {
+	        	$response = $paystack->transferrecipient->create($post_data);
+	        	if ($response) 
+	        	{
+	        		// DataSet: [type], [name], [description], [account_number], [bank_code], [currency]
+
+	        		// ResultSet:   [active], [createdAt], [currency], [description], [domain], [email], [id],
+	        		// [integration], [metadata], [name], [recipient_code], [type], [updatedAt], [is_deleted],
+	        		// [details] => ( [authorization_code], [account_number], [account_name], [bank_code], [bank_name] )
+	        		$data = self::toArray($response);
+	        	}
+	        }
+	        elseif ($action == 'list_recipient') 
+	        {
+	        	$response = $paystack->transferrecipient->getList();
+	        	if ($response) 
+	        	{ 
+	        		$data = self::toArray($response);
+	        	}
+	        }
+	        elseif ($action == 'initiate_transfer') 
+	        {
+	        	$response = $paystack->transfer->initiate($post_data); 
+	        	if ($response) 
+	        	{
+	        		$data = self::toArray($response);
+	        	}
+	        }
+	        elseif ($action == 'initiate_bulk_transfer') 
+	        {
+	        	$response = $paystack->transfer->initiateBulk($post_data); 
+	        	if ($response) 
+	        	{
+	        		$data = self::toArray($response);
+	        	}
+	        }
+	        elseif ($action == 'otp_state' || isset($action['otp'])) 
+	        { 
+	        	if (isset($action['otp'])) 
+	        	{
+	        		if (is_numeric($action['otp']))
+	        		{
+	        			$response = $paystack->transfer->finalizeTransfer($action);
+	        		}
+	        		else
+	        		{ 
+	        			$response = $paystack->transfer->resendOtp($action);
+	        		}
+	        	}
+	        	elseif ($post_data && is_numeric($post_data))
+	        	{ 
+	        		$response = $paystack->transfer->disableOtpFinalize(['otp' => $post_data]);
+	        	} 
+	        	elseif ($post_data && $post_data == 'enable') 
+	        	{
+	        		$response = $paystack->transfer->enableOtp();
+	        	}
+	        	else
+	        	{
+	        		$response = $paystack->transfer->disableOtp();
+	        	}
+
+	        	if ($response) 
+	        	{ 
+	        		$data = self::toArray($response);
+	        	}
+	        }  
+       	}
+
+        $this->data = $data;
+
+        return $this;
 	}
 }

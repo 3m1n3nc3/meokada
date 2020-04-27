@@ -1,0 +1,75 @@
+
+	<div class="explore-page-container">
+		<div class="sub__header">
+			<div class="container">
+				<div class="col-md-8">
+					<h4 class="animated fadeInUpBig">{{LANG explore_winners}}</h4>
+					<p class="animated fadeInUpBig">{{LANG recent_potential_winners}}</p>
+				</div>
+				<div class="col-md-4 pp_exp_head_svg text-center hidden-xs hidden-sm">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users animated bounceIn"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+				</div>
+			</div>
+		</div> 
+		<div class="container"></div>
+		<?php if ($context['challenges']) {
+			foreach ($context['challenges'] as $key => $cdata) {
+				$user_data = $context['cObj']->getApprovedContestants($cdata['challenge_id']); ?>
+				<div class="container">
+					<div class="fluid">
+						<h5 class="mt-5"><?php echo($cdata['name']) ?></h5>
+					</div>
+					<div class="explore-people-container">
+						<div class="row people">
+							<?php if ($user_data) {
+								$i = 0;
+								foreach ($user_data as $key => $udata) {
+									$i ++;
+									$udata = o2array($context['cObj']->getWinnersOnly($udata->username, $cdata['challenge_id']));
+									include 'includes/col.html';
+								}
+							} else{
+								include 'includes/no-users-found.html';
+							} ?>
+						</div>
+					</div>
+				</div>
+			<?php }
+		} else{
+			include 'includes/no-users-found.html';
+		} ?>
+
+	</div>
+	<script>
+		jQuery(document).ready(function($) {
+			var scrolled = 0;
+			var last_id  = 0;
+
+			$(window).scroll(function() {
+			    if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+			    	if (scrolled == 0) {
+		                scrolled = 1;
+		                if ($(".explore-people__item").length > 0) {
+		                	last_id = $(".explore-people__item").last().attr('id');
+		                }
+
+						$.ajax({
+							url: link('main/explore-winners'),
+							type: 'GET',
+							dataType: 'json',
+							data: {offset:last_id},
+						}).done(function(data) {
+							if (data.status == 200) {
+								$(".explore-people-container").find('.people').append($(data.html));
+								scrolled = 0;
+							}
+							else{
+								$(window).unbind('scroll');
+							}
+						});
+		       		}
+			    }
+			});
+		});
+	</script>
+	<?php include $context['dirname_theme'].'/main/templates/includes/lazy-load.html'; ?>

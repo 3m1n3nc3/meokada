@@ -5,7 +5,7 @@
 	</span>
 	</td>
 	<td width="300">
-		<span><?php echo $context['user_withdrawal']->requested; ?></span>
+		<span><?php echo date('d/m/Y - h:i A', $context['user_withdrawal']->requested); ?></span>
 	</td>
 	<td>
 		<span><?php echo Pxp_GetCurrency($context['user_withdrawal']->currency).$context['user_withdrawal']->amount; ?></span>

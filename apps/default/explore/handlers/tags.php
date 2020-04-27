@@ -20,6 +20,7 @@ $qrset  = array();
 if (!empty($tag_id)) {
 	$qrset = $posts->exploreTags($tag_id);
 }
+$context['is_boosted'] = false;
 
 $qrset  = (!empty($qrset) && is_array($qrset) || 2) ? o2array($qrset) : array();
 $tcount = (!empty($qrset)) ? $posts->countPostsByTag($tag_id) : 0;

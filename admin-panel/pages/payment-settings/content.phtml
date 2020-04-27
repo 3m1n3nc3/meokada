@@ -2,6 +2,7 @@
 $playtube_links_on = ($config['playtube_links'] == 'on') ? 'checked' : '';
 $playtube_links_off = ($config['playtube_links'] == 'off') ? 'checked' : '';
  ?>
+
 <div class="block-header">
     <h2 class="breadcrumb">Settings <i class="material-icons">keyboard_arrow_right</i> Payment System Settings</h2>
 </div>
@@ -15,11 +16,61 @@ $playtube_links_off = ($config['playtube_links'] == 'off') ? 'checked' : '';
                 <div class="clearfix">
                     <form class="form general-settings-form">
                         <div class="form-alert"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="upload_system">Paystack Payment Method</label>
+                                <div class="form-group">
+                                    <input type="radio" name="paystack"  value="on" id="paystack-enabled" <?php echo ($config['paystack'] == 'on') ? 'checked': '';?>>
+                                    <label for="paystack-enabled">Enabled</label>
+                                    <input type="radio" name="paystack" id="paystack-disabled" value="off" <?php echo ($config['paystack'] == 'off') ? 'checked': '';?>>
+                                    <label for="paystack-disabled" class="m-l-20">Disabled</label>
+                                </div> 
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="upload_system">Paystack OTP</label>
+                                <div class="form-group"> 
+                                    <div class="switch">
+                                        <label>
+                                            OFF
+                                            <input type="checkbox" id="otp_switch" <?php echo ($config['paystack_otp'] == 'on') ? 'checked': '';?>>
+                                            <span class="lever"></span>
+                                            ON
+                                        </label>
+                                    </div>
+                                    <div class="clear"></div>
+                                </div><div class="loader"><div class="spinner-grow text-warning"></div></div>
+                            </div>    
+                            <div class="col-md-12 col-sm-12 col-lg-12 col-xs-12" id="otp_col" style="display: none;">
+                                <div id="otp_alert"></div>
+                                <div class="form-group form-float">
+                                    <label class="form-label">Enter OTP <br><small> &nbsp;(An OTP has been sent to your number registered on paystack)</small></label>
+                                    <div class="form-line">
+                                        <input type="text" id="otp" class="form-control">
+                                    </div>
+                                    <button type="button" class="btn btn-primary m-t-15 waves-effect" id="otp_verify">Submit</button>
+                                </div>
+                            </div>                        
+                        </div> 
+
+                        <div class="form-group form-float">
+                            <div class="form-line">
+                                <input type="text" id="paystack_secret" name="paystack_secret" class="form-control" value="<?php echo $config['paystack_secret'];?>">
+                                <label class="form-label">Paystack Secret Key <small>Your Paystack secret key that starts with sk_</small></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-float">
+                            <div class="form-line">
+                                <input type="text" id="paystack_public" name="paystack_public" class="form-control" value="<?php echo $config['paystack_public'];?>">
+                                <label class="form-label">Paystack Public Key <small>Your Paystack public key that starts with pk_</small></label>
+                            </div>
+                        </div>
+                        <br>
 
                         <label for="upload_system">Credit Card Payment Method</label>
                         <div class="form-group">
                             <input type="radio" name="credit_card"  value="on" id="credit_card-enabled" <?php echo ($config['credit_card'] == 'on') ? 'checked': '';?>>
-                            <label for="credit_card-enabled" id="credit_card-enabled">Enabled</label>
+                            <label for="credit_card-enabled">Enabled</label>
                             <input type="radio" name="credit_card" id="credit_card-disabled" value="off" <?php echo ($config['credit_card'] == 'off') ? 'checked': '';?>>
                             <label for="credit_card-disabled" class="m-l-20">Disabled</label>
                         </div>
@@ -36,6 +87,7 @@ $playtube_links_off = ($config['playtube_links'] == 'off') ? 'checked' : '';
                             </div>
                         </div>
                         <br>
+
                         <label for="paypal_mode">PayPal Mode</label>
                         <div class="form-group">
                             <input type="radio" name="paypal_mode" id="paypal_mode-enabled" value="live" <?php echo ($config['paypal_mode'] == 'live') ? 'checked': '';?>>
@@ -101,6 +153,66 @@ $playtube_links_off = ($config['playtube_links'] == 'off') ? 'checked' : '';
                     </div>
                     <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
                 </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="header">
+                <h2>Automatic Payouts</h2>
+            </div>
+            <div class="body">
+                <div class="clearfix">
+                    <form class="form general-settings-form">
+                        <div class="form-alert"></div> 
+                        
+                        <label for="payouts_approval">Challenge Approval and Payouts</label>
+                        <div class="form-group">
+                            <input type="radio" name="payouts_approval"  value="on" id="payouts_approval-enabled" <?php echo ($config['payouts_approval'] == 'on') ? 'checked': '';?>>
+                            <label for="payouts_approval-enabled">Enabled</label>
+                            <input type="radio" name="payouts_approval" id="payouts_approval-disabled" value="off" <?php echo ($config['payouts_approval'] == 'off') ? 'checked': '';?>>
+                            <label for="payouts_approval-disabled" class="m-l-20">Disabled</label>
+                        </div> 
+                        <br>  
+                        
+                        <label for="auto_approve_paid_challenge">Auto Approve Paid Challenge Entry</label>
+                        <div class="form-group">
+                            <input type="radio" name="auto_approve_paid_challenge"  value="on" id="auto_approve_paid_challenge-enabled" <?php echo ($config['auto_approve_paid_challenge'] == 'on') ? 'checked': '';?>>
+                            <label for="auto_approve_paid_challenge-enabled">Enabled</label>
+                            <input type="radio" name="auto_approve_paid_challenge" id="auto_approve_paid_challenge-disabled" value="off" <?php echo ($config['auto_approve_paid_challenge'] == 'off') ? 'checked': '';?>>
+                            <label for="auto_approve_paid_challenge-disabled" class="m-l-20">Disabled</label>
+                        </div> 
+                        <br>  
+                        
+                        <label for="auto_payout_won_challenge">Auto Payout Approved Paid Challenge Entry Bonus</label>
+                        <div class="form-group">
+                            <input type="radio" name="auto_payout_won_challenge"  value="on" id="auto_payout_won_challenge-enabled" <?php echo ($config['auto_payout_won_challenge'] == 'on') ? 'checked': '';?>>
+                            <label for="auto_payout_won_challenge-enabled">Enabled</label>
+                            <input type="radio" name="auto_payout_won_challenge" id="auto_payout_won_challenge-disabled" value="off" <?php echo ($config['auto_payout_won_challenge'] == 'off') ? 'checked': '';?>>
+                            <label for="auto_payout_won_challenge-disabled" class="m-l-20">Disabled</label>
+                        </div> 
+                        <br>  
+                        
+                        <label for="auto_payout_approved_challenge">Auto Payout Won Paid Challenge Prize</label>
+                        <div class="form-group">
+                            <input type="radio" name="auto_payout_approved_challenge"  value="on" id="auto_payout_approved_challenge-enabled" <?php echo ($config['auto_payout_approved_challenge'] == 'on') ? 'checked': '';?>>
+                            <label for="auto_payout_approved_challenge-enabled">Enabled</label>
+                            <input type="radio" name="auto_payout_approved_challenge" id="auto_payout_approved_challenge-disabled" value="off" <?php echo ($config['auto_payout_approved_challenge'] == 'off') ? 'checked': '';?>>
+                            <label for="auto_payout_approved_challenge-disabled" class="m-l-20">Disabled</label>
+                        </div> 
+                        <br>  
+
+                        <label for="auto_payout_referals">Auto Payout Referral Bonus</label>
+                        <div class="form-group">
+                            <input type="radio" name="auto_payout_referals"  value="on" id="payout_referals-enabled" <?php echo ($config['auto_payout_referals'] == 'on') ? 'checked': '';?>>
+                            <label for="payout_referals-enabled">Enabled</label>
+                            <input type="radio" name="auto_payout_referals" id="payout_referals-disabled" value="off" <?php echo ($config['auto_payout_referals'] == 'off') ? 'checked': '';?>>
+                            <label for="payout_referals-disabled" class="m-l-20">Disabled</label>
+                        </div> 
+                        <br>  
+                        
+                        <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -171,4 +283,38 @@ $playtube_links_off = ($config['playtube_links'] == 'off') ? 'checked' : '';
             }
         });
     });
+
+    $(document).on('change', '#otp_switch',function(event) { 
+        var checked = $(this).prop("checked");  
+ 
+        if (checked) {
+            $('#otp_col').hide(); 
+            $('#otp_alert').html('Please Wait...');
+            var action = 'enable';
+        } else {
+            $('#otp_col').slideDown(); 
+            var action = 'disable';
+        }  
+
+        $.post(acpajax_url('request-otp'), {action:action}, function (response) {                  
+            $('#otp_alert').html($('<div>',{
+                class: response.status == 200 ? 'alert alert-success' : 'alert alert-warning',
+                text: response.message
+            }));
+        });
+    });
+ 
+    $(document).on('click', '#otp_verify',function(event) {
+        var action = $('#otp').val();
+        $('#otp_alert').html('Please Wait...');
+        $('#otp_verify').attr('disabled', true);
+        $.post(acpajax_url('request-otp'), {action:action}, function (response) {                
+            $('#otp_alert').html($('<div>',{
+                class: response.status == 200 ? 'alert alert-success' : 'alert alert-warning',
+                text: response.message
+            }));
+            $('#otp_verify').removeAttr('disabled');
+        });
+    }); 
+
 </script>

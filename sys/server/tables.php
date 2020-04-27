@@ -36,3 +36,5 @@ define('T_TRANSACTIONS', 'pxp_transactions');
 define('T_BLOG', 'pxp_blog');
 define('T_STORE', 'pxp_store');
 define('T_CHALLENGE', 'pxp_challenges');
+define('T_MODAL', 'pxp_info_modal');
+define('T_COMMUNITY', 'pxp_community_accounts');

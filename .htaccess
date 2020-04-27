@@ -17,6 +17,7 @@ RewriteRule ^blog/article/(\d+)(?:\/?)$ index.php?app=article&apph=article&id=$1
 RewriteRule ^forgot(?:\/?|)$ index.php?app=welcome&apph=forgot [QSA]
 RewriteRule ^explore/people(?:\/?|)$ index.php?app=explore&apph=people [QSA]
 RewriteRule ^explore/tags/([^\/]+)(\/?|)$ index.php?app=explore&apph=tags&tag=$1 [QSA]
+RewriteRule ^explore/winners(?:\/?|)$ index.php?app=explore&apph=winners [QSA]
 RewriteRule ^post/(\d+)(?:\/?)$ index.php?app=posts&apph=view_post&pid=$1 [QSA]
 RewriteRule ^store(?:\/(\w+)\/(\w+)){0,1}(?:\/?|)$ index.php?app=store&apph=store&page=$2&user=$1 [QSA]
 RewriteRule ^store/(\d+)(?:\/?)$ index.php?app=store&apph=store&pid=$1 [QSA]

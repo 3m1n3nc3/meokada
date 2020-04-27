@@ -1,11 +1,13 @@
 <?php 
-$page                = (!empty($_GET['page-id'])) ? $_GET['page-id'] : 1;
-$admin::$db->pageLimit       = 50;
-$total_requests      = $admin::$db->getValue(T_WITHDRAWAL, 'COUNT(*)');
-$paid_requests       = $admin::$db->where('status',1)->getValue(T_WITHDRAWAL, 'COUNT(*)');
-$declined_requests   = $admin::$db->where('status',2)->getValue(T_WITHDRAWAL, 'COUNT(*)');
-$pending_requests    = $admin::$db->where('status',0)->getValue(T_WITHDRAWAL, 'COUNT(*)');
-$withdrawal_requests = $admin::$db->orderBy('status','ASC')->paginate(T_WITHDRAWAL,$page);
+$page                  = (!empty($_GET['page-id'])) ? $_GET['page-id'] : 1;
+$admin::$db->pageLimit = 50;
+$total_requests        = $admin::$db->getValue(T_WITHDRAWAL, 'COUNT(*)');
+$paid_requests         = $admin::$db->where('status',1)->getValue(T_WITHDRAWAL, 'COUNT(*)');
+$declined_requests     = $admin::$db->where('status',2)->getValue(T_WITHDRAWAL, 'COUNT(*)');
+$pending_requests      = $admin::$db->where('status',0)->getValue(T_WITHDRAWAL, 'COUNT(*)');
+$withdrawal_requests   = $admin::$db->orderBy('status','ASC')->paginate(T_WITHDRAWAL,$page);
+$paystack_bal          = $admin->paystackProcessor()->data['data'][0] ?? [];
+$paystack_currency     = Pxp_GetCurrency($paystack_bal['currency'] ?? $config['currency']);
 
 if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
     header("Location: " . pxp_acp_link('payment-requests'));
@@ -17,8 +19,21 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
     <div class="block-header">
         <h2>Advertisement &gt; Payment Requests</h2>
     </div>
-    <div class="row">
-        <div class="col-lg-3 col-md-3">
+    <div class="row"> 
+        <div class="col-md-6">
+            <div class="info-box bg-blue hover-expand-effect">
+                <div class="icon">
+                    <i class="material-icons">account_balance_wallet</i>
+                </div>
+                <div class="content">
+                    <div class="text">PAYSTACK BALANCE</div>
+                    <div class="number count-to" data-from="0" data-to="<?php echo $total_requests; ?>" data-speed="1000" data-fresh-interval="20">
+                        <?php echo $paystack_currency . number_format($paystack_bal['balance'] ?? 0); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">storage</i>
@@ -31,7 +46,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-3 ">
+        <div class="col-md-4">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">check</i>
@@ -44,7 +59,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-3 ">
+        <div class="col-md-4">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">av_timer</i>
@@ -57,7 +72,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-3 ">
+        <div class="col-md-4">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">mail_outline</i>
@@ -72,15 +87,33 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
             <div class="card">
                 <div class="header">
                     <h2>Manage Payment Requests</h2>
-                    <h5>Payments are made from your paypal account, after the payment is made, mark the request as paid.</h5>
+                    <h5>Payments are made from your paystack account, if you make manual payments, use the green check button to mark the request as paid.</h5>
                 </div>
                 <div class="body">
-                   <div class="table-responsive1">
+                    <div class="notification_div"></div>
+                    <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12 bg-orange p-t-10" id="otp_col" style="display: none;">
+                        <div id="otp_alert"></div>
+                        <div class="form-group form-float">
+                            <label class="form-label">Enter OTP <br><small> &nbsp;(An OTP has been sent to your number registered on paystack)</small></label>
+                            <div class="form-line">
+                                <input type="text" id="otp" class="form-control">
+                            </div>
+                            <button type="button" class="btn btn-success m-t-15 waves-effect" id="otp_verify">Submit</button>
+                            <button type="button" class="btn btn-warning m-t-15 waves-effect" id="otp_resend">Resend OTP</button>
+                        </div>
+                    </div>  
+                    <div class="table-responsive1">
                         <table class="table table-bordered table-striped table-hover">
                             <thead>
                                 <tr role="row">
+                                    <th>
+                                        <input type="checkbox" id="check-all" class="filled-in check-all" >
+                                        <label for="check-all"></label>
+                                    </th>
                                     <th>ID</th>
                                     <th>Username</th>
+                                    <th>Account Number</th>
+                                    <th>Bank Name</th>
                                     <th>PayPal E-mail</th>
                                     <th>Amount</th>
                                     <th>Requested</th>
@@ -92,9 +125,11 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                                 <?php 
                                     foreach ($withdrawal_requests as $key => $wal_requests) {
                                         $user = $admin::$db->where('user_id',$wal_requests->user_id)->getOne(T_USERS);
-                                        $context['wal_requests'] = o2array($wal_requests);
-                                        $context['user'] = o2array($admin->userData($user));
-                                        echo $admin->loadPage('payment-requests/list');
+                                        if ($user) {
+                                            $context['wal_requests'] = o2array($wal_requests);
+                                            $context['user'] = o2array($admin->userData($user));
+                                            echo $admin->loadPage('payment-requests/list');
+                                        }
                                     }
                                 ?>
                             </tbody>
@@ -102,8 +137,34 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                     </div>
                 </div>
                 <div class="acp-payment-requests">
-                    <div class="pull-left">
-                        <?php echo "Showing $page out of " . $admin::$db->totalPages; ?>
+                    <div class="bold"> 
+                        <button type="button" 
+                            class="btn btn-success waves-effect actions_buttons pay-selected" 
+                            data-action="pay" 
+                            disabled style="margin-bottom: 10px;margin-left: 10px;">
+                            PAY SELECTED<span></span>
+                        </button>  
+                        <button type="button" 
+                            class="btn btn-info waves-effect actions_buttons mark-selected" 
+                            data-action="mark" 
+                            disabled style="margin-bottom: 10px;margin-left: 10px;">
+                            MARK SELECTED AS PAID<span></span>
+                        </button>  
+                        <button type="button" 
+                            class="btn btn-warning waves-effect actions_buttons decline-selected" 
+                            data-action="decline" 
+                            disabled style="margin-bottom: 10px;margin-left: 10px;">
+                            DECLINE SELECTED<span></span>
+                        </button>  
+                        <button type="button" 
+                            class="btn btn-danger waves-effect actions_buttons delete-selected" 
+                            data-action="delete" 
+                            disabled style="margin-bottom: 10px;margin-left: 10px;">
+                            DELETE SELECTED<span></span>
+                        </button>  
+                    </div>
+                    <div class="pull-left m-l-10">  
+                        <?php echo "Showing page $page of " . $admin::$db->totalPages . " pages"; ?>
                     </div>
                     <div class="pull-right">
                         <nav>
@@ -146,26 +207,48 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                                 </li>
                             </ul>
                         </nav>
-                    </div>
-                    <div class="clearfix"></div>
+                    </div> 
+                    <div class="clearfix"></div> 
                 </div>
             </div>
         </div>
         <div class="clearfix"></div>
     </div>
 </div>
+<!-- #END# Vertical Layout -->
+<div id="actions-modal" class="modal fade" role="dialog" data-id="">
+    <div class="modal-dialog">
+        <div class="modal-content modal-col-blue">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DELETE REQUEST</h4>
+            </div>
+            <div class="modal-body">
+                <span></span>
+                <p>Are you sure you want to continue? You may not be able to undo this action...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link waves-effect action-button" data-dismiss="modal" data-type="delete">DELETE</button>
+                <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     function Pxp_ManageWRequests(id,action) {
-        if (!id || (action != 1 && action != 2 && action != 3)) {
+
+        var paystack_otp = <?php echo ($config['paystack_otp'] == 'on') ? 1 : 0;?>;
+
+        if (!id || (action != 1 && action != 2 && action != 3 && action != 4)) {
             return false;
         }
 
         else if (action == 1) {
-            $("#list-"+id).find('td.request-status').html('<span class="alert-success">Paid</span>');
+            $("#list-"+id).find('td.request-status').html('<span class="label label-success">Paid</span>');
         } 
 
         else if (action == 2) {
-            $("#list-"+id).find('td.request-status').html('<span class="alert-danger">Declined</span>');
+            $("#list-"+id).find('td.request-status').html('<span class="label label-danger">Declined</span>');
         }
 
         else if (action == 3) {
@@ -174,10 +257,107 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
             })
         }
 
+        else if (action == 4) {
+            $("#list-"+id).find('td.request-status').html('<span class="alert-success">Paid</span>');
+            $("#list-"+id).find('button.pay_now').text('Please Wait...');
+            $("#list-"+id).find('button.pay_now').attr('disabled', true);
+        } 
+
         else{
             return false;
         }
 
-        $.post(acpajax_url('withdrawal-requests'), {action:action,id:id}, function(){ /* pass */ });
+        $.post(acpajax_url('withdrawal-requests'), {action:action,id:id}, function(response){ /* pass */ 
+            $('div.notification_div').scroll2().html($('<div>',{
+                class:'alert alert-success',
+                text:response.message
+            }));
+            setTimeout(function(){
+                $('div.notification_div').find('.alert').slideUp('fast',function(){
+                    $(this).remove(); 
+                })    
+            },6000);
+            if (action == 4) {
+                if (response.status == 401) {
+                    $('#otp_col').slideDown();
+                }
+                $("#list-"+id).find('button.pay_now').text('Pay Now');
+                $("#list-"+id).find('button.pay_now').removeAttr('disabled');
+            }
+        });
     }
+ 
+    $(document).on('click', '#otp_verify',function(event) {
+        var otp = $('#otp').val();
+        OtpRequests(otp);
+    });
+
+    $(document).on('click', '#otp_resend',function(event) { 
+        OtpRequests('resend');
+    });
+
+    function OtpRequests(otp) {
+        $('#otp_verify, #otp_resend').text('Please Wait...');
+        $('#otp_verify, #otp_resend').attr('disabled', true);
+        $.post(acpajax_url('request-otp'), {action:'verify',otp:otp}, function (response) {                
+            $('div.notification_div').html($('<div>',{
+                class: response.status == 200 ? 'alert alert-success' : 'alert alert-info',
+                text: response.message
+            }));
+            $('#otp_verify, #otp_resend').removeAttr('disabled');
+            $('#otp_verify').text('Submit');
+            $('#otp_resend').text('Resend');
+            if (response.status == 200 && otp != 'resend') {
+                $('#otp_col').fadeOut();
+            }
+        });
+    }
+    $('.check-all').on('click', function(event) {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+    });
+    $('.item-checkbox, .check-all').change(function(event) {
+        $('.delete-selected, .pay-selected, .decline-selected, .mark-selected').attr('disabled', false);
+        $('.delete-selected, .pay-selected, .decline-selected, .mark-selected').find('span').text(' (' + $('.item-checkbox:checked').size() + ')');
+    });
+
+    $(function () {
+        $(document).on('click', '.actions_buttons',function(event) {
+            event.preventDefault();
+            var action      = $(this).data('action');
+            var action_text = action.charAt(0).toUpperCase()+$(this).data('action').substr(1).toLowerCase();
+            var type_id     = (action == 'mark' ? 1 : (action == 'decline' ? 2 : (action == 'delete' ? 3 : 4)));
+            $('#actions-modal .modal-title').text(action_text+' Request');
+            $('#actions-modal .action-button').text(action_text.toUpperCase());
+            $('#actions-modal .modal-body span').text('You are about to ' + action_text.toLowerCase() +' '+$('.item-checkbox:checked').size()+' Requests!');
+            $('#actions-modal .action-button').attr('data-type', action);
+            $('#actions-modal .action-button').attr('data-type-id', type_id); 
+            $('#actions-modal').attr('data-id', $(this).attr('data-action')).modal('show');
+        });
+    });
+
+    $('.action-button').on('click', function(event) {
+        event.preventDefault();
+        data = new Array();
+        var action = $('#actions-modal .action-button').data('type-id');
+        $('td input:checked').parents('tr').each(function () {
+            data.push($(this).attr('data-id'));
+        }); 
+        $('.delete-selected, .pay-selected, .decline-selected, .mark-selected, .action-button').attr('disabled', true).text('Please wait..'); 
+        $.post(acpajax_url('withdrawal-requests'), {ids: data, action:action}, function (response) {
+            var classs = response.status == 200 ? 'modal-col-blue, modal-col-green' : 'modal-col-red, modal-col-orange';
+            $('#actions-modal .modal-title, #actions-modal .modal-footer').html('Request Success');
+            $('#actions-modal .modal-body').html(response.message ? response.message : 'Request Success');
+            $('#actions-modal .modal-content').toggleClass(classs);
+            $('#actions-modal').modal('show'); 
+            if (action == 3) {
+                $.each( data, function( index, value ){
+                    $('#list-' + value).remove();
+                });
+            }
+            $('.delete-selected').text('DELETE SELECTED').removeAttr('disabled');
+            $('.pay-selected').text('PAY SELECTED').removeAttr('disabled');
+            $('.mark-selected').text('MARK SELECTED AS PAID').removeAttr('disabled');
+            $('.decline-selected').text('DECLINE SELECTED').removeAttr('disabled');
+        }); 
+    });
 </script>

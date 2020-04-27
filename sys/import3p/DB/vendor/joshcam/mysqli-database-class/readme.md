@@ -522,11 +522,13 @@ echo "Showing {$count} from {$db->totalCount}";
 ```
 
 ### Query Keywords
-To add LOW PRIORITY | DELAYED | HIGH PRIORITY | IGNORE and the rest of the mysql keywords to INSERT (), REPLACE (), GET (), UPDATE (), DELETE() method or FOR UPDATE | LOCK IN SHARE MODE into SELECT ():
+To add LOW PRIORITY | DELAYED | HIGH PRIORITY | IGNORE and the rest of the mysql keywords to INSERT (), REPLACE (), GET (), UPDATE (), DELETE() method or FOR UPDATE | LOCK IN SHARE MODE into SELECT ()
+
 ```php
 $db->setQueryOption ('LOW_PRIORITY')->insert ($table, $param);
 // GIVES: INSERT LOW_PRIORITY INTO table ...
 ```
+
 ```php
 $db->setQueryOption ('FOR UPDATE')->get ('users');
 // GIVES: SELECT * FROM USERS FOR UPDATE;

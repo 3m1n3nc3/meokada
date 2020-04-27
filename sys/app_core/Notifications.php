@@ -59,7 +59,7 @@ class Notifications extends User{
 	    self::$db->where('type',$data['type']);
 		self::$db->delete(T_NOTIF);
 
-	    $data['text'] = '';
+	    $data['text'] = !empty($data['text']) ? $data['text'] : '';
 	    $t_notif      = T_NOTIF;
 	    $query        = self::$db->insert($t_notif,$data);
 	    if ($config['push'] == 1) {

@@ -10,37 +10,37 @@
 		</div>
 	</div>
   	<form class="form" id="upload-post-video" action="{{CONFIG site_url}}/aj/posts/upload-post-video">
-		<div class="form-group">
+		  <div class="form-group">
       		<textarea class="form-control" name="caption" rows="3" placeholder="{{LANG add_post_caption}}"></textarea>
-      	</div>
+      </div>
+       <?php if (isset($context['challenge'])) { ?>
         <div class="form-group pp_mat_select">
-          <label class="pp_mat_label">Challenge</label>
+          <label class="pp_mat_label">{{LANG select_challenge}}</label>
           <div>
-            <?php if ($context['challenge']) { ?>
             <select name="challenge" class="form-control" id="challenge"> 
               <?php foreach($context['challenge'] AS $challenge) { ?>
-                <option value="<?=$challenge['id']?>"> <?=$challenge['name']?> </option> 
+                <option value="<?=$challenge['id']?>" title="<?=$challenge['info']?>">  <?=$challenge['name']?> (Win Upto: <?=$context['currency_symbol'] . $challenge['winner_prize']?>) </option> 
               <?php } ?>
             </select>
-            <?php } ?>
           </div>
           <div class="clear"></div>
         </div>
+      <?php } ?>
   		<div class="form-group">
 	  		<div class="form-control selecet-file-control" onclick="$('#post-video').trigger('click');">
-				<button class="btn btn-info" type="button">{{LANG select_file}}</button>
-				<span class="video-file-name">{{LANG no_file_choosen}}</span>
-				<div id="post_video_prnt" class="hidden embed-responsive embed-responsive-16by9">
-					<video id="post__video" controls></video>
-				</div>
-			</div>
-		</div>
-      	<div class="form-group publish">
-      		<button type="submit" class="btn btn-info">{{LANG publish}}</button>
-      		<button type="reset" class="btn btn-default" id="close-anim-modal">{{LANG close}}</button>
-      	</div>
-      	<input class="hidden" type="file" name="video" id="post-video" accept="video/*">
-      	<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>">
+  				<button class="btn btn-info" type="button">{{LANG select_file}}</button>
+  				<span class="video-file-name">{{LANG no_file_choosen}}</span>
+  				<div id="post_video_prnt" class="hidden embed-responsive embed-responsive-16by9">
+  					<video id="post__video" controls></video>
+  				</div>
+			 </div>
+		  </div>
+    	<div class="form-group publish">
+    		<button type="submit" class="btn btn-info">{{LANG publish}}</button>
+    		<button type="reset" class="btn btn-default" id="close-anim-modal">{{LANG close}}</button>
+    	</div>
+    	<input class="hidden" type="file" name="video" id="post-video" accept="video/*">
+    	<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>">
   	</form>
 </div>
 <?php 

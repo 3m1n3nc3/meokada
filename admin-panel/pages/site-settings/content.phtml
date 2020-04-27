@@ -13,6 +13,10 @@ $watermark_off = ($config['watermark'] == 'off') ? 'checked' : '';
 $blog_system_on = ($config['blog_system'] == 'on') ? 'checked' : '';
 $blog_system_off = ($config['blog_system'] == 'off') ? 'checked' : '';
 
+$show_manifest_on = ($config['always_show_manifest'] == 'on') ? 'checked' : '';
+$show_manifest_off = ($config['always_show_manifest'] == 'off') ? 'checked' : '';
+$show_manifest_nev = ($config['always_show_manifest'] == 'never') ? 'checked' : '';
+
 
 $watermark_link = $config['watermark_link'];
 $google_analytics = $admin::decode($config['google_analytics']);
@@ -178,6 +182,16 @@ $langs = $admin::getLangs();
                             <label for="blog_system-enabled" id="blog_system-enabled">Enabled</label>
                             <input type="radio" <?php echo $blog_system_off; ?> name="blog_system" id="blog_system-disabled" value="off">
                             <label for="blog_system-disabled" class="m-l-20">Disabled</label>
+                        </div>
+
+                        <label for="upload_system">Always Show Manifest Modal</label>
+                        <div class="form-group">
+                            <input type="radio" <?php echo $show_manifest_on; ?> name="always_show_manifest"  value="on" id="always_show_manifest-enabled">
+                            <label for="always_show_manifest-enabled" id="always_show_manifest-enabled">Enabled</label>
+                            <input type="radio" <?php echo $show_manifest_off; ?> name="always_show_manifest" id="always_show_manifest-disabled" value="off">
+                            <label for="always_show_manifest-disabled" class="m-l-20">Disabled</label>
+                            <input type="radio" <?php echo $show_manifest_nev; ?> name="always_show_manifest" id="always_show_manifest-never" value="never">
+                            <label for="always_show_manifest-never" class="m-l-20">Never</label>
                         </div>
                         <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
                     </form>

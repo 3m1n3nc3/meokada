@@ -22,14 +22,32 @@ $paypal->setConfig(
     )
 );
 
+$uObj      = new User;
+
+if (!is_array($_POST['type']) && $p_t = json_decode($_POST['type'])) {
+    $_POST['type'] = o2array($p_t);
+}
+$post_type = (is_array($_POST['type']) ? key($_POST['type']) : $_POST['type']); 
+
+if ($post_type == 'community') {
+    $community  = $uObj->listCommunityPlans($_POST['type'][$post_type]); 
+    $com_is_pro = 1;
+    $com_is_ver = 1;
+}
+
 if ($action == 'get_paypal_link' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret'])) {
     $type = 'pro';
-    $sum = $config['pro_price'];
-    $dec = "Upgrade to pro";
+    $sum  = $config['pro_price'];
+    $dec  = "Upgrade to pro";
     if (!empty($_POST['type']) && $_POST['type'] == 'wallet' && !empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0) {
-        $sum = Generic::secure($_POST['amount']);
+        $sum  = Generic::secure($_POST['amount']);
         $type = 'wallet';
-        $dec = "Wallet top up";
+        $dec  = "Wallet top up";
+    }
+    if (!empty($_POST['type']) && $post_type == 'community' && !empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0) {
+        $sum  = Generic::secure($_POST['amount']);
+        $type = 'community';
+        $dec  = 'Join ' . $community['title'] . ' Community';
     }
     
     $payer = new Payer();
@@ -49,6 +67,12 @@ if ($action == 'get_paypal_link' && IS_LOGGED && !empty($config['paypal_id']) &&
     $redirectUrls = new RedirectUrls();
     if ($type == 'pro') {
         $redirectUrls->setReturnUrl($config['site_url'] . "/aj/go_pro/get_paid&success=1")->setCancelUrl($config['site_url']);
+    }
+    elseif ($type == 'community') {
+        $redirectUrls->setReturnUrl($config['site_url'] . "/aj/go_pro/get_community&success=1")->setCancelUrl($config['site_url']);
+    }
+    elseif ($type == 'standard') {
+        $redirectUrls->setReturnUrl($config['site_url'] . "/aj/go_pro/get_standard&success=1")->setCancelUrl($config['site_url']);
     }
     elseif ($type == 'wallet') {
         $redirectUrls->setReturnUrl($config['site_url'] . "/aj/go_pro/wallet_top_up&success=1&amount=".$sum)->setCancelUrl($config['site_url']);
@@ -108,7 +132,91 @@ if ($action == 'get_paid' && IS_LOGGED && !empty($config['paypal_id']) && !empty
                                       'type' => 'pro_member',
                                       'time' => $date));
 
+        $uObj->payUpgradeCommissions(null, 'pro');
+
         header("Location: " . $config['site_url'] . "/upgraded");
+        exit();
+    }
+    else{
+        header("Location: " . $config['site_url'] . "/oops");
+        exit();
+    }
+}
+
+if ($action == 'get_community' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID'])) {
+    $paymentId = $_GET['paymentId'];
+    $PayerID = $_GET['PayerID'];
+    $payment = Payment::get($paymentId, $paypal);
+    $execute = new PaymentExecution();
+    $execute->setPayerId($PayerID);
+    $error = '';
+    try {
+        $result = $payment->execute($execute, $paypal);
+    }
+    catch (Exception $e) {
+        $error = json_decode($e->getData(), true);
+    }
+
+    if (empty($error)) {   
+        $update = $user->updateStatic($me['user_id'],array('is_pro' => $com_is_pro, 'verified' => $com_is_ver, 'community' => $community['id']));
+        $amount = $community['price'];
+        $date   = time();
+
+        $db->insert(T_PAYMENTS,array(
+            'user_id' => $me['user_id'],
+            'amount' => $amount,
+            'type' => 'community_' . $community['id'],
+            'date' => $date));
+
+        $db->insert(T_TRANSACTIONS,array(
+            'user_id' => $me['user_id'],
+            'amount' => $amount,
+            'type' => 'community_' . $community['id'],
+            'time' => $date)); 
+
+        $uObj->payUpgradeCommissions(null, 'community');
+
+        header("Location: " . $config['site_url'] . "/upgraded?type=community_member&community=" . $community['id']);
+        exit();
+    }
+    else{
+        header("Location: " . $config['site_url'] . "/oops");
+        exit();
+    }
+}
+
+if ($action == 'get_standard' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID'])) {
+    $paymentId = $_GET['paymentId'];
+    $PayerID = $_GET['PayerID'];
+    $payment = Payment::get($paymentId, $paypal);
+    $execute = new PaymentExecution();
+    $execute->setPayerId($PayerID);
+    $error = '';
+    try {
+        $result = $payment->execute($execute, $paypal);
+    }
+    catch (Exception $e) {
+        $error = json_decode($e->getData(), true);
+    }
+
+    if (empty($error)) {
+        $update = $user->updateStatic($me['user_id'],array('is_standard' => 1));
+        $amount = $config['standard_price'];
+        $date   = time();
+
+        $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                      'amount' => $amount,
+                                      'type' => 'standard_member',
+                                      'date' => $date));
+
+        $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                      'amount' => $amount,
+                                      'type' => 'standard_member',
+                                      'time' => $date));
+
+        $uObj->payUpgradeCommissions(null, 'standard');
+
+        header("Location: " . $config['site_url'] . "/upgraded?type=standard");
         exit();
     }
     else{
@@ -149,7 +257,8 @@ if ($action == 'wallet_top_up' && IS_LOGGED && !empty($config['paypal_id']) && !
     }
 }
 
-if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' && !empty($config['stripe_id']) && !empty($config['stripe_id'])) {
+if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' && !empty($config['stripe_id']) && !empty($config['stripe_id'])) { 
+
     require_once('sys/import3p/stripe-php-3.20.0/vendor/autoload.php');
     $stripe = array(
       "secret_key"      =>  $config['stripe_secret'],
@@ -158,6 +267,8 @@ if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' &
 
     \Stripe\Stripe::setApiKey($stripe['secret_key']);
     $token = $_POST['stripeToken'];
+ 
+    $post_type = (is_array($_POST['type']) ? key($_POST['type']) : $_POST['type']);
 
     if (!empty($_POST['type']) && $_POST['type'] == 'pro' && !empty($_POST['amount'])) {
         if ($config['pro_price'].'00' == $_POST['amount']) {
@@ -184,9 +295,99 @@ if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' &
                                       'amount' => $amount,
                                       'type' => 'pro_member',
                                       'time' => $date));
+        
+                    $uObj->payUpgradeCommissions(null, 'pro');
+                    
                     $data = array(
                         'status' => 200,
                         'url' => $config['site_url'] . "/upgraded"
+                    );
+                }
+            }
+            catch (Exception $e) {
+                $data = array(
+                    'status' => 400,
+                    'error' => $e->getMessage()
+                );
+            }
+        }
+    }
+
+    if (!empty($_POST['type']) && $post_type == 'community' && !empty($_POST['amount'])) { 
+
+        if ($community['price'].'00' == $_POST['amount']) {
+            try {
+                $customer = \Stripe\Customer::create(array(
+                    'source' => $token
+                ));
+                $charge   = \Stripe\Charge::create(array(
+                    'customer' => $customer->id,
+                    'amount' => $community['price'].'00',
+                    'currency' => 'usd'
+                ));
+                if ($charge) {
+                    $update = $user->updateStatic($me['user_id'],array('is_pro' => $com_is_pro, 'verified' => $com_is_ver, 'community' => $community['id']));
+                    $amount = $community['price'];
+                    $date   = time();
+
+                    $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                              'amount' => $amount,
+                                              'type' => 'community_' . $community['id'],
+                                              'date' => $date));
+
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                      'amount' => $amount,
+                                      'type' => 'community_' .$community['id'],
+                                      'time' => $date));
+        
+                    $uObj->payUpgradeCommissions(null, 'community');
+
+                    $data = array(
+                        'status' => 200,
+                        'url' => $config['site_url'] . "/upgraded?type=community_member&community=" . $community['id']
+                    );
+                }
+            }
+            catch (Exception $e) {
+                $data = array(
+                    'status' => 400,
+                    'error' => $e->getMessage()
+                );
+            }
+        }
+    }
+
+    if (!empty($_POST['type']) && $_POST['type'] == 'standard' && !empty($_POST['amount'])) {
+        if ($config['standard_price'].'00' == $_POST['amount']) {
+            try {
+                $customer = \Stripe\Customer::create(array(
+                    'source' => $token
+                ));
+                $charge   = \Stripe\Charge::create(array(
+                    'customer' => $customer->id,
+                    'amount' => $config['standard_price'].'00',
+                    'currency' => 'usd'
+                ));
+                if ($charge) {
+                    $update = $user->updateStatic($me['user_id'],array('is_standard' => 1));
+                    $amount = $config['standard_price'];
+                    $date   = time();
+
+                    $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                              'amount' => $amount,
+                                              'type' => 'standard_member',
+                                              'date' => $date));
+
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                      'amount' => $amount,
+                                      'type' => 'standard_member',
+                                      'time' => $date));
+        
+                    $uObj->payUpgradeCommissions(null, 'standard');
+
+                    $data = array(
+                        'status' => 200,
+                        'url' => $config['site_url'] . "/upgraded?type=standard"
                     );
                 }
             }
@@ -230,12 +431,143 @@ if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' &
             );
         }
     }
-
-    
-    
 }
 
-if ($action == 'bank_transfer' && IS_LOGGED) {
+if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' && !empty($config['paystack_public']) && !empty($config['paystack_secret'])) 
+{
+    require_once('sys/import3p/Paystack/src/autoload.php'); 
+    $pinit      = new Yabacon\Paystack($config['paystack_secret']); 
+    $reference  = $_POST['reference'];
+    $verify_pay = $pinit->transaction->verify( [ 'reference' => $reference ] ); 
+ 
+    $post_type = (is_array($_POST['type']) ? key($_POST['type']) : $_POST['type']);
+
+    if (!empty($_POST['type']) && $_POST['type'] == 'pro' && !empty($_POST['amount'])) {
+        if ($config['pro_price'] == $_POST['amount']) {
+            if ($verify_pay->data->status === 'success') 
+            { 
+                $update = $user->updateStatic($me['user_id'],array('is_pro' => 1,'verified' => 1));
+                $amount = $config['pro_price'];
+                $date   = time();
+
+                $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                          'amount' => $amount,
+                                          'type' => 'pro_member',
+                                          'date' => $date));
+
+                $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                  'amount' => $amount,
+                                  'type' => 'pro_member',
+                                  'time' => $date));
+        
+                $uObj->payUpgradeCommissions(null, 'pro');
+
+                $data = array(
+                    'status' => 200,
+                    'url' => $config['site_url'] . "/upgraded"
+                ); 
+            }
+            else {
+                $data = array(
+                    'status' => 400,
+                    'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                );
+            }
+        } 
+    }
+    elseif (!empty($_POST['type']) && $post_type == 'community' && !empty($_POST['amount'])) { 
+
+        if ($community['price'] == $_POST['amount']) {
+            if ($verify_pay->data->status === 'success') 
+            { 
+                $update = $user->updateStatic($me['user_id'],array('is_pro' => $com_is_pro, 'verified' => $com_is_ver, 'community' => $community['id']));
+                $amount = $community['price'];
+                $date   = time();
+
+                $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                          'amount' => $amount,
+                                          'type' => 'community_' . $community['id'],
+                                          'date' => $date));
+
+                $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                  'amount' => $amount,
+                                  'type' => 'community_' . $community['id'],
+                                  'time' => $date));
+        
+                $uObj->payUpgradeCommissions(null, 'community');
+
+                $data = array(
+                    'status' => 200,
+                    'url' => $config['site_url'] . "/upgraded?type=community_member&community=" . $community['id']
+                ); 
+            }
+            else {
+                $data = array(
+                    'status' => 400,
+                    'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                );
+            }
+        }
+    }
+    elseif (!empty($_POST['type']) && $_POST['type'] == 'standard' && !empty($_POST['amount'])) {
+        if ($config['standard_price'] == $_POST['amount']) {
+            if ($verify_pay->data->status === 'success') 
+            { 
+                $update = $user->updateStatic($me['user_id'],array('is_standard' => 1));
+                $amount = $config['standard_price'];
+                $date   = time();
+
+                $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                          'amount' => $amount,
+                                          'type' => 'standard_member',
+                                          'date' => $date));
+
+                $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                  'amount' => $amount,
+                                  'type' => 'standard_member',
+                                  'time' => $date));
+        
+                $uObj->payUpgradeCommissions(null, 'standard');
+
+                $data = array(
+                    'status' => 200,
+                    'url' => $config['site_url'] . "/upgraded?type=standard"
+                ); 
+            }
+            else {
+                $data = array(
+                    'status' => 400,
+                    'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                );
+            }
+        }
+    }
+    elseif (!empty($_POST['type']) && $_POST['type'] == 'wallet' && !empty($_POST['amount'])) {
+        $amount = Generic::secure($_POST['amount']);
+        if ($verify_pay->data->status === 'success') 
+        { 
+            $wallet = $me['wallet'] + $amount;
+            $update = $user->updateStatic($me['user_id'],array('wallet' => $wallet));
+
+            $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                  'amount' => $amount,
+                                  'type' => 'Advertise',
+                                  'time' => time()));
+            $data = array(
+                'status' => 200,
+                'url' => $config['site_url'] . "/ads/wallet"
+            ); 
+        }
+        else {
+            $data = array(
+                'status' => 400,
+                'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+            );
+        }
+    }
+}
+
+if ($action == 'bank_transfer' && IS_LOGGED) { 
     if (!empty($_FILES['image'])) {
         if (!empty($_FILES['image']) && file_exists($_FILES['image']['tmp_name'])) {
             $media = new Media();
@@ -254,15 +586,31 @@ if ($action == 'bank_transfer' && IS_LOGGED) {
             $mode  = 'pro_member';
             $funding_id  = 0;
 
+            if (!is_array($_POST['type']) && $p_t = json_decode($_POST['type'])) {
+                $_POST['type'] = o2array($p_t);
+            }
+            $post_type = (is_array($_POST['type']) ? key($_POST['type']) : $_POST['type']); 
+
+            if (!empty($_POST['type']) && $post_type == 'community' && !empty($_POST['price']) && is_numeric($_POST['price']) && $_POST['price'] > 0) {
+                $community   = $uObj->listCommunityPlans($_POST['type'][$post_type]);
+                $description = 'Join ' . $community['title'] . ' Community';
+                $mode        = 'community_' . $community['id'];
+                $price       = Generic::secure($_POST['price']);
+            }
+            if (!empty($_POST['type']) && $_POST['type'] == 'standard' && !empty($_POST['price']) && is_numeric($_POST['price']) && $_POST['price'] > 0) {
+                $description = 'Upgrade to standard';
+                $mode        = 'standard_member';
+                $price       = Generic::secure($_POST['price']);
+            }
             if (!empty($_POST['type']) && $_POST['type'] == 'wallet' && !empty($_POST['price']) && is_numeric($_POST['price']) && $_POST['price'] > 0) {
                 $description = 'Wallet top up';
-                $mode  = 'wallet';
-                $price = Generic::secure($_POST['price']);
+                $mode        = 'wallet';
+                $price       = Generic::secure($_POST['price']);
             }
             if (!empty($_POST['type']) && $_POST['type'] == 'donate' && !empty($_POST['price']) && is_numeric($_POST['price']) && $_POST['price'] > 0 && !empty($_POST['fund_id'])) {
                 $description = 'Donate to funding ';
-                $mode  = 'donate';
-                $price = Generic::secure($_POST['price']);
+                $mode        = 'donate';
+                $price       = Generic::secure($_POST['price']);
                 $funding_id = Generic::secure($_POST['fund_id']);
             }
             if (!empty($upload)) { 

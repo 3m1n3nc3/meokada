@@ -495,57 +495,81 @@ elseif ($action == 'change_profile') {
 elseif ($action == 'withdraw' && IS_LOGGED && !empty($_POST['user_id']) && $config['withdraw_system'] == 'on') {
 	$error  = false;
 	$post   = array();
-	$post[] = (empty($_POST['paypal_email']) || empty($_POST['amount']));
+	$required_pal = (!$config['paystack_secret']) ? empty($_POST['paypal_email']) : empty($_POST['account_number']);
+	$post[] = ($required_pal || empty($_POST['amount']));
 
 	if (in_array(true, $post)) {
 		$error = lang('please_check_details');
 	}
 
-	else if(empty($user->isOwner($_POST['user_id'])) && empty($user->isAdmin())){
+	else if(empty($user->isOwner($_POST['user_id'])) && empty($user->isAdmin())) {
 		$error = lang('please_check_details');
 	}
 
-	elseif (!filter_var($_POST['paypal_email'], FILTER_VALIDATE_EMAIL)) {
+	elseif (!empty($_POST['paypal_email']) && !filter_var($_POST['paypal_email'], FILTER_VALIDATE_EMAIL)) {
 		$error = lang('email_invalid_characters');
 	}
 
-	else if($me['balance'] < $_POST['amount']){
+	elseif($me['balance'] < $_POST['amount']) {
 		$error = lang('amount_more_balance');
 	}
 
-	else if(!is_numeric($_POST['amount']) || $_POST['amount'] < 50){
-		$error = lang('amount_less_50').' 50';
+	elseif(!empty($_POST['account_number']) && strlen($_POST['account_number']) != 10) {
+		$error = 'Invalid Account Number';
+	}
+
+	else if(!is_numeric($_POST['amount']) || $_POST['amount'] < 200){
+		$error = lang('amount_less_50').' 200';
 	}
 
 	$db->where('user_id',$me['user_id']);
     $db->where('status',0);
     $requests = $db->getValue(T_WITHDRAWAL, 'count(*)');
 
-    if (!empty($requests)) {
+    if (!empty($requests)) 
+    {
         $error = lang('cant_request_withdrawal');
     }
 
-
-
-	if (empty($error)) {
-		if ($me['paypal_email'] != $_POST['paypal_email']) {
-			$update  = $user->updateStatic($me['user_id'],array('paypal_email' => Generic::secure($_POST['paypal_email'])));
+	if (empty($error)) 
+	{
+		if (!empty($_POST['paypal_email']) && $me['paypal_email'] != $_POST['paypal_email']) 
+		{
+			$user->updateStatic($me['user_id'],array('paypal_email' => Generic::secure($_POST['paypal_email'])));
 		}
-		$insert_data    = array(
-            'user_id'   => $me['user_id'],
-            'amount'    => Generic::secure($_POST['amount']),
-            'email'     => Generic::secure($_POST['paypal_email']),
-            'requested' => time(),
-            'currency' => $config['currency'],
+
+		if (!empty($_POST['account_number']) && $me['account_number'] != $_POST['account_number']) 
+		{
+			$user->updateStatic($me['user_id'], array(
+				'account_number' => Generic::secure($_POST['account_number']),
+				'bank_name'      => Generic::secure($_POST['bank_name'])
+			));
+		}
+
+		$insert_data = array(
+            'user_id'   	 => $me['user_id'],
+            'amount'    	 => Generic::secure($_POST['amount']),
+            'bank_code' 	 => Generic::secure($_POST['bank_code']),
+			'account_number' => Generic::secure($_POST['account_number']),
+            'account_number' => Generic::secure($_POST['account_number']),
+            'requested' 	 => time(),
+            'currency'  	 => $config['currency'],
         );
 
+        if (!empty($_POST['paypal_email'])) 
+        {
+        	$insert_data['email'] = Generic::secure($_POST['paypal_email']);
+        }
+
         $insert  = $db->insert(T_WITHDRAWAL,$insert_data);
-        if (!empty($insert)) {
+        if (!empty($insert)) 
+        {
             $data['status']  = 200;
             $data['message'] = lang('withdrawal_request_sent');
         }
 	}
-	else{
+	else
+	{
 		
 		$data['status']  = 400;
 		$data['message'] = $error;

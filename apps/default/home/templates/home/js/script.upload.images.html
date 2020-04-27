@@ -212,7 +212,8 @@
 
 			let caption   = $(this).find('textarea').val();
 			
-			let challenge = $("#challenge option:selected").val(); 
+			let chal      = $("#challenge option:selected").val(); 
+			let challenge = typeof(chal) != 'undefined' ? chal : '';
 			
 			let images    = document.getElementById('upload-images').files;
 			

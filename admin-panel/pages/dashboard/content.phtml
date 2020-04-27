@@ -1,4 +1,4 @@
-<?php  
+<?php   
 $tot_users = $admin->totalUsers();
 $tot_posts = $admin->totalPosts();
 $onl_users = $admin->onlineUsers();
@@ -10,12 +10,27 @@ $tot_liks  = $admin->totalLikes();
 
 $usr_statc = $admin->userStatistic();
 $pst_statc = $admin->postStatistic();
+$paystack_bal      = $admin->paystackProcessor()->data['data'][0] ?? [];
+$paystack_currency = Pxp_GetCurrency($paystack_bal['currency'] ?? $config['currency']);
 ?>
 
 <div class="block-header">
-    <h2>DASHBOARD</h2>
+    <h2>DASHBOARD</h2> 
 </div>
 <div class="row clearfix">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-blue hover-expand-effect">
+            <div class="icon">
+                <i class="material-icons">account_balance_wallet</i>
+            </div>
+            <div class="content">
+                <div class="text">PAYSTACK BALANCE</div>
+                <div class="number count-to" data-from="0" data-to="<?php echo $paystack_bal['balance']; ?>" data-speed="1000" data-fresh-interval="20">
+                    <?php echo $paystack_currency . number_format($paystack_bal['balance'] ?? 0); ?>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
         <div class="info-box bg-light-blue hover-expand-effect">
             <div class="icon">
@@ -23,7 +38,7 @@ $pst_statc = $admin->postStatistic();
             </div>
             <div class="content">
                 <div class="text">TOTAL USERS</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo($tot_users);?>" data-speed="15" data-fresh-interval="20"></div>
+                <div class="number counter count-to" data-from="0" data-to="<?php echo($tot_users);?>" data-speed="15" data-fresh-interval="20"></div>
             </div>
         </div>
     </div>
@@ -34,29 +49,7 @@ $pst_statc = $admin->postStatistic();
             </div>
             <div class="content">
                 <div class="text">TOTAL POSTS</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo($tot_posts);?>" data-speed="1000" data-fresh-interval="20"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-        <div class="info-box bg-light-green hover-expand-effect">
-            <div class="icon">
-                <i class="material-icons">forum</i>
-            </div>
-            <div class="content">
-                <div class="text">TOTAL COMMENTS</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo($tot_comms);?>" data-speed="1000" data-fresh-interval="20"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-        <div class="info-box bg-green hover-expand-effect">
-            <div class="icon">
-                <i class="material-icons">account_circle</i>
-            </div>
-            <div class="content">
-                <div class="text">ONLINE USERS</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo($onl_users);?>" data-speed="1000" data-fresh-interval="20"></div>
+                <div class="number counter count-to" data-from="0" data-to="<?php echo($tot_posts);?>" data-speed="1000" data-fresh-interval="20"></div>
             </div>
         </div>
     </div>
@@ -67,7 +60,46 @@ $pst_statc = $admin->postStatistic();
             </div>
             <div class="content">
                 <div class="text">TOTAL MESSAGES</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo($tot_mssgs);?>" data-speed="1000" data-fresh-interval="20"></div>
+                <div class="number counter count-to" data-from="0" data-to="<?php echo($tot_mssgs);?>" data-speed="1000" data-fresh-interval="20"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12">
+        <div class="info-box bg-green hover-expand-effect">
+            <div class="icon">
+                <i class="material-icons">account_circle</i>
+            </div>
+            <div class="content">
+                <div class="text">ONLINE USERS</div>
+                <div class="number">
+                    <?php echo numberFormater($onl_users, 0, 2); ?> 
+                </div> 
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12">
+        <div class="info-box bg-light-green hover-expand-effect">
+            <div class="icon">
+                <i class="material-icons">forum</i>
+            </div>
+            <div class="content">
+                <div class="text">TOTAL COMMENTS</div>
+                <div class="number">
+                    <?php echo numberFormater($tot_comms, 0, 2); ?> 
+                </div> 
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12">
+        <div class="info-box bg-orange hover-expand-effect">
+            <div class="icon">
+                <i class="material-icons">thumb_up</i>
+            </div>
+            <div class="content">
+                <div class="text">TOTAL VOTES</div>
+                <div class="number">
+                    <?php echo numberFormater($tot_liks, 0, 2); ?> 
+                </div>
             </div>
         </div>
     </div>
@@ -78,7 +110,7 @@ $pst_statc = $admin->postStatistic();
             </div>
             <div class="content">
                 <div class="text">TOTAL VIDEOS</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo($tot_vids); ?>" data-speed="1000" data-fresh-interval="20"></div>
+                <div class="number counter count-to" data-from="0" data-to="<?php echo($tot_vids); ?>" data-speed="1000" data-fresh-interval="20"></div>
             </div>
         </div>
     </div>
@@ -89,18 +121,7 @@ $pst_statc = $admin->postStatistic();
             </div>
             <div class="content">
                 <div class="text">TOTAL PHOTOS</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo($tot_imgs); ?>" data-speed="1000" data-fresh-interval="20"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-        <div class="info-box bg-orange hover-expand-effect">
-            <div class="icon">
-                <i class="material-icons">thumb_up</i>
-            </div>
-            <div class="content">
-                <div class="text">TOTAL POSTS LIKES</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo($tot_liks); ?>" data-speed="1000" data-fresh-interval="20"></div>
+                <div class="number counter count-to" data-from="0" data-to="<?php echo($tot_imgs); ?>" data-speed="1000" data-fresh-interval="20"></div>
             </div>
         </div>
     </div>
@@ -130,7 +151,7 @@ $pst_statc = $admin->postStatistic();
 <script>    
 jQuery(document).ready(function($) {
     $('.sparkline').sparkline();
-	$('.number').countTo();
+	$('.counter').countTo();
 
 	Morris.Bar({
         element: 'bar_posts_chart',

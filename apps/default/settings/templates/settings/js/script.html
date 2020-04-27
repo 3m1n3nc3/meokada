@@ -295,10 +295,24 @@
 <?php } ?>
 <?php if ($context['page'] == 'withdraw') { ?>
 	<script data-page="withdraw">
+		$("select[name=bank_code]").change(function(event) {
+			var selected = $(this).children("option:selected");
+			$('input[name=bank_name]').val(selected.text());
+			$('input[name=account_type]').val(selected.data('type'));
+			console.log(selected.text());
+			console.log(selected.data('type'));
+		});
 		jQuery(document).ready(function($) {
-			
+			var selected_opt = $('.bank_inputs').find("option:selected");
+			if (typeof(selected_opt) != 'undefined') {
+				$('input[name=bank_name]').val(selected_opt.text());
+				$('input[name=account_type]').val(selected_opt.data('type'));
+			}
+			var rqp = $('#require_paypal').val();
+			if (typeof(rqp) != 'undefined' && rqp == 1) {$('input[name=paypal_email]').attr('required', true)}
 
-			$("form#edit-withdraw-settings").ajaxForm({
+			withdraw_form = $("form#edit-withdraw-settings");
+			withdraw_form.ajaxForm({
 				url: '<?php echo($context['xhr_url']) ?>/withdraw',
 				type: 'POST',
 				dataType: 'json',
@@ -319,7 +333,6 @@
 				}
 			});
 
-			
 		});
 	</script>
 <?php } ?>

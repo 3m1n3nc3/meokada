@@ -151,26 +151,48 @@ elseif ($action == 'update-data' && IS_LOGGED) {
 }
 
 elseif ($action == 'explore-people' && IS_LOGGED) {
-	if (!empty($_GET['offset']) && is_numeric($_GET['offset'])) {
-		$user->limit = 100;
-		$offset      = $_GET['offset'];
-		$users       = $user->explorePeople($offset);
-		$data        = array('status' => 404);
+    if (!empty($_GET['offset']) && is_numeric($_GET['offset'])) {
+        $user->limit = 100;
+        $offset      = $_GET['offset'];
+        $users       = $user->explorePeople($offset);
+        $data        = array('status' => 404);
 
-		if (!empty($users)) {
-			$users = o2array($users);
-			$html  = "";
+        if (!empty($users)) {
+            $users = o2array($users);
+            $html  = "";
 
-			foreach ($users as $udata) {
-				$html    .= $pixelphoto->PX_LoadPage('explore/templates/explore/includes/row');
-			}
+            foreach ($users as $udata) {
+                $html    .= $pixelphoto->PX_LoadPage('explore/templates/explore/includes/row');
+            }
 
-			$data = array(
-				'status' => 200,
-				'html' => $html
-			);
-		}
-	}
+            $data = array(
+                'status' => 200,
+                'html' => $html
+            );
+        }
+    }
+}
+
+elseif ($action == 'explore-winners' && IS_LOGGED) {
+    if (!empty($_GET['offset']) && is_numeric($_GET['offset'])) { 
+        $page       = $_GET['offset'];
+        $challenges = $cObj->getRecentChallenges($page);
+        $data       = array('status' => 404);
+
+        if (!empty($challenges)) {
+            $users = o2array($challenges);
+            $html  = "";
+
+            foreach ($users as $udata) {
+                $html    .= $pixelphoto->PX_LoadPage('explore/templates/explore/includes/col');
+            }
+
+            $data = array(
+                'status' => 200,
+                'html' => $html
+            );
+        }
+    }
 }
 
 elseif ($action == 'report-profile' && IS_LOGGED && !empty($_POST['id'])){
@@ -424,13 +446,22 @@ elseif ($action == 'update_user_lastseen') {
 	$data = array('status' => 200);
 }
 
-elseif ($action == 'get_payment_methods') {
-	$context['pay_type'] = 'pro';
-	$pay_type = array('pro','wallet');
-	if (!empty($_POST['type']) && in_array($_POST['type'], $pay_type)) {
-		$context['pay_type'] = $_POST['type'];
+elseif ($action == 'get_payment_methods') 
+{
+    $uObj = new User;
+	$context['pay_type'] = '\'pro\'';
+    $post_type = (is_array($_POST['type']) ? key($_POST['type']) : $_POST['type']);
+	$pay_type  = array('pro', 'standard', 'wallet');
+
+	if (!empty($post_type) && in_array($post_type, $pay_type)) {
+        $context['pay_type']  = '\''.$post_type.'\'';
+		$context['pay_price'] = $config[$post_type == 'pro' ? 'pro_price' : 'standard_price'];
 	}
-	$html    = $pixelphoto->PX_LoadPage('main/templates/modals/go_pro');
+    elseif (is_array($_POST['type'])) {
+        $context['pay_type']  = '{\''.$post_type.'\':'.$_POST['type'][$post_type].'}';
+        $context['pay_price'] = $uObj->listCommunityPlans($_POST['type'][$post_type])['price'] ?? 0;
+    }
+	$html = $pixelphoto->PX_LoadPage('main/templates/modals/go_pro');
 	$data = array('status' => 200,'html' => $html);
 }
 
@@ -521,6 +552,33 @@ else if ($action == 'upload_store_image' && IS_LOGGED) {
     else{
         $data['message'] = lang('please_check_details');
     }
+}
+
+elseif ($action == 'manifest-modal') {
+    $users    = new User;
+    $response = $users->noticeModalContent(null, true, 'homepage');
+
+    $html = '';
+    if ($response) {
+        foreach ($response as $key => $info) {
+            $context['title'] = $info['title'];
+            $context['content'] = decode($info['content']);
+            $html    .= $pixelphoto->PX_LoadPage('main/templates/includes/manifest-content');
+        }
+    }
+
+    $config['always_show_manifest'];
+
+    if ($config['always_show_manifest'] != 'never') {
+        if ($config['always_show_manifest'] == 'off') {
+            $_SESSION['manifest_shown'] = time();
+        } elseif ($config['always_show_manifest'] == 'on' && isset($_SESSION['manifest_shown'])) {
+            unset($_SESSION['manifest_shown']);
+        }
+    }
+
+    $data['html']   = $html;
+    $data['status'] = 200; 
 }
 
 exit_xhr:

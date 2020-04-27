@@ -8,7 +8,18 @@
 		</span>
 	</td>
 	<td>
-		<a href="javascript:void(0)" class="edit-challenge" data-id="<?php echo($cd['challenge']['id']); ?>"> 
+		<a href="javascript:void(0)" 
+			class="edit-challenge" 
+			data-id="<?php echo($cd['challenge']['id']); ?>"
+			data-title="<?php echo($cd['challenge']['name']); ?>"
+			data-info="<?php echo($cd['challenge']['info']); ?>"
+			data-start_date="<?php echo($cd['challenge']['start_date']); ?>"
+			data-close_date="<?php echo($cd['challenge']['close_date']); ?>"
+			data-status="<?php echo($cd['challenge']['status']); ?>"
+			data-pro_level="<?php echo($cd['challenge']['pro_level']); ?>"
+			data-c_rank="<?php echo($cd['challenge']['c_rank']); ?>"
+			data-entry_bonus="<?php echo($cd['challenge']['entry_bonus']); ?>"
+			data-winner_prize="<?php echo($cd['challenge']['winner_prize']); ?>"> 
 			<?php echo($cd['challenge']['name']); ?>
 		</a>
 	</td>
@@ -32,11 +43,15 @@
 	<td>
 		<span>
 			<?php echo(date('D d M Y', strtotime($cd['challenge']['start_date']))); ?>
+			<b class="text-success">
+				<?php echo(strtotime($cd['challenge']['start_date']) < strtotime('NOW') && strtotime($cd['challenge']['close_date']) > strtotime('NOW') ? 'Active' : ''); ?> 
+			</b>
 		</span>
 	</td>
 	<td>
 		<span>
 			<?php echo(date('D d M Y', strtotime($cd['challenge']['close_date']))); ?>
+			<b class="text-danger"><?php echo(strtotime($cd['challenge']['close_date']) < strtotime('NOW') ? 'Ended' : ''); ?></b>
 		</span>
 	</td>
 	<td>

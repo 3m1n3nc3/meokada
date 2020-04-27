@@ -520,6 +520,70 @@ class Generic{
 		return $page_save;
 	}
 
+	public function saveInfoModal($data = array()) {
+		$saved = false;
+		if (!empty($data['title']) && !empty($data['content'])) {
+			if (!empty($data['id']) && is_numeric($data['id'])) {
+				$saved  = self::$db->where('id',$data['id'])->update(T_MODAL, $data);
+			} else {
+				unset($data['id']);
+				$saved = self::$db->insert(T_MODAL, $data);
+			} 
+		}
+
+		return $saved;
+	}
+
+	public function noticeModalContent($cid = '', $rows = false, $allowed_page = '')
+	{ 
+	    $get = ($rows) ? 'get' : 'getOne';
+	    if (!empty($cid) || $rows) { 
+	        if (is_numeric($cid)) {
+	            self::$db->where('`id`', "$cid"); 
+	        } elseif ($cid) {
+	            self::$db->where('`title`',"%$cid%",'LIKE');
+	        } 
+	        if ($allowed_page) {
+	        	$i = 0;
+	        	foreach (explode(',', $allowed_page) as $key => $page) {
+	        		$i++; 
+	            	self::$db->where('`in_pages`', "$page", "=", "OR"); 
+	        	}
+	        }
+	    
+		    $content = self::$db->orderBy('id', 'DESC')->$get(T_MODAL, NULL, array(
+		        'id',
+		        'title',
+		        'content',
+		        'status',
+		        'in_pages'
+		    ));
+		    //echo self::$db->getLastQuery();
+
+		    if (!$rows && $content) $content->content = decode($content->content);
+		    
+		    return o2Array($content);
+	    }  
+	}
+
+	public function listCommunityPlans($id = '') 
+	{ 	    	        
+	    $get = ($id) ? 'getOne' : 'get';
+		if (is_numeric($id)) {
+            self::$db->where('`id`', "$id"); 
+        }
+	    $accounts = self::$db->orderBy('price', 'ASC')->$get(T_COMMUNITY, NULL, array(
+	        'id',
+	        'title',
+	        'description',
+	        'price',
+	        'entry_bonus',
+	        'status' 
+	    ));
+
+		return o2Array($accounts);
+	}
+
 	public function upsertHtags($text = ""){
 		if (!empty($text)) {
 			preg_match_all('/#([^`~!@$%^&*\#()\-+=\\|\/\.,<>?\'\":;{}\[\]* ]+)/i', $text, $htags);

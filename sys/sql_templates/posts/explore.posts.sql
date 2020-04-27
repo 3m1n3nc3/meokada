@@ -1,4 +1,8 @@
-SELECT p.*,m.*,u.`username`,u.`user_id` owner_id,u.`avatar`,(SELECT COUNT(l.`id`) FROM  `{%t_likes%}` l WHERE l.`post_id` = p.`post_id` ) AS likes, (SELECT COUNT(c.`id`) FROM `{%t_comm%}` c WHERE c.`post_id` = p.`post_id`) AS comments 
+SELECT p.*,ANY_VALUE(m.id) AS id, ANY_VALUE(m.post_id) AS post_id, 
+	ANY_VALUE(m.user_id) AS user_id, ANY_VALUE(m.file) AS file,
+	ANY_VALUE(m.extra) AS extra,u.`username`,u.`user_id` owner_id,u.`avatar`,
+	(SELECT COUNT(l.`id`) FROM  `{%t_likes%}` l WHERE l.`post_id` = p.`post_id` ) AS likes, 
+	(SELECT COUNT(c.`id`) FROM `{%t_comm%}` c WHERE c.`post_id` = p.`post_id`) AS comments 
 
 	FROM `{%t_posts%}` p INNER JOIN `{%t_media%}` m ON m.`post_id` = p.`post_id` 
 

@@ -334,6 +334,15 @@ $ffmpeg_binary = $config['ffmpeg_binary'];
                                 </label>
                             </div>
                         </div>
+
+                        <label for="upload_system">Offline API Access</label>
+                        <div class="form-group">
+                            <input type="radio" name="offline_access"  value="on" id="offline_access-enabled" <?php echo ($config['offline_access'] == 'on') ? 'checked': '';?>>
+                            <label for="offline_access-enabled">Enabled</label>
+                            <input type="radio" name="offline_access" id="offline_access-disabled" value="off" <?php echo ($config['offline_access'] == 'off') ? 'checked': '';?>>
+                            <label for="offline_access-disabled" class="m-l-20">Disabled</label>
+                        </div> 
+
                         <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
                     </form>
                 </div>

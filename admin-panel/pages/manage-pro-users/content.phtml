@@ -19,11 +19,11 @@ if (!empty($filter_keyword)) {
     // // $admin::$db->where('lname',"%$filter_keyword%",'LIKE','OR');
     // //$admin::$db->where('user_id',"$filter_keyword",'=','OR');
     // $admin::$db->where($sql);
-	$users = $admin::$db->where($sql)->where('is_pro','1')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
+	$users = $admin::$db->where($sql)->where('is_pro','1')->where('is_standard','1', 'OR')->orderBy('is_pro', 'DESC')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
 } 
 
 else {
-	$users = $admin::$db->where('is_pro',1)->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
+	$users = $admin::$db->where('is_pro',1)->where('is_standard','1', 'OR')->orderBy('is_pro', 'DESC')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
 }
 
 if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
@@ -70,6 +70,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                                     <th>ID</th>
                                     <th>Username</th>
                                     <th>E-mail</th>
+                                    <th>Plan</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>

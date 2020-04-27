@@ -21,8 +21,24 @@ if (IS_LOGGED !== true) {
 
 // $follow = (!empty($follow) && is_array($follow)) ? o2array($follow) : array();
 
-$context['page_link'] = 'upgraded';
-$context['exjs'] = true;
-$context['app_name'] = 'upgraded';
+$uObj = new User; 
+
+$context['page_link']  = 'upgraded';
+$context['exjs']       = true;
+$context['app_name']   = 'upgraded';
 $context['page_title'] = $context['lang']['upgraded'];
-$context['content'] = $pixelphoto->PX_LoadPage('upgraded/templates/upgraded/index');
+
+$context['upgrade_type'] = 'Pro';
+
+if (isset($_GET['type'])) {
+    if ($_GET['type'] == 'community' || $_GET['type'] == 'community_member') 
+    {
+        $cid = (!empty($_GET['community']) ? $_GET['community'] : (!empty($_GET['communityid']) ? $_GET['communityid'] : $_GET['community_id']));
+
+        $community               = $uObj->listCommunityPlans($cid); 
+        $context['upgrade_type'] = $community['title'] . ' Community';
+    } else {
+        $context['upgrade_type'] = ucwords($_GET['type']);
+    }
+} 
+$context['content']    = $pixelphoto->PX_LoadPage('upgraded/templates/upgraded/index');

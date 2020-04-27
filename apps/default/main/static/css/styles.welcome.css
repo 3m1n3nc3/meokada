@@ -70,6 +70,17 @@ body {background: #f7f7f7;background-image: url("data:image/svg+xml;charset=UTF-
 .pp_welcome_reset{width: 370px;}
 .pp_welcome_reset .logo{margin-bottom: 0;}
 
+/*Loading Bar*/
+@keyframes shift-rightwards{
+0%{-webkit-transform:translateX(-100%);transform:translateX(-100%);background: #1da1f2;}
+40%{-webkit-transform:translateX(0%);transform:translateX(0%);background: #ed215e;}
+60%{-webkit-transform:translateX(0%);transform:translateX(0%);background: #84b946;}
+100%{-webkit-transform:translateX(100%);transform:translateX(100%);background: #dc4a38;}
+}
+.bar_loading {position: fixed;display: none;top: 0;left: 0;right: 0;height: 2.5px;z-index: 5000;background: #1da1f2;transform: translateX(100%);animation: shift-rightwards 1.5s infinite;}
+.app-loading .bar_loading {display: block;}
+
+
 /*Password View*/
 .icon-wrapper {position: absolute;top: 6px;right: 4px;width: 22px;height: 22px;cursor: pointer;}
 .icon-wrapper svg {position: absolute;top: 0px;right: 0px;color: #696969;transition: color 0.25s ease-out;width: 22px;height: 22px;}

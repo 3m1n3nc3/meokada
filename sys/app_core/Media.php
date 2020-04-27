@@ -49,37 +49,39 @@ class Media extends Generic{
 
 	// Compress image size
 	public function compressImage($source_url, $destination_url, $quality) {
-        $imgsize = getimagesize($source_url);
-        $finfof  = $imgsize['mime'];
-        $image_c = 'imagejpeg';
-        if ($finfof == 'image/jpeg') {
-            $image = @imagecreatefromjpeg($source_url);
-        } else if ($finfof == 'image/gif') {
-            $image = @imagecreatefromgif($source_url);
-        } else if ($finfof == 'image/png') {
-            $image = @imagecreatefrompng($source_url);
-        } else {
-            $image = @imagecreatefromjpeg($source_url);
-        }
-        $quality = 50;
-        if (function_exists('exif_read_data')) {
-            $exif = @exif_read_data($source_url);
-            if (!empty($exif['Orientation'])) {
-                switch ($exif['Orientation']) {
-                    case 3:
-                        $image = @imagerotate($image, 180, 0);
-                        break;
-                    case 6:
-                        $image = @imagerotate($image, -90, 0);
-                        break;
-                    case 8:
-                        $image = @imagerotate($image, 90, 0);
-                        break;
+
+        if ($imgsize = @getimagesize($source_url)) {  
+            $finfof  = $imgsize['mime'];
+            $image_c = 'imagejpeg';
+            if ($finfof == 'image/jpeg') {
+                $image = @imagecreatefromjpeg($source_url);
+            } else if ($finfof == 'image/gif') {
+                $image = @imagecreatefromgif($source_url);
+            } else if ($finfof == 'image/png') {
+                $image = @imagecreatefrompng($source_url);
+            } else {
+                $image = @imagecreatefromjpeg($source_url);
+            }
+            $quality = 50;
+            if (function_exists('exif_read_data')) {
+                $exif = @exif_read_data($source_url);
+                if (!empty($exif['Orientation'])) {
+                    switch ($exif['Orientation']) {
+                        case 3:
+                            $image = @imagerotate($image, 180, 0);
+                            break;
+                        case 6:
+                            $image = @imagerotate($image, -90, 0);
+                            break;
+                        case 8:
+                            $image = @imagerotate($image, 90, 0);
+                            break;
+                    }
                 }
             }
-        }
-        @imagejpeg($image, $destination_url, $quality);
-        return $destination_url;
+            @imagejpeg($image, $destination_url, $quality);
+            return $destination_url;
+        } 
     }
 
 	// Crop image + decrease image quality
@@ -209,6 +211,7 @@ class Media extends Generic{
 		$dir         = "media/upload";
 		$generate    = date('Y') . '/' . date('m') . '/' . $this->generateKey(50,50) . '_' . date('d') . '_' . md5(time());
 		$file_path   = "{$folder}/" . $generate . "_{$fileType}.{$file_extension}";
+        // $file_path   = $folder .'/' . $generate . '_' . $fileType . '.' . $file_extension;
 		$filename    = $dir . '/' . $file_path;
 		$second_file = pathinfo($filename, PATHINFO_EXTENSION);
 		if (move_uploaded_file($this->file, $filename)) {
@@ -233,6 +236,7 @@ class Media extends Generic{
 
                 if (!empty($this->crop)) {
                     $c_path = $dir . '/' . "{$folder}/" . $generate . "_{$fileType}_c.{$file_extension}";
+                    // $c_path = $dir . '/' . $folder .'/' . $generate . '_' . $fileType . '_c.' . $file_extension;
                     self::cropImage(350, 350, $filename, $c_path, 90);
                 }
 			}

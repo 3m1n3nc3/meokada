@@ -10,12 +10,11 @@ $posts->limit      = 40;
 $query_posts       = $posts->explorePosts();
 $follow            = array();
 
-
 if (IS_LOGGED) {
 	$follow = $user->followSuggestions();
 }
 
-$boost_post = $posts->exploreBoostedPosts()[0];
+$boost_post = $posts->exploreBoostedPosts()[0] ?? [];
 if (!empty($query_posts)) {
 	$context['posts'] = o2array($query_posts);
 }
@@ -26,6 +25,7 @@ elseif (empty($context['posts']) && !empty($boost_post)) {
 	$context['posts'][] = o2array($boost_post);
 }
 $context['is_boosted'] = false;
+
 
 $follow = (!empty($follow) && is_array($follow)) ? o2array($follow) : array();
 

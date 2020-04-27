@@ -27,7 +27,7 @@
 			<meta name="twitter:card" content="summary_large_image">
 			<meta name="twitter:title" content="{{CONFIG site_name}} - {{TITLE}}" />
 			<meta name="twitter:description" content="{{CONFIG site_desc}}" />
-			<meta name="twitter:image" content="<?php echo( Media( $context['post_data']['media_set'][0]['file'] ) ) ?>" />
+			<meta name="twitter:image" content="<?php echo( Media( $context['post_data']['media_set'][0]['file']??'' ) ) ?>" />
 			<meta name="twitter:creator" content="@{{CONFIG site_name}}">
 	<?php } ?>
 
@@ -68,6 +68,7 @@
 	<link rel="shortcut icon" type="image/png" href="{{CONFIG site_url}}/media/img/icon.{{CONFIG favicon_extension}}"/>
 	<script src="{{THEME_URL}}/main/static/js/libs/jquery-3.2.1.js"></script>
 	<script src="{{THEME_URL}}/main/static/css/libs/bs3/js/bootstrap.js"></script>
+	<link rel="stylesheet" href="{{THEME_URL}}/main/static/css/libs/bootstrap4mixins.css">
 	<link rel="stylesheet" href="{{THEME_URL}}/main/static/css/libs/bs3/css/bootstrap.css">
 	<script src="{{THEME_URL}}/main/static/js/libs/highcharts/highcharts.js"></script>
 	<script src="{{THEME_URL}}/main/static/js/libs/highcharts/exporting.js"></script>
@@ -78,7 +79,7 @@
 	<link rel="stylesheet" href="{{THEME_URL}}/main/static/css/styles.master.css">
     <?php } ?>
 	<?php if ($context['app_name'] == 'welcome' || $context['app_name'] == 'signup') { ?>
-	<?php } elseif ($_COOKIE['mode'] == 'night') { ?>
+	<?php } elseif (($_COOKIE['mode'] ?? '') == 'night') { ?>
 	<link rel="stylesheet" id="night_mode_css" href="{{THEME_URL}}/main/static/css/styles.master_night.css">
     <?php } ?>
     <?php if ($context['app_name'] == 'welcome' && $config['recaptcha'] == 'on') { ?>

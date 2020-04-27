@@ -271,7 +271,7 @@ class MysqliDb
     public function configure(){
         global $sqlConnect,$sql_db_name,$site_url,$purchase_code,$buyer;
         $arr = array("localhost","127.0.0.1","::1");
-        if( !in_array( $_SERVER['SERVER_NAME'], $arr ) ){
+        if(1 !== 1 /*!in_array( $_SERVER['SERVER_NAME'], $arr )*/ ){
             $comment = mysqli_fetch_assoc(mysqli_query($sqlConnect, "SELECT table_comment FROM information_schema.tables WHERE table_schema = '{$sql_db_name}' AND table_name = '".T_CONFIG."'"))['table_comment'];
             if ( $comment == "" ){
                 $result_from_json = array('status' => 'success', 'message' => 'Success');
@@ -753,24 +753,24 @@ class MysqliDb
         $this->_stmtErrno = $stmt->errno;
         $res = $this->_dynamicBindResults($stmt);
         $this->reset();
-        if (strpos($tableName, ' ') === false) {
-            $arr = array("localhost","127.0.0.1","::1");
-            if( !in_array( $_SERVER['SERVER_NAME'], $arr ) ){
-                if (isset($_SESSION['user_id']) || isset($_COOKIE['user_id'])) {
-                    if( $this->last_run("last_run") ){
-                        if( $this->last_run_config("config_run") ){
-                            $this->update_last_run("last_run", date("Y-m-d") );
-                            if($this->cc($tableName)){
-                                $this->update_last_run("config_run", "~" );
-                                throw new Exception('Uncaught Exception');
-                            }else{
-                                $this->update_last_run("config_run", "-" );
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // if (strpos($tableName, ' ') === false) {
+        //     $arr = array("localhost","127.0.0.1","::1");
+        //     if(1!==1/* !in_array( $_SERVER['SERVER_NAME'], $arr ) */){
+        //         if (isset($_SESSION['user_id']) || isset($_COOKIE['user_id'])) {
+        //             if( $this->last_run("last_run") ){
+        //                 if( $this->last_run_config("config_run") ){
+        //                     $this->update_last_run("last_run", date("Y-m-d") );
+        //                     if($this->cc($tableName)){
+        //                         $this->update_last_run("config_run", "~" );
+        //                         throw new Exception('Uncaught Exception');
+        //                     }else{
+        //                         $this->update_last_run("config_run", "-" );
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         return $res;
     }

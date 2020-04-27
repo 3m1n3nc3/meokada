@@ -30,8 +30,11 @@
 				</div>
 				<div class="pp_wel_footer animated fadeInUpBig">
 					<?php if ($config['signup_system'] == 'on') { ?>
-						<a class="btn btn-info btn_register" href="{{CONFIG site_url}}/signup">{{LANG signup_now}}</a>
+						<a class="btn btn-info mb-5 btn_register" href="{{CONFIG site_url}}/signup">{{LANG signup_now}}</a>
 					<?php } ?>
+
+					<button class="btn btn-info btn-lg mb-5 view-manifest" data-toggle="modal" data-target="#manifest-modal">Read Manifest</button>
+
 					<ul class="lang_select pull-right">
 						<li class="dropup">
 							<span class="dropdown-toggle" data-toggle="dropdown">
@@ -93,6 +96,11 @@
 			</div>
 		</div>
 	</div>
+
+	<?php 
+		include $context['dirname_theme'].'/main/templates/modals/read-manifest.html';
+	?>
+
 	<script>
 		jQuery(document).ready(function($) {
 			$("form#login").ajaxForm({
@@ -126,29 +134,51 @@
 	                $('form').find('button[type="submit"]').removeAttr('disabled');
 				}
 			})
+
+	        $(document).on('click', '.view-manifest',function(event) {  
+	        	load_noticeModal();
+	        });
+
+			var show_manifest = "<?php echo ($config['always_show_manifest'] !== 'never' && !empty($_SESSION['manifest_shown'])) ? $_SESSION['manifest_shown'] : false ?>";
+
+	        if (!show_manifest) {
+		        $('#manifest-modal').modal('show');
+		        load_noticeModal();
+	        }
 		});
+
+		function load_noticeModal() {
+			$('body').addClass('app-loading');
+	        $.post(xhr_url()+'main/manifest-modal', {id:'id',action:'action'}, function (data) { 
+	            if (data.status == 200) { 
+	                $('div.manifest-modal-content').html(data.html);
+					$('body').removeClass('app-loading'); 
+	            }
+	        });
+	    }
 	</script>
 
 	<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />
 	<script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js"></script>
 	<script>
 	window.addEventListener("load", function(){
-	window.cookieconsent.initialise({
-	"palette": {
-		"popup": {
-		"background": "#3937a3"
-		},
-		"button": {
-		"background": "#e62576"
-		}
-	},
-	"theme": "classic",
-	"position": "bottom-left",
-	"content": {
-		"message": "{{LANG website_use_cookies}}",
-		"dismiss": "{{LANG got_it}}",
-			"link": "{{LANG learn_more1}}",
-			"href": "{{CONFIG site_url}}/privacy-and-policy"
-	}
-	})});
+		window.cookieconsent.initialise({
+			"palette": {
+				"popup": {
+				"background": "#3937a3"
+				},
+				"button": {
+				"background": "#e62576"
+				}
+			},
+			"theme": "classic",
+			"position": "bottom-left",
+			"content": {
+				"message": "{{LANG website_use_cookies}}",
+				"dismiss": "{{LANG got_it}}",
+					"link": "{{LANG learn_more1}}",
+					"href": "{{CONFIG site_url}}/privacy-and-policy"
+			}
+		})
+	});
 	</script>

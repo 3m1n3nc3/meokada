@@ -1,5 +1,6 @@
 <?php
 $admin = new Admin();
+$postC = new Posts;
 if ($config['last_clean_db'] <= (time() - 86400)) {
 	$admin->updateSettings(array(
 		'last_clean_db' => time()
@@ -36,6 +37,4 @@ if ($config['pro_system'] == 'on') {
         $admin::$db->where('user_id', $ids, "IN")->update(T_USERS, array('is_pro' => '0'));
     }
 }
-
-
 ?>

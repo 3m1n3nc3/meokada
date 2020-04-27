@@ -182,7 +182,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 <h4 class="modal-title">DELETE POST</h4>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to continue? this action can't be undo</p>
+                <p>Are you sure you want to continue? this action can't be undone</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-link waves-effect delete-button" data-dismiss="modal" data-type="post">DELETE</button>
@@ -206,7 +206,7 @@ $('.delete-selected').on('click', function(event) {
     $('td input:checked').parents('tr').each(function () {
         data.push($(this).attr('data-id'));
     });
-    if (confirm('Are you sure that you want to delete the selected video(s)?')) {
+    if (confirm('Are you sure that you want to delete the selected post(s)?')) {
         $('.delete-selected').attr('disabled', true);
         $('.delete-selected').text('Please wait..');
         $.post(acpajax_url('delete-multi-post'), {ids: data}, function () {

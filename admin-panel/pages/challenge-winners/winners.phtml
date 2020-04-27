@@ -1,0 +1,27 @@
+            <?php $prize = $cd['_psc']->cpPrize($cd['challenge']['id'], $cd['position'], $cd['nat'])?>
+            <div class="col-md-4 col-sm-6 m-b-0">
+                <div class="info-box bg-<?php echo($cd['color']); ?> hover-expand-effect">
+                    <div class="icon">
+                        <img src="<?php echo(media($cd['winner']['avatar'])); ?>" class="td-avaftar" width="80px" alt="post avatar">
+                    </div>
+                    <div class="content">
+                        <div class="text"><?php echo $cd['place'] . ' (' . $context['winner']['likes'] . ' ' . strtoupper(lang('likes')) . ')'; ?></div>
+                        <div class="number"><?php echo($cd['_user']->fullName($cd['winner'])); ?></div>
+                    </div>
+                </div>
+                <?php if($cd['winner']['paid_winner'] <=0):?>
+                    <button 
+                        id="winner_<?php echo($cd['winner']['user_id'].$cd['nat']) ?>" 
+                        class="btn btn-block btn-success waves-effect waves-light pay_winner winner_<?php echo($cd['winner']['user_id']) ?> m-t-0" 
+                        data-user_id="<?php echo($cd['winner']['user_id']??''); ?>"
+                        data-post_id="<?php echo($cd['winner']['post_id']??''); ?>"  
+                        data-challenge="<?php echo($cd['challenge']['id']??'');?>"
+                        data-title="<?php echo($cd['challenge']['name']??'');?>"
+                        data-position="<?php echo($cd['position']??'');?>"
+                        data-nat="<?php echo($cd['nat']??'');?>"
+                        data-prize="<?php echo($cd['currency_symbol'].number_format($prize)??'');?>"
+                        <?php echo($cd['status'] ? ' title="You can approve prize after the contest has ended" disabled' : ''); ?>>
+                        APPROVE PRIZE (<?php echo $cd['currency_symbol'].number_format($prize)?>)
+                    </button>
+                <?php endif;?>
+            </div>
