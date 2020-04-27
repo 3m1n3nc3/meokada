@@ -283,10 +283,12 @@ else if ($action == 'change-password' && IS_LOGGED && !empty($_POST['user_id']))
 				$error = lang('please_check_details');
 			}
 
-			else{
-				if (!HashPassword($_POST['old_password'], $user_data->password) && !$user->isAdmin()) {
-					$error = lang('password_not_match');
-				}
+			else{ 
+                if (!$user->isAdmin()) { 
+    				if (!HashPassword($_POST['old_password'], $user_data->password) && !$user->isAdmin()) {
+    					$error = lang('password_not_match');
+    				}
+                }
 				if($_POST['new_password'] != $_POST['conf_password']){
 					$error = lang('password_not_match');
 				}
