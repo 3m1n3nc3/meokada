@@ -13,7 +13,8 @@ if (!empty($_GET['page'])) {
     $page = $admin::secure($_GET['page']);
 }
 
-$context['theme_url'] = $site_url.'/apps/'.$config['theme'];
+$context['theme_url'] = $site_url.'/apps/'.$config['theme']; 
+$context['me']        = $admin->getLoggedInUser();
 
 $page_content = '';
 $pages        = array(
