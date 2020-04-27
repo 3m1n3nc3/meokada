@@ -143,13 +143,22 @@ if (empty($page_content)) {
         <link href="<?php echo pxp_acp_link('plugins/bootstrap-toggle/bootstrap-toggle.min.css');?>" rel="stylesheet" />
         <link href="<?php echo pxp_acp_link('plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css'); ?>" rel="stylesheet">
         <link href="<?php echo pxp_acp_link('plugins/bootstrap-select/css/bootstrap-select.css');?>" rel="stylesheet" />
+        <link href="<?php echo pxp_acp_link('plugins/jquery-ui/jquery-ui.min.css');?>" rel="stylesheet" />
         <link href="<?php echo $context['theme_url'] ?>/main/static/js/libs/toast/src/jquery.m.toast.css">  
         <script src="<?php echo pxp_acp_link('plugins/jquery/jquery.min.js');?>"></script>
+        <script src="<?php echo pxp_acp_link('plugins/jquery-ui/jquery-ui.min.js');?>"></script>
         <script>
             function acpajax_url(path) {
                 return '<?php echo($config['site_url']); ?>/aj/admin/' + path;
             }
         </script>
+        <style type="text/css">
+            .sort-highlight {
+              background: #f8f9fa;
+              border: 1px dashed #dee2e6;
+              margin-bottom: 10px;
+            }
+        </style>
     </head>
 
     <body class="theme-red">   

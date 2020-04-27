@@ -569,6 +569,23 @@ elseif ($action == 'delete-lang') {
 		}
 	}
 }
+elseif ($action == 'sort-info-modal') { 
+	$admin = new Admin();
+ 
+	$i = 1;
+	foreach ($_POST['list'] AS $item) 
+	{
+		$admin::$db->where('id', $item);
+		$admin::$db->update(T_MODAL, array('priority' => $i)); 
+		$i++;
+	}
+		
+	$data = array(
+		'response' =>true,
+		'status'  => 200 
+	);
+	// ALTER TABLE `pxp_info_modal` ADD `priority` INT NOT NULL DEFAULT '100' AFTER `in_pages`;
+}
 elseif ($action == 'info-modal') {
 	$admin = new Admin();
 		

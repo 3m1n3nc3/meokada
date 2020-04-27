@@ -68,7 +68,7 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
                                 <th>Status</th> 
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="sortable">
                         <?php
                             if (!empty($all_content)) {
                                 foreach ($all_content as $key => $context['content']) { 
@@ -179,4 +179,28 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
             });
         });
     });
+    
+    // jQuery UI sortable for the todo list 
+    $('#sortable').sortable({
+        placeholder          : 'sort-highlight',
+        handle               : '.handle',
+        forcePlaceholderSize : true,
+        zIndex               : 999999,
+        update: function (event, ui) {
+            var sort_order = $(this).sortable('serialize');
+            $.ajax({
+                async: true,
+                type: 'POST',
+                url: acpajax_url('sort-info-modal'),
+                data: sort_order,  
+                dataType: 'JSON',
+                success: function(resps) { 
+                    console.log(resps);
+                },
+                error: function(xhr, status, error) { 
+                    console.log(xhr, xhr.responseText);
+                }  
+            })
+        }
+    }) 
 </script>

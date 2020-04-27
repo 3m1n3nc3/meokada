@@ -551,7 +551,7 @@ class Generic{
 	        	}
 	        }
 	    
-		    $content = self::$db->orderBy('id', 'DESC')->$get(T_MODAL, NULL, array(
+		    $content = self::$db->orderBy('priority', 'ASC')->$get(T_MODAL, NULL, array(
 		        'id',
 		        'title',
 		        'content',
