@@ -134,6 +134,34 @@ class Admin extends User{
 		return true;
 	}
 
+	public function updateExclusiveSettings($up_data = array()){
+		if (empty($up_data)) {
+			return false;
+		} 
+		try {
+			self::$db->where('id', $up_data['id'])->update(T_EXCLUSIVE, $up_data);
+		} 
+		catch (Exception $e) {
+			return false;
+		} 
+
+		return true;
+	}
+
+	public function updateWalletSettings($up_data = array()){
+		if (empty($up_data)) {
+			return false;
+		} 
+		try {
+			self::$db->where('id', $up_data['id'])->update(T_SOCIAL_WALLET, $up_data);
+		} 
+		catch (Exception $e) {
+			return false;
+		} 
+
+		return true;
+	}
+
 	function Pxp_UploadLogo($data = array(),$type = 'logo') {
 	    if (isset($data['file']) && !empty($data['file'])) {
 	        $data['file'] =  self::secure($data['file']);
@@ -178,7 +206,7 @@ class Admin extends User{
 		        }
 		    }
 	    }
-	}
+	} 
 
 	public function payUser($action = '', $user_data = array())
 	{
@@ -229,6 +257,16 @@ class Admin extends User{
 	        elseif ($action == 'bank') 
 	        {
 	        	$response = $paystack->bank->getList();
+	        	if ($response) 
+	        	{
+	        		// ResultSet:  [name], [slug], [code], [longcode], [gateway], [pay_with_bank], 
+	        		// [active], [is_deleted], [country], [currency], [type], [id], [createdAt], [updatedAt]
+	        		$data = self::toArray($response);
+	        	}
+	        }
+	        elseif ($action == 'resolve_bank') 
+	        {
+	        	$response = $paystack->bank->resolve($post_data);
 	        	if ($response) 
 	        	{
 	        		// ResultSet:  [name], [slug], [code], [longcode], [gateway], [pay_with_bank], 

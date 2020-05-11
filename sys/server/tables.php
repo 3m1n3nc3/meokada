@@ -38,3 +38,5 @@ define('T_STORE', 'pxp_store');
 define('T_CHALLENGE', 'pxp_challenges');
 define('T_MODAL', 'pxp_info_modal');
 define('T_COMMUNITY', 'pxp_community_accounts');
+define('T_EXCLUSIVE', 'pxp_exclusive_plans');
+define('T_SOCIAL_WALLET', 'pxp_social_wallet');

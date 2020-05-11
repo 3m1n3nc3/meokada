@@ -12,20 +12,7 @@
   	<form class="form" id="upload-post-video" action="{{CONFIG site_url}}/aj/posts/upload-post-video">
 		  <div class="form-group">
       		<textarea class="form-control" name="caption" rows="3" placeholder="{{LANG add_post_caption}}"></textarea>
-      </div>
-       <?php if (isset($context['challenge'])) { ?>
-        <div class="form-group pp_mat_select">
-          <label class="pp_mat_label">{{LANG select_challenge}}</label>
-          <div>
-            <select name="challenge" class="form-control" id="challenge"> 
-              <?php foreach($context['challenge'] AS $challenge) { ?>
-                <option value="<?=$challenge['id']?>" title="<?=$challenge['info']?>">  <?=$challenge['name']?> (Win Upto: <?=$context['currency_symbol'] . $challenge['winner_prize']?>) </option> 
-              <?php } ?>
-            </select>
-          </div>
-          <div class="clear"></div>
-        </div>
-      <?php } ?>
+      </div> 
   		<div class="form-group">
 	  		<div class="form-control selecet-file-control" onclick="$('#post-video').trigger('click');">
   				<button class="btn btn-info" type="button">{{LANG select_file}}</button>

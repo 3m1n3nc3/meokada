@@ -106,4 +106,27 @@ if ($auto_payout) {
         }
     }
 }
+
+if ($config['auto_pay_wallet'] !== 'off') {
+ // && $config['auto_pay_wallet_limit'] >=0
+    $wallets        = $admin->socialWallet();
+    foreach ($wallets as $key => $wallet) {
+        // $new_percent = (100 / $distro_percent) * $wallet['percentage'];
+        // $balance     = ($new_percent / 100)*$amount; 
+
+        // $r_data['balance'] = self::$db->inc($balance);
+
+        // self::$db->where('id', $wallet['id'])->update(T_SOCIAL_WALLET, $r_data); 
+        
+        $amount = ($wallet['balance']-$wallet['paidout']);
+        $user_data = array(
+            'type'           => $wallet['account_type'],
+            'name'           => $wallet['title'],
+            'description'    => 'Social Wallet Payouts from ' . $config['site_name'],
+            'account_number' => $wallet['account_number'],
+            'bank_code'      => $wallet['bank_code'],
+            'amount'         => $amount*($config['currency'] == 'NGN' || $config['currency'] == 'GHS' ? 100 : 0)
+        );
+    }
+}
 // echo$admin::$db->getLastQuery();

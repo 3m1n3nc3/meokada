@@ -12,20 +12,7 @@
   	<form class="form" id="upload-post-video" action="{$site_url}/aj/posts/upload-post-video">
 		  <div class="form-group">
       	<textarea class="form-control" name="caption" rows="3" placeholder="{lang('add_post_caption')}"></textarea>
-      </div>
-      {if $context.challenge}
-      <div class="form-group pp_mat_select">
-        <label class="pp_mat_label">{lang('select_challenge')}</label>
-        <div> 
-          <select name="challenge" class="form-control" id="challenge"> 
-            {foreach $context.challenge as $challenge}  
-            <option value="{$challenge.id}" title="{$challenge.info}"> {$challenge.name} (Win Upto: {$context.currency_symbol} {$challenge.winner_prize}) </option> 
-            {/foreach} 
-          </select>
-        </div>
-        <div class="clear"></div>
-      </div>
-      {/if}  
+      </div> 
   		<div class="form-group">
 	  		<div class="form-control selecet-file-control" onclick="$('#post-video').trigger('click');">
   				<button class="btn btn-info" type="button">{lang('select_file')}</button>

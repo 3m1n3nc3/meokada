@@ -52,6 +52,115 @@
                     </form>
                 </div>
             </div>
+            <div class="card">
+                <div class="header">
+                    <h2>Exclusive Plans / General Categories</h2>
+                </div>
+                <div class="body">
+                    <form class="pro-settings" method="POST">
+                        <div class="form-alert"></div> 
+                        <label for="exclusive_system">Exclusive System Status <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span></label>
+                        <div class="form-group">
+                            <input type="radio" name="exclusive_system" id="exclusive_system-enabled" value="on" <?php echo ($config['exclusive_system'] == 'on') ? 'checked': '';?>>
+                            <label for="exclusive_system-enabled">Enabled</label>
+                            <input type="radio" name="exclusive_system" id="exclusive_system-disabled" value="off" <?php echo ($config['exclusive_system'] == 'off') ? 'checked': '';?>>
+                            <label for="exclusive_system-disabled" class="m-l-20">Disabled</label>
+                            <input type="radio" name="exclusive_system" id="exclusive_system-on_" value="on_" <?php echo ($config['exclusive_system'] == 'on_') ? 'checked': '';?>>
+                            <label for="exclusive_system-on_" class="m-l-20">Hide Settings (Enabled)</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary waves-effect">Save</button>
+                        <hr>
+                    </form>
+
+                    <?php if ($config['exclusive_system'] == 'on'): ?>
+
+                    <form class="exclusive-settings" method="POST">
+                        <div class="form-alert"></div> 
+
+                        <?php $exclusive = $admin->listExclusivePlans(); $i = 0;
+                            if (!empty($exclusive)) { ?>
+                                <?php foreach ($exclusive as $key => $plan) { $i++; ?> 
+                                    <div id="exclusive_<?php echo $plan['id'] ?>">
+                                        <label for="title">
+                                            <?php 
+                                                $ln = str_ireplace(['{{LANG ', '}}'], ['',''], $plan['title'], $cc);
+                                                echo $i. '. ' . ($cc==2 ? lang($ln) : $ln) 
+                                            ?> 
+                                            <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span>
+                                        </label>
+                                        <button type="button" class="btn btn-danger" onclick="deleteSomething(<?php echo $plan['id'] ?>,'exclusive')">Delete</button><br>
+
+                                        <input type="hidden" name="id[]" value="<?php echo $plan['id'] ?>">
+                                        <div class="form-group form-float">
+                                            <div class="form-line">
+                                                <input type="text" name="title[]" class="form-control" value="<?php echo $plan['title'] ?>">
+                                                <label class="form-label">Title</label>
+                                            </div>
+                                        </div> 
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group form-float">
+                                                    <select class="form-control show-tick" name="pro_level[]">
+                                                        <option value="0"<?php if ($plan['pro_level'] == 0) echo " selected" ?>>Free for all</option>
+                                                        <option value="1"<?php if ($plan['pro_level'] == 1) echo " selected" ?>>Standard</option>
+                                                        <option value="2"<?php if ($plan['pro_level'] == 2) echo " selected" ?>>Pro</option>
+                                                        <option value="3"<?php if ($plan['pro_level'] == 3) echo " selected" ?>>Community</option>
+                                                    </select>
+                                                    <label class="form-label">Pro Level</label>
+                                                </div> 
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group form-float">
+                                                    <select class="form-control show-tick" name="status[]">
+                                                        <option value="0"<?php if ($plan['status'] == 0) echo " selected" ?>>Inactive</option>
+                                                        <option value="1"<?php if ($plan['status'] == 1) echo " selected" ?>>Active</option> 
+                                                    </select>
+                                                    <label class="form-label">Status</label>
+                                                </div> 
+                                            </div> 
+                                        </div>
+
+                                        <div class="form-group form-float">
+                                            <div class="form-line">
+                                                <textarea class="form-control" name="description[]"><?php echo $plan['description'] ?></textarea>
+                                                <label class="form-label">Description</label>
+                                            </div>
+                                        </div> 
+
+                                        <div class="form-group form-float">
+                                            <div class="form-line">
+                                                <textarea class="form-control" name="icon[]"><?php echo decode($plan['icon']) ?></textarea>
+                                                <label class="form-label">Icon</label>
+                                            </div>
+                                            <small class="text-info">Use <code>&lt;i&gt;&lt;/i&gt;</code> or <code>&lt;svg&gt;&lt;/svg&gt;</code> full code</small>
+                                        </div> 
+                                    </div>
+                                <?php }?>
+
+                                <br>  
+                                <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
+                            <?php 
+                            } else {
+                                  echo $admin::createHtmlEl('div',array( 
+                                    'class' => 'alert alert-warning',
+                                ),"No exclusive plan found");
+                            }  
+                        ?>
+                    </form>
+                                
+                    <hr>
+                    <form class="create-exclusive" method="POST">
+                        <div class="form-alert"></div>  
+                        <div class="form-inline">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" autocomplete="off">
+                            <button type="submit" class="btn btn-primary btn-md waves-effect">Create New Plan</button>
+                        </div> 
+                    </form>
+                    <?php endif;?>
+                </div>
+            </div>
         </div>
         
         <div class="col-lg-6 col-md-6">
@@ -114,56 +223,65 @@
                         <?php $accounts = $admin->listCommunityPlans(); $i = 0;
                             if (!empty($accounts)) { ?>
                                 <?php foreach ($accounts as $key => $account) { $i++; ?> 
+                                   <div id="community_<?php echo $account['id'] ?>">
+                                        <label for="pro_system"><?php echo $i. '. ' .$account['title'] ?> <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span></label>
+                                        <button type="button" class="btn btn-danger" onclick="deleteSomething(<?php echo $account['id'] ?>,'community')">Delete</button><br>
 
-                                    <label for="pro_system"><?php echo $i. '. ' .$account['title'] ?> <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span></label><br>
+                                        <input type="hidden" name="id[]" value="<?php echo $account['id'] ?>">
+                                        <div class="form-group form-float">
+                                            <div class="form-line">
+                                                <input type="text" name="title[]" class="form-control" value="<?php echo $account['title'] ?>">
+                                                <label class="form-label">Title</label>
+                                            </div>
+                                        </div> 
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group form-float">
+                                                    <div class="form-line">
+                                                        <input type="text" name="price[]" class="form-control" value="<?php echo $account['price'] ?>">
+                                                        <label class="form-label">Price</label>
+                                                    </div>
+                                                </div> 
+                                            </div>
 
-                                    <input type="hidden" id="id" name="id[]" value="<?php echo $account['id'] ?>">
-                                    <div class="form-group form-float">
-                                        <div class="form-line">
-                                            <input type="text" id="title" name="title[]" class="form-control" value="<?php echo $account['title'] ?>">
-                                            <label class="form-label">Title</label>
+                                            <div class="col-md-6">
+                                                <div class="form-group form-float">
+                                                    <div class="form-line">
+                                                        <input type="text"name="entry_bonus[]" class="form-control" value="<?php echo $account['entry_bonus'] ?>">
+                                                        <label class="form-label">Entry Bonus (%)</label>
+                                                    </div>
+                                                </div> 
+                                            </div>
                                         </div>
-                                    </div> 
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group form-float">
-                                                <div class="form-line">
-                                                    <input type="text" id="price" name="price[]" class="form-control" value="<?php echo $account['price'] ?>">
-                                                    <label class="form-label">Price</label>
-                                                </div>
-                                            </div> 
-                                        </div>
 
-                                        <div class="col-md-6">
-                                            <div class="form-group form-float">
-                                                <div class="form-line">
-                                                    <input type="text" id="entry_bonus" name="entry_bonus[]" class="form-control" value="<?php echo $account['entry_bonus'] ?>">
-                                                    <label class="form-label">Entry Bonus (%)</label>
-                                                </div>
-                                            </div> 
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group form-float">
-                                        <div class="form-line">
-                                            <textarea class="form-control" id="description" name="description[]"><?php echo $account['description'] ?></textarea>
-                                            <label class="form-label">Description</label>
-                                        </div>
-                                    </div> 
-                                     
-
+                                        <div class="form-group form-float">
+                                            <div class="form-line">
+                                                <textarea class="form-control" name="description[]"><?php echo $account['description'] ?></textarea>
+                                                <label class="form-label">Description</label>
+                                            </div>
+                                        </div>                                         
+                                    </div>                               
                                 <?php }?>
+
+                                <br>  
+                                <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
                             <?php 
                             } else {
-                                echo $admin::createHtmlEl('tr',null,$admin::createHtmlEl('td',array(
-                                    'colspan' => 6,
+                                echo $admin::createHtmlEl('div',array( 
                                     'class' => 'alert alert-warning',
-                                ),"No community accounts found"));
+                                ),"No community accounts found");
                             }  
                         ?>
-
-                        <br>  
-                        <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
+                    </form>
+                                
+                    <hr>
+                    <form class="create-community" method="POST">
+                        <div class="form-alert"></div>  
+                        <div class="form-inline">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" autocomplete="off">
+                            <button type="submit" class="btn btn-primary btn-md waves-effect">Create New Community</button>
+                        </div> 
                     </form>
                     <?php endif; ?>
                 </div>
@@ -206,6 +324,7 @@
                 proform.find('button[type=submit]').text('Save').removeAttr('disabled');
             }
         });
+        
         var communityForm = $("form.community-settings");
         communityForm.ajaxForm({
             url: acpajax_url('community-settings'),
@@ -236,5 +355,100 @@
                 communityForm.find('button[type=submit]').text('Save').removeAttr('disabled');
             }
         });
+        
+        var exclusiveForm = $("form.exclusive-settings");
+        exclusiveForm.ajaxForm({
+            url: acpajax_url('exclusive-settings'),
+            type: 'POST',
+            dataType: 'json',
+            beforeSubmit: function(arr,form){
+                $(form).find('button[type=submit]').text('Please wait.').attr('disabled', 'true');
+            },
+            success: function(data, status, xhr, form){
+                if (data.status == 200) {
+                    $(form).find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-success',
+                        text:'Settings has been updated successfully'
+                    }));
+                    setTimeout(function(){
+                        exclusiveForm.find('div.form-alert .alert').slideUp('fast',function(){
+                            $(this).remove(); 
+                        })    
+                    },1000);
+                }
+                else{
+                    $(form).find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-warning',
+                        text: data.error
+                    }));
+                }
+
+                exclusiveForm.find('button[type=submit]').text('Save').removeAttr('disabled');
+            }
+        });
+        
+        var cexclusiveForm = $("form.create-exclusive");
+        cexclusiveForm.ajaxForm({
+            url: acpajax_url('create-exclusive'),
+            type: 'POST',
+            dataType: 'json',
+            beforeSubmit: function(arr,form){
+                $(form).find('button[type=submit]').text('Please wait.').attr('disabled', 'true');
+            },
+            success: function(data, status, xhr, form){
+                if (data.status == 200) {
+                    location.reload(true);
+                }
+                else{
+                    $(form).find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-warning',
+                        text: data.error
+                    }));
+                }
+
+                cexclusiveForm.find('button[type=submit]').text('Create New Plan').removeAttr('disabled');
+            }
+        });
+        
+        var ccommunityForm = $("form.create-community");
+        ccommunityForm.ajaxForm({
+            url: acpajax_url('create-community'),
+            type: 'POST',
+            dataType: 'json',
+            beforeSubmit: function(arr,form){
+                $(form).find('button[type=submit]').text('Please wait.').attr('disabled', 'true');
+            },
+            success: function(data, status, xhr, form){
+                if (data.status == 200) {
+                    location.reload(true);
+                }
+                else{
+                    $(form).find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-warning',
+                        text: data.error
+                    }));
+                }
+
+                ccommunityForm.find('button[type=submit]').text('Create New Community').removeAttr('disabled');
+            }
+        });
     });
+
+    function deleteSomething(id,what) {
+        $.post(
+            acpajax_url('delete-'+what), 
+            {id:id,what:what}, 
+            function(data, textStatus, xhr) {console.log(what)
+                if (data.status == 200) {
+                    $('#'+what+'_'+id).slideUp();
+                }
+                else{
+                    $('form.'+what+'-settings').find('div.form-alert').scroll2().html($('<div>',{
+                        class:'alert alert-warning',
+                        text: data.error
+                    }));
+                } 
+            }
+        );  
+    }
 </script>

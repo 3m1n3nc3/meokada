@@ -105,6 +105,170 @@ elseif ($action == 'community-settings' && !empty($_POST['id'])) {
 		$data['error']  = $error;
 	}
 }
+elseif ($action == 'create-community') {
+	$admin  = new Admin(); 
+	
+	$data            = array('status' => 304); 
+	if (empty($_POST['title'])) {
+		$data['error'] = 'Title cannot be empty';
+	} else {
+		$insert['title'] = $admin::secure($_POST['title']); 
+		$id 			 = $db->insert(T_COMMUNITY, $insert); 
+	}
+
+	if (!empty($id)) { 
+		$data['status'] = 200; 
+	}
+	else {
+		$data['status'] = 400;
+		$data['error'] = !empty($data['error']) ? $data['error'] : 'An error occurred'; 
+	}
+}
+elseif ($action == 'delete-community' && !empty($_POST['id'])) {
+	$admin  = new Admin(); 
+
+	$id = $admin::secure($_POST['id']); 
+	if ($db->where('id', $id)->delete(T_COMMUNITY))
+	{
+		$data['status'] = 200; 
+	}   
+	else {
+		$data['status'] = 400;
+		$data['error'] = 'An error occurred'; 
+	}
+}
+elseif ($action == 'exclusive-settings' && !empty($_POST['id'])) {
+	$admin  = new Admin(); 
+	
+	$data   = array('status' => 304);
+	$error  = ''; 
+
+	for ($i = 0; $i < count($_POST['id']); $i++) {
+		$update['id']          = $admin::secure($_POST['id'][$i]);
+		$update['title']       = $admin::secure($_POST['title'][$i]);
+		$update['pro_level']   = $admin::secure($_POST['pro_level'][$i]);
+		$update['status']      = $admin::secure($_POST['status'][$i]);
+		$update['icon']        = encode($_POST['icon'][$i]);
+		$update['description'] = $admin::secure($_POST['description'][$i]);
+		if (empty($update['title'])) {
+			$error .= 'Title for Settings '.($i+1).' cannot be empty'; 
+		} elseif (empty($update['icon'])) {
+			$error .= 'Icon for Settings '.($i+1).' cannot be empty'; 
+		} else {
+			$query = $admin->updateExclusiveSettings($update); 
+		}
+	}
+
+	if (empty($error)) {
+		if ($query == true) {
+			$data['status'] = 200;
+		}
+	}
+	else{
+		$data['status'] = 400;
+		$data['error']  = $error;
+	}
+}
+elseif ($action == 'create-exclusive') {
+	$admin  = new Admin(); 
+	
+	$data            = array('status' => 304); 
+	if (empty($_POST['title'])) {
+		$data['error'] = 'Title cannot be empty';
+	} else {
+		$insert['title'] = $admin::secure($_POST['title']); 
+		$id 			 = $db->insert(T_EXCLUSIVE, $insert); 
+	}
+
+	if (!empty($id)) { 
+		$data['status'] = 200; 
+	}
+	else {
+		$data['status'] = 400;
+		$data['error'] = !empty($data['error']) ? $data['error'] : 'An error occurred'; 
+	}
+}
+elseif ($action == 'delete-exclusive' && !empty($_POST['id'])) {
+	$admin  = new Admin(); 
+
+	$id = $admin::secure($_POST['id']); 
+	if ($db->where('id', $id)->delete(T_EXCLUSIVE))
+	{
+		$data['status'] = 200; 
+		$data['message'] = 'Success'; 
+	}   
+	else {
+		$data['status'] = 400;
+		$data['error'] = 'An error occurred'; 
+	}
+}
+elseif ($action == 'create-wallet') {
+	$admin  = new Admin(); 
+	
+	$data        	   = array('status' => 304); 
+	if (empty($_POST['title'])) {
+		$data['error'] = 'Title cannot be empty';
+	} else {
+		$insert['title'] = $admin::secure($_POST['title']); 
+		$insert['name']  = strtolower(str_ireplace([' ', '-'], '_', $admin::secure($_POST['title']))); 
+		$id 			 = $db->insert(T_SOCIAL_WALLET, $insert); 
+	}
+
+	if (!empty($id)) { 
+		$data['status'] = 200; 
+	}
+	else {
+		$data['status'] = 400;
+		$data['error'] = !empty($data['error']) ? $data['error'] : 'An error occurred'; 
+	}
+}
+elseif ($action == 'wallet-settings' && !empty($_POST['id'])) {
+	$admin  = new Admin(); 
+	
+	$data   = array('status' => 304);
+	$error  = ''; 
+
+	for ($i = 0; $i < count($_POST['id']); $i++) {
+		$update['id']             = $admin::secure($_POST['id'][$i]);
+		$update['title']          = $admin::secure($_POST['title'][$i]);
+		$update['percentage']     = $admin::secure($_POST['percentage'][$i]);
+		$update['d_percentage']    = $admin::secure($_POST['d_percentage'][$i]);
+		$update['account_number'] = $admin::secure($_POST['account_number'][$i]); 
+		$update['description']    = $admin::secure($_POST['description'][$i]);
+		$update['public']         = $admin::secure($_POST['public'][$i]);
+		if (empty($update['title'])) {
+			$error .= 'Title for Settings '.($i+1).' cannot be empty'; 
+		} elseif (empty($update['percentage'])) {
+			$error .= 'Percentage for Settings '.($i+1).' cannot be empty'; 
+		} else {
+			$query = $admin->updateWalletSettings($update); 
+		}
+	}
+
+	if (empty($error)) {
+		if ($query == true) {
+			$data['status'] = 200;
+		}
+	}
+	else{
+		$data['status'] = 400;
+		$data['error']  = $error;
+	}
+}
+elseif ($action == 'delete-wallet' && !empty($_POST['id'])) {
+	$admin  = new Admin(); 
+
+	$id = $admin::secure($_POST['id']); 
+	if ($db->where('id', $id)->delete(T_SOCIAL_WALLET))
+	{
+		$data['status'] = 200; 
+		$data['message'] = 'Success'; 
+	}   
+	else {
+		$data['status'] = 400;
+		$data['error'] = 'An error occurred'; 
+	}
+}
 elseif ($action == 'ad-settings' && !empty($_POST)) {
 	$admin  = new Admin();
 	$update = array();	
@@ -329,15 +493,24 @@ elseif ($action == 'create-challenge' && !empty($_POST)) {
 	    	'pro_level'  => Generic::secure($_POST['pro_level']),
 	    	'status'     => Generic::secure($_POST['status']),
 	    	'start_date' => Generic::secure($_POST['start_date']),
-	    	'close_date' => Generic::secure($_POST['close_date']),
-	    	'entry_bonus'  => Generic::secure($_POST['entry_bonus']),
+	    	'close_date' => Generic::secure($_POST['close_date']), 
 	    	'winner_prize' => Generic::secure($_POST['winner_prize'])
 	    );
+
+	    if (!empty($_POST['entry_bonus'])) {
+	    	$insert_data['entry_bonus'] = Generic::secure($_POST['entry_bonus']);  
+	    }
+
+	    if (!empty($_POST['exclusive'])) {
+	    	$insert_data['exclusive'] = Generic::secure($_POST['exclusive']); 
+	    }
+
 	    if (!empty($_POST['community'])) {
 	    	$insert_data['community'] = Generic::secure($_POST['community']);
 			$community                = $admin->listCommunityPlans($insert_data['community']);
 	    	$insert_data['c_rank']    = $community['price'];
 	    }
+	    
 	    if (!empty($_POST['challenge_id'])) {
 	    	$challenge_id = Generic::secure($_POST['challenge_id']);
 
@@ -584,7 +757,6 @@ elseif ($action == 'sort-info-modal') {
 		'response' =>true,
 		'status'  => 200 
 	);
-	// ALTER TABLE `pxp_info_modal` ADD `priority` INT NOT NULL DEFAULT '100' AFTER `in_pages`;
 }
 elseif ($action == 'info-modal') {
 	$admin = new Admin();
@@ -972,168 +1144,186 @@ elseif ($action == 'delete_receipt') {
 }
 elseif ($action == 'approve_receipt') {
 	if (!empty($_GET['receipt_id'])) {
-        $id = $user::secure($_GET['receipt_id']);
-            $receipt = $db->where('id',$id)->getOne(T_BANK_TRANSFER,array('*'));
+    	$id = $user::secure($_GET['receipt_id']);
+        $receipt = $db->where('id',$id)->getOne(T_BANK_TRANSFER,array('*'));
 
-            if($receipt){
-                $updated = $db->where('id',$id)->update(T_BANK_TRANSFER,array('approved'=>1,'approved_at'=>time()));
-                if ($updated === true) {
+        if($receipt){
+            $updated = $db->where('id',$id)->update(T_BANK_TRANSFER,array('approved'=>1,'approved_at'=>time()));
+            if ($updated === true) {
 
-                	$community_receipt = explode('_', $receipt->mode);
+            	$community_receipt = explode('_', $receipt->mode);
 
-                    if ($receipt->mode == 'wallet') {
-                        $amount = $receipt->price;
-                        $result = $db->where('user_id',$receipt->user_id)->update(T_USERS,array('wallet' => $db->inc($amount)));
+                if ($receipt->mode == 'wallet') {
+                    $amount = $receipt->price;
+                    $result = $db->where('user_id',$receipt->user_id)->update(T_USERS,array('wallet' => $db->inc($amount)));
 
-                        $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
-                                      'amount' => $amount,
-                                      'type' => 'Advertise',
-                                      'time' => time()));
-
-                        // if ($result) {
-                        //     $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $receipt->user_id . "', 'WALLET', '" . $amount . "', 'bank receipts')");
-                        // }
-                        $notif   = new Notifications();
-                        $re_data = array(
-										'notifier_id' => $me['user_id'],
-										'recipient_id' => $receipt->user_id,
-										'type' => 'bank_pro',
-										'url' => $site_url.'/ads/wallet',
-										'time' => time()
-									);
-                        $notif->notify($re_data);
-                    }
-                    elseif ($receipt->mode == 'donate') {
-                    	$amount = $receipt->price;
-				        $fund_id = $receipt->funding_id;
-				        $user = new User();
-
-				        $fund = $user->GetFundingById($fund_id);
-				        if (!empty($fund)) {
-				        	$admin_com = 0;
-				            if (!empty($config['donate_percentage']) && is_numeric($config['donate_percentage']) && $config['donate_percentage'] > 0) {
-				                $admin_com = ($config['donate_percentage'] * $amount) / 100;
-				                $amount = $amount - $admin_com;
-				            }
-				        	$db->insert(T_TRANSACTIONS,array('user_id' => $fund->user_id,
-				                                      'amount' => $amount,
-				                                      'type' => 'donate',
-				                                      'time' => time(),
-				                                      'admin_com' => $admin_com));
-
-				            $db->where('user_id',$fund->user_id)->update(T_USERS,array('balance'=>$db->inc($amount)));
-				            $db->insert(T_FUNDING_RAISE,array('user_id' => $me['user_id'],
-				                                              'funding_id' => $fund_id,
-				                                              'amount' => $amount,
-				                                              'time' => time()));
-				            $notif   = new Notifications();
-				            if ($fund->user_id != $me['user_id']) {
-
-				            	$hashed_id = $fund_id;
-				            	if (!empty($fund->hashed_id)) {
-				            		$hashed_id = $fund->hashed_id;
-				            	}
-
-				            	
-				                $re_data = array(
-				                    'notifier_id' => $me['user_id'],
-				                    'recipient_id' => $fund->user_id,
-				                    'type' => 'donated',
-				                    'url' => $config['site_url'] . "/funding/".$hashed_id,
-				                    'time' => time()
-				                );
-				                try {
-				                    $notif->notify($re_data);
-				                } catch (Exception $e) {
-				                }
-				            }
-				            $notif   = new Notifications();
-					        $re_data = array(
-											'notifier_id' => $me['user_id'],
-											'recipient_id' => $receipt->user_id,
-											'type' => 'bank_pro',
-											'url' => $site_url.'/funding/'.$hashed_id,
-											'time' => time()
-										);
-
-							$notif->notify($re_data);
-				        }
-                    }
-                    elseif ($community_receipt[0] == 'community') {
-						$admin  = new Admin();
-                    	$community = $admin->listCommunityPlans($community_receipt[1]);
-                        $update_array = array(
-                            'community' => $community['id']
-                        );
-                        $db->where('user_id',$receipt->user_id)->update(T_USERS,$update_array);
-                        $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
-                                      'amount' => $community['price'],
-                                      'type' => 'community_' . $community['id'],
-                                      'time' => time()));
-
-                        $notif   = new Notifications();
-				        $re_data = array(
-										'notifier_id' => $me['user_id'],
-										'recipient_id' => $receipt->user_id,
-										'type' => 'bank_pro',
-										'url' => $site_url.'/upgraded?type=community_member&community=' . $community['id'],
-										'time' => time()
-									);
-
-						$notif->notify($re_data);
-                    }
-                    elseif ($receipt->mode == 'standard_member') {
-                        $update_array = array(
-                            'is_standard' => 1 
-                        );
-                        $db->where('user_id',$receipt->user_id)->update(T_USERS,$update_array);
-                        $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
-                                      'amount' => $config['standard_price'],
-                                      'type' => 'standard_member',
-                                      'time' => time()));
-
-                        $notif   = new Notifications();
-				        $re_data = array(
-										'notifier_id' => $me['user_id'],
-										'recipient_id' => $receipt->user_id,
-										'type' => 'bank_pro',
-										'url' => $site_url.'/upgraded?type=standard',
-										'time' => time()
-									);
-
-						$notif->notify($re_data);
-                    }
-                    else{
-                        $update_array = array(
-                            'is_pro' => 1,
-                            'verified' => 1
-                        );
-                        $db->where('user_id',$receipt->user_id)->update(T_USERS,$update_array);
-                        $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
-                                      'amount' => $config['pro_price'],
-                                      'type' => 'pro_member',
-                                      'time' => time()));
-
-                        $notif   = new Notifications();
-				        $re_data = array(
-										'notifier_id' => $me['user_id'],
-										'recipient_id' => $receipt->user_id,
-										'type' => 'bank_pro',
-										'url' => $site_url.'/upgraded',
-										'time' => time()
-									);
-
-						$notif->notify($re_data);
-                    }
-                    $data = array(
-                        'status' => 200
-                    );
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
+                                  'amount' => $amount,
+                                  'type' => 'Advertise',
+                                  'time' => time()));
+                    
+                    $notif   = new Notifications();
+                    $re_data = array(
+									'notifier_id' => $me['user_id'],
+									'recipient_id' => $receipt->user_id,
+									'type' => 'bank_pro',
+									'url' => $site_url.'/ads/wallet',
+									'time' => time()
+								);
+                    $notif->notify($re_data);
                 }
+
+                elseif ($receipt->mode == 'social_donation') {
+                    $amount = $receipt->price;
+                    $user->distributeSocialDonations($amount); 
+
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
+                                  'amount' => $amount,
+                                  'type' => 'Donations',
+                                  'time' => time()));
+                    
+                    $notif   = new Notifications();
+                    $re_data = array(
+									'notifier_id' => $me['user_id'],
+									'recipient_id' => $receipt->user_id,
+									'type' => 'bank_pro.ss.donated.notifier_id',
+									'url' => $site_url.'/navigation/wallet/info/thanks',
+									'time' => time()
+								);    
+                    $notif->notify($re_data);
+	            }
+
+                elseif ($receipt->mode == 'donate') {
+                	$amount = $receipt->price;
+			        $fund_id = $receipt->funding_id;
+			        $user = new User();
+
+			        $fund = $user->GetFundingById($fund_id);
+			        if (!empty($fund)) {
+			        	$admin_com = 0;
+			            if (!empty($config['donate_percentage']) && is_numeric($config['donate_percentage']) && $config['donate_percentage'] > 0) {
+			                $admin_com = ($config['donate_percentage'] * $amount) / 100;
+			                $amount = $amount - $admin_com;
+			            }
+			        	$db->insert(T_TRANSACTIONS,array('user_id' => $fund->user_id,
+			                                      'amount' => $amount,
+			                                      'type' => 'donate',
+			                                      'time' => time(),
+			                                      'admin_com' => $admin_com));
+
+			            $db->where('user_id',$fund->user_id)->update(T_USERS,array('balance'=>$db->inc($amount)));
+			            $db->insert(T_FUNDING_RAISE,array('user_id' => $me['user_id'],
+			                                              'funding_id' => $fund_id,
+			                                              'amount' => $amount,
+			                                              'time' => time()));
+			            $notif   = new Notifications();
+			            if ($fund->user_id != $me['user_id']) {
+
+			            	$hashed_id = $fund_id;
+			            	if (!empty($fund->hashed_id)) {
+			            		$hashed_id = $fund->hashed_id;
+			            	}
+
+			            	
+			                $re_data = array(
+			                    'notifier_id' => $me['user_id'],
+			                    'recipient_id' => $fund->user_id,
+			                    'type' => 'donated',
+			                    'url' => $config['site_url'] . "/funding/".$hashed_id,
+			                    'time' => time()
+			                );
+			                try {
+			                    $notif->notify($re_data);
+			                } catch (Exception $e) {
+			                }
+			            }
+			            $notif   = new Notifications();
+				        $re_data = array(
+										'notifier_id' => $me['user_id'],
+										'recipient_id' => $receipt->user_id,
+										'type' => 'bank_pro',
+										'url' => $site_url.'/funding/'.$hashed_id,
+										'time' => time()
+									);
+
+						$notif->notify($re_data);
+			        }
+                }
+                elseif ($community_receipt[0] == 'community') {
+					$admin  = new Admin();
+                	$community = $admin->listCommunityPlans($community_receipt[1]);
+                    $update_array = array(
+                        'community' => $community['id']
+                    );
+                    $db->where('user_id',$receipt->user_id)->update(T_USERS,$update_array);
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
+                                  'amount' => $community['price'],
+                                  'type' => 'community_' . $community['id'],
+                                  'time' => time()));
+
+                    $notif   = new Notifications();
+			        $re_data = array(
+									'notifier_id' => $me['user_id'],
+									'recipient_id' => $receipt->user_id,
+									'type' => 'bank_pro',
+									'url' => $site_url.'/upgraded?type=community_member&community=' . $community['id'],
+									'time' => time()
+								);
+
+					$notif->notify($re_data);
+                }
+                elseif ($receipt->mode == 'standard_member') {
+                    $update_array = array(
+                        'is_standard' => 1 
+                    );
+                    $db->where('user_id',$receipt->user_id)->update(T_USERS,$update_array);
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
+                                  'amount' => $config['standard_price'],
+                                  'type' => 'standard_member',
+                                  'time' => time()));
+
+                    $notif   = new Notifications();
+			        $re_data = array(
+									'notifier_id' => $me['user_id'],
+									'recipient_id' => $receipt->user_id,
+									'type' => 'bank_pro',
+									'url' => $site_url.'/upgraded?type=standard',
+									'time' => time()
+								);
+
+					$notif->notify($re_data);
+                }
+                else{
+                    $update_array = array(
+                        'is_pro' => 1,
+                        'verified' => 1
+                    );
+                    $db->where('user_id',$receipt->user_id)->update(T_USERS,$update_array);
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $receipt->user_id,
+                                  'amount' => $config['pro_price'],
+                                  'type' => 'pro_member',
+                                  'time' => time()));
+
+                    $notif   = new Notifications();
+			        $re_data = array(
+									'notifier_id' => $me['user_id'],
+									'recipient_id' => $receipt->user_id,
+									'type' => 'bank_pro',
+									'url' => $site_url.'/upgraded',
+									'time' => time()
+								);
+
+					$notif->notify($re_data);
+                }
+                $data = array(
+                    'status' => 200
+                );
             }
-            $data = array(
-                'status' => 200,
-                'data' => $receipt
-            );
+        }
+        $data = array(
+            'status' => 200,
+            'data' => $receipt
+        );
     }
 }
 elseif ($action == 'withdrawal-requests' && !empty(($_POST['id'] ?? $_POST['ids'])) && !empty($_POST['action'])) {

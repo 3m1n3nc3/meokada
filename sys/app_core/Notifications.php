@@ -68,6 +68,25 @@ class Notifications extends User{
 	    return $query;
 	}
 
+	function setNotificationSession($notifs = array()) {
+		if ($notifs) {
+			foreach ($notifs as $key => $notif) {  
+				$explode = explode('.', $notif->type);
+				if (count($explode)===4) 
+				{
+					$notifs[$key]->type = $explode[0];
+					
+					if ($explode[1] === 'ss') 
+					{
+						$e_key = $explode[3]; 
+						$_SESSION[$explode[2]] = $notif->$e_key;  
+					}
+				}
+			}
+		}
+		return $notifs;
+	}
+
 	function getNotifications($offset = false){
 		if (empty($this->user_id)) {
 			return false;
@@ -107,6 +126,7 @@ class Notifications extends User{
 	        }
 	    }
 
+	    $data = $this->setNotificationSession($data);
 	    return $data;
 	}
 

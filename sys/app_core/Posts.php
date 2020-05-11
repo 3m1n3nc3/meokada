@@ -492,11 +492,15 @@ class Posts extends User{
 	public function challengeData($cid = null)
 	{ 
 		$user = o2array(self::$me);
-		$pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0)));
+		$pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0))); 
 		$community = self::listCommunityPlans($user['community']);
 		$c_rank    = ($community && $user['community'] > 0) ? $community['price'] : 0;
 
-		if ($cid) 
+		if (isset($cid['exclusive'])) {
+			self::$db->where('exclusive', $cid['exclusive']);
+		}
+
+		if ($cid && !is_array($cid)) 
 		{
 			self::$db->where('id', $cid);
 			$challenge = self::$db->getOne(T_CHALLENGE);

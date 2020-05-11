@@ -62,9 +62,9 @@ function pid2url($post_id = 0){
     return $url;
 }
 
-function chal2url($challenge_id = 0){
+function chal2url($challenge_id = 0, $page = 'exclusive'){
     global $site_url;
-    $url = sprintf('%s/challenge/%s', $site_url, $challenge_id);
+    $url = sprintf('%s/navigation/challenge/'.$page.'/%s', $site_url, $challenge_id);
     return $url;
 }
 

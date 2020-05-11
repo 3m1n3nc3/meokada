@@ -26,7 +26,8 @@ $pages        = array(
         's3',
         'ads',
         'playtube_support',
-        'payment-settings'
+        'payment-settings',
+        'social-wallet'
     ),
     'users' => array(
         'manage-users',
@@ -150,6 +151,13 @@ if (empty($page_content)) {
         <script>
             function acpajax_url(path) {
                 return '<?php echo($config['site_url']); ?>/aj/admin/' + path;
+            }
+            function link(path){
+                var url = xhr_url() + path;
+                return url;
+            }
+            function xhr_url(){
+                return '<?php echo($config['site_url']); ?>/aj/';
             }
         </script>
         <style type="text/css">
@@ -282,6 +290,9 @@ if (empty($page_content)) {
                                 </li> 
                                 <li class="<?php echo $admin->activeMenu('payment-settings'); ?>">
                                     <a href="<?php echo pxp_acp_link('payment-settings'); ?>" class=" waves-effect waves-block">Payment Settings</a>
+                                </li> 
+                                <li class="<?php echo $admin->activeMenu('social-wallet'); ?>">
+                                    <a href="<?php echo pxp_acp_link('social-wallet'); ?>" class=" waves-effect waves-block">Social Wallet Settings</a>
                                 </li> 
                                 <?php endif;?>
                             </ul>

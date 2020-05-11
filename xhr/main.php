@@ -451,7 +451,7 @@ elseif ($action == 'get_payment_methods')
     $uObj = new User;
 	$context['pay_type'] = '\'pro\'';
     $post_type = (is_array($_POST['type']) ? key($_POST['type']) : $_POST['type']);
-	$pay_type  = array('pro', 'standard', 'wallet');
+	$pay_type  = array('pro', 'standard', 'wallet', 'social_donation');
 
 	if (!empty($post_type) && in_array($post_type, $pay_type)) {
         $context['pay_type']  = '\''.$post_type.'\'';
@@ -579,6 +579,20 @@ elseif ($action == 'manifest-modal') {
 
     $data['html']   = $html;
     $data['status'] = 200; 
+}
+
+elseif ($action == 'verify_account_number') {
+    $post_data['account_number'] = Generic::secure($_POST['account_number']);
+    $post_data['bank_code']      = Generic::secure($_POST['bank_code']);
+
+    $process = $admin->paystackProcessor('resolve_bank', $post_data)->data; 
+    if ($process['status'] == 1 && !empty($process['data']['account_name'])) {
+        $data['name']   = $process['data']['account_name']; 
+        $data['status'] = 200;  
+    } else {
+        $data['name']   = 'Account not found, only proceed if you are sure'; 
+        $data['status'] = 400;
+    }
 }
 
 exit_xhr:

@@ -584,6 +584,72 @@ class Generic{
 		return o2Array($accounts);
 	}
 
+	public function listExclusivePlans($id = '') 
+	{ 	    	        
+	    $get = ($id) ? 'getOne' : 'get';
+		if (is_numeric($id)) {
+            self::$db->where('`id`', "$id"); 
+        }
+	    $plans = self::$db->orderBy('pro_level', 'DESC')->orderBy('id', 'ASC')->$get(T_EXCLUSIVE, NULL, array(
+	        'id',
+	        'title',
+	        'description',
+	        'pro_level', 
+	        'icon',
+	        'status' 
+	    ));
+
+		return o2Array($plans);
+	}
+
+	public function socialWallet($id = '', $privacy = 0) 
+	{ 	    	        
+	    $get = ($id) ? 'getOne' : 'get';
+		if (is_numeric($id)) {
+            self::$db->where('`id`', "$id"); 
+        }
+		if ($privacy) {
+            self::$db->where('public', "$privacy"); 
+        }
+	    $data = self::$db->orderBy('percentage', 'DESC')->orderBy('id', 'ASC')->$get(T_SOCIAL_WALLET, NULL);
+
+		return o2Array($data);
+	}
+
+	public function distributeSocialWallet($percent = 0, $amount = 0) 
+	{ 	    	        
+ 		$distro_percent = (100-$percent);
+ 		$wallets        = self::socialWallet();
+ 		foreach ($wallets as $key => $wallet) {
+ 			$new_percent = (100 / $distro_percent) * $wallet['percentage'];
+			$balance     = ($new_percent / 100)*$amount; 
+
+			$r_data['balance'] = self::$db->inc($balance);
+
+			self::$db->where('id', $wallet['id'])->update(T_SOCIAL_WALLET, $r_data); 
+ 		}
+	}
+
+	public function distributeSocialDonations($amount = 0) 
+	{ 	    	         
+ 		$wallets = self::socialWallet();
+		$check   = 0; 
+		$bal     = []; $i = 0;
+ 		foreach ($wallets as $key => $wallet) {
+ 			$percent = $wallet['d_percentage'];
+			$balance = ($percent / 100)*$amount;
+
+			$check += $balance; 
+			$bal[] .= $balance; 
+			if ($check > $amount) {
+				$balance = $check - ($check-$amount) - $bal[$key-1];
+			}
+			$r_data['balance'] = self::$db->inc($balance);
+
+			self::$db->where('id', $wallet['id'])->update(T_SOCIAL_WALLET, $r_data);  
+ 		}
+	}
+
 	public function upsertHtags($text = ""){
 		if (!empty($text)) {
 			preg_match_all('/#([^`~!@$%^&*\#()\-+=\\|\/\.,<>?\'\":;{}\[\]* ]+)/i', $text, $htags);

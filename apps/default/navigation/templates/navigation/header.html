@@ -1,0 +1,13 @@
+<div class="header ads_header">
+	<div class="ma_tabs">
+		<ul class="list-unstyled mb-0">
+			<li class="<?php if(!empty($_GET['exclusive'])){ ?> active <?php }?>">
+				<a href="{{CONFIG site_url}}/navigation/challenge/exclusive/{{id}}" data-ajax="ajax_loading.php?app=navigation&apph=navigation&page=challenge&exclusive={{id}}">{{icon}} {{title}}</a>
+			</li>
+			<li class="<?php if(!empty($_GET['info'])) { ?> active <?php } ?>">
+				<a href="{{CONFIG site_url}}/navigation/challenge/info/{{id}}" data-ajax="ajax_loading.php?app=navigation&apph=navigation&page=challenge&info={{id}}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e61f01" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Information</a>
+			</li>
+		</ul>
+	</div>
+	<div class="clear"></div>
+</div>

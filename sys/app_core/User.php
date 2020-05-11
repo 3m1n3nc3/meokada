@@ -250,8 +250,25 @@ class User extends Generic{
 		return ($this->user_data->user_id == $user_id) ? true : false;
 	}
 
-	// pay affiliate commissions after upgrades
-	public function payUpgradeCommissions($user_id = null, $plan_type = null) {
+    // Verify the users pro level
+    public function verifyProLevel($user_id = null, $set_community = 0) {
+        if ($user_id) {
+            $user  = o2array(self::getUserDataById($user_id));
+        } else {
+            $user  = o2array(self::$me);
+        }
+        $pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0)));
+        $community     = self::listCommunityPlans($user['community']);
+        $ver_community = self::listCommunityPlans($set_community); 
+        return array(
+            'pro_level' => $pro_level, 
+            'community' => $user['community'],  
+            'community_access' => ($community['price'] >= $ver_community['price']),
+        ); 
+    }
+
+    // pay affiliate commissions after upgrades
+    public function payUpgradeCommissions($user_id = null, $plan_type = null) {
  
 		$user_data = self::$me;
 		if ($user_id) {
@@ -299,10 +316,13 @@ class User extends Generic{
 			}
 			if ($unpaid) {
 				self::$db->where('user_id', $user_data['user_id'])->update(T_USERS, $r_paid);
+
 				$r_data['balance'] = self::$db->inc($balance);
 
 	       		$notif->notify($notif_data);
 				self::$db->where('user_id', $referrer['user_id'])->update(T_USERS, $r_data);
+
+                $this->distributeSocialWallet($percent, $plan_price);
 			}
 		}
 	}
@@ -1519,7 +1539,7 @@ class User extends Generic{
 		{	
 			$select = '';
 			foreach ($process['data'] as $option) {
-				$selected = ($selected == $option['name']) ? ' selected="selected"' : $selected; 
+				$selected = ($selected == $option['name'] || $selected == $option['code']) ? ' selected="selected"' : $selected; 
 				$select .= 
 					'<option value="' . $option['code'] . '" data-type="' . $option['type'] . '"' . $selected . '>' . $option['name'] . 
 					'</option>';

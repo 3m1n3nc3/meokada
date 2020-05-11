@@ -1,0 +1,27 @@
+<div class="settings-page-container content-shadow">
+	<div class="page-content sett_avatr_chng"> 
+		<?php echo $context['header'];?>
+        
+        <?php if($context['page_name'] == 'exclusive'): ?> 
+            <?php if(!empty($context['challenges'])): ?> 
+        		<div class="ads-cont-wrapper"> 
+        			<?php include 'poster.html'; ?> 
+        		</div>
+            <?php else: ?>
+                <?php include 'includes/no-posted.html'; ?>
+            <?php endif; ?>
+        <?php else: ?>
+            <div class="row mb-5">
+                <div class="pt-0"> 
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8">
+                        <b>{{description}}</b>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+	</div>
+	<div class="clear"></div>
+</div> 

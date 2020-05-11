@@ -13,19 +13,6 @@
 		<div class="form-group">
       <textarea class="form-control pp_make_post" name="caption" rows="3" placeholder="{{LANG add_post_caption}}"></textarea>
     </div>
-    <?php if (isset($context['challenge'])) { ?>
-    <div class="form-group pp_mat_select">
-      <label class="pp_mat_label">{{LANG select_challenge}}</label>
-      <div>
-        <select name="challenge" class="form-control" id="challenge"> 
-          <?php foreach($context['challenge'] AS $challenge) { ?>
-            <option value="<?=$challenge['id']?>" title="<?=$challenge['info']?>">  <?=$challenge['name']?> (Win Upto: <?=$context['currency_symbol'] . $challenge['winner_prize']?>) </option> 
-          <?php } ?>
-        </select>
-      </div>
-      <div class="clear"></div>
-    </div>
-    <?php } ?>
   	<div class="images-renderer">
   		<div class="select-images" onclick="$('#upload-images').trigger('click');">
   		  <span>

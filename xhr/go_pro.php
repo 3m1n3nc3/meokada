@@ -44,6 +44,11 @@ if ($action == 'get_paypal_link' && IS_LOGGED && !empty($config['paypal_id']) &&
         $type = 'wallet';
         $dec  = "Wallet top up";
     }
+    if (!empty($_POST['type']) && $_POST['type'] == 'social_donation' && !empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0) {
+        $sum  = Generic::secure($_POST['amount']);
+        $type = 'social_donation';
+        $dec  = "Social Wallet and Charity Donation";
+    }
     if (!empty($_POST['type']) && $post_type == 'community' && !empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0) {
         $sum  = Generic::secure($_POST['amount']);
         $type = 'community'; 
@@ -76,6 +81,9 @@ if ($action == 'get_paypal_link' && IS_LOGGED && !empty($config['paypal_id']) &&
     }
     elseif ($type == 'wallet') {
         $redirectUrls->setReturnUrl($config['site_url'] . "/aj/go_pro/wallet_top_up&success=1&amount=".$sum)->setCancelUrl($config['site_url']);
+    }
+    elseif ($type == 'social_donation') {
+        $redirectUrls->setReturnUrl($config['site_url'] . "/aj/go_pro/social_donation&success=1&amount=".$sum)->setCancelUrl($config['site_url']);
     }
     $payment = new Payment();
     $payment->setIntent('sale')->setPayer($payer)->setRedirectUrls($redirectUrls)->setTransactions(array(
@@ -249,6 +257,38 @@ if ($action == 'wallet_top_up' && IS_LOGGED && !empty($config['paypal_id']) && !
                                       'time' => time()));
 
         header("Location: " . $config['site_url'] . "/ads/wallet");
+        exit();
+    }
+    else{
+        header("Location: " . $config['site_url'] . "/oops");
+        exit();
+    }
+}
+
+if ($action == 'social_donation' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID']) && !empty($_GET['amount'])) {
+    $paymentId = $_GET['paymentId'];
+    $PayerID = $_GET['PayerID'];
+    $payment = Payment::get($paymentId, $paypal);
+    $execute = new PaymentExecution();
+    $execute->setPayerId($PayerID);
+    $error = '';
+    try {
+        $result = $payment->execute($execute, $paypal);
+    }
+    catch (Exception $e) {
+        $error = json_decode($e->getData(), true);
+    }
+
+    if (empty($error)) { 
+        $update = $user->distributeSocialDonations(Generic::secure($_GET['amount']));
+
+        $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                      'amount' => Generic::secure($_GET['amount']),
+                                      'type' => 'Donations',
+                                      'time' => time()));
+
+        $_SESSION['donated'] = $me['user_id'];
+        header("Location: " . $config['site_url'] . "/navigation/wallet/info/thanks");
         exit();
     }
     else{
@@ -431,6 +471,39 @@ if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' &
             );
         }
     }
+    elseif (!empty($_POST['type']) && $_POST['type'] == 'social_donation' && !empty($_POST['amount'])) {
+        $amount = Generic::secure($_POST['amount']);
+        try {
+            $customer = \Stripe\Customer::create(array(
+                'source' => $token
+            ));
+            $charge   = \Stripe\Charge::create(array(
+                'customer' => $customer->id,
+                'amount' => $_POST['amount'].'00',
+                'currency' => 'usd'
+            ));
+            if ($charge) {
+                $update = $user->distributeSocialDonations(Generic::secure($_GET['amount']));
+
+                $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                              'amount' => Generic::secure($_GET['amount']),
+                                              'type' => 'Donations',
+                                              'time' => time()));
+                
+                $_SESSION['donated'] = $me['user_id']; 
+                $data = array(
+                    'status' => 200,
+                    'url' => $config['site_url'] . "/navigation/wallet/info/thanks"
+                );
+            }
+        }
+        catch (Exception $e) {
+            $data = array(
+                'status' => 400,
+                'error' => $e->getMessage()
+            );
+        }
+    }
 }
 
 if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' && !empty($config['paystack_public']) && !empty($config['paystack_secret'])) 
@@ -444,33 +517,41 @@ if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' &&
 
     if (!empty($_POST['type']) && $_POST['type'] == 'pro' && !empty($_POST['amount'])) {
         if ($config['pro_price'] == $_POST['amount']) {
-            if ($verify_pay->data->status === 'success') 
-            { 
-                $update = $user->updateStatic($me['user_id'],array('is_pro' => 1,'verified' => 1));
-                $amount = $config['pro_price'];
-                $date   = time();
+            try {
+                if ($verify_pay->data->status === 'success') 
+                { 
+                    $update = $user->updateStatic($me['user_id'],array('is_pro' => 1,'verified' => 1));
+                    $amount = $config['pro_price'];
+                    $date   = time();
 
-                $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
-                                          'amount' => $amount,
-                                          'type' => 'pro_member',
-                                          'date' => $date));
+                    $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                              'amount' => $amount,
+                                              'type' => 'pro_member',
+                                              'date' => $date));
 
-                $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
-                                  'amount' => $amount,
-                                  'type' => 'pro_member',
-                                  'time' => $date));
-        
-                $uObj->payUpgradeCommissions(null, 'pro');
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                      'amount' => $amount,
+                                      'type' => 'pro_member',
+                                      'time' => $date));
+            
+                    $uObj->payUpgradeCommissions(null, 'pro');
 
-                $data = array(
-                    'status' => 200,
-                    'url' => $config['site_url'] . "/upgraded"
-                ); 
+                    $data = array(
+                        'status' => 200,
+                        'url' => $config['site_url'] . "/upgraded"
+                    ); 
+                }
+                else {
+                    $data = array(
+                        'status' => 400,
+                        'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                    );
+                }
             }
-            else {
+            catch (Exception $e) {
                 $data = array(
                     'status' => 400,
-                    'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                    'error' => $e->getMessage()
                 );
             }
         } 
@@ -478,60 +559,101 @@ if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' &&
     elseif (!empty($_POST['type']) && $post_type == 'community' && !empty($_POST['amount'])) { 
 
         if ($community['price'] == $_POST['amount']) {
-            if ($verify_pay->data->status === 'success') 
-            { 
-                $update = $user->updateStatic($me['user_id'],array('is_pro' => $com_is_pro, 'verified' => $com_is_ver, 'community' => $community['id']));
-                $amount = $community['price'];
-                $date   = time();
+            try {
+                if ($verify_pay->data->status === 'success') 
+                { 
+                    $update = $user->updateStatic($me['user_id'],array('is_pro' => $com_is_pro, 'verified' => $com_is_ver, 'community' => $community['id']));
+                    $amount = $community['price'];
+                    $date   = time();
 
-                $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
-                                          'amount' => $amount,
-                                          'type' => 'community_' . $community['id'],
-                                          'date' => $date));
+                    $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                              'amount' => $amount,
+                                              'type' => 'community_' . $community['id'],
+                                              'date' => $date));
 
-                $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
-                                  'amount' => $amount,
-                                  'type' => 'community_' . $community['id'],
-                                  'time' => $date));
-        
-                $uObj->payUpgradeCommissions(null, 'community');
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                      'amount' => $amount,
+                                      'type' => 'community_' . $community['id'],
+                                      'time' => $date));
+            
+                    $uObj->payUpgradeCommissions(null, 'community');
 
-                $data = array(
-                    'status' => 200,
-                    'url' => $config['site_url'] . "/upgraded?type=community_member&community=" . $community['id']
-                ); 
+                    $data = array(
+                        'status' => 200,
+                        'url' => $config['site_url'] . "/upgraded?type=community_member&community=" . $community['id']
+                    ); 
+                }
+                else {
+                    $data = array(
+                        'status' => 400,
+                        'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                    );
+                }
             }
-            else {
+            catch (Exception $e) {
                 $data = array(
                     'status' => 400,
-                    'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                    'error' => $e->getMessage()
                 );
             }
         }
     }
     elseif (!empty($_POST['type']) && $_POST['type'] == 'standard' && !empty($_POST['amount'])) {
         if ($config['standard_price'] == $_POST['amount']) {
+            try {
+                if ($verify_pay->data->status === 'success') 
+                { 
+                    $update = $user->updateStatic($me['user_id'],array('is_standard' => 1));
+                    $amount = $config['standard_price'];
+                    $date   = time();
+
+                    $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
+                                              'amount' => $amount,
+                                              'type' => 'standard_member',
+                                              'date' => $date));
+
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                      'amount' => $amount,
+                                      'type' => 'standard_member',
+                                      'time' => $date));
+            
+                    $uObj->payUpgradeCommissions(null, 'standard');
+
+                    $data = array(
+                        'status' => 200,
+                        'url' => $config['site_url'] . "/upgraded?type=standard"
+                    ); 
+                }
+                else {
+                    $data = array(
+                        'status' => 400,
+                        'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                    );
+                }
+            }
+            catch (Exception $e) {
+                $data = array(
+                    'status' => 400,
+                    'error' => $e->getMessage()
+                );
+            }
+        }
+    }
+    elseif (!empty($_POST['type']) && $_POST['type'] == 'wallet' && !empty($_POST['amount'])) {
+        $amount = Generic::secure($_POST['amount']);
+        try { 
             if ($verify_pay->data->status === 'success') 
             { 
-                $update = $user->updateStatic($me['user_id'],array('is_standard' => 1));
-                $amount = $config['standard_price'];
-                $date   = time();
-
-                $db->insert(T_PAYMENTS,array('user_id' => $me['user_id'],
-                                          'amount' => $amount,
-                                          'type' => 'standard_member',
-                                          'date' => $date));
+                $wallet = $me['wallet'] + $amount;
+                $update = $user->updateStatic($me['user_id'],array('wallet' => $wallet));
 
                 $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
-                                  'amount' => $amount,
-                                  'type' => 'standard_member',
-                                  'time' => $date));
-        
-                $uObj->payUpgradeCommissions(null, 'standard');
-
+                                      'amount' => $amount,
+                                      'type' => 'Advertise',
+                                      'time' => time()));
                 $data = array(
                     'status' => 200,
-                    'url' => $config['site_url'] . "/upgraded?type=standard"
+                    'url' => $config['site_url'] . "/ads/wallet"
                 ); 
             }
             else {
@@ -541,27 +663,42 @@ if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' &&
                 );
             }
         }
-    }
-    elseif (!empty($_POST['type']) && $_POST['type'] == 'wallet' && !empty($_POST['amount'])) {
-        $amount = Generic::secure($_POST['amount']);
-        if ($verify_pay->data->status === 'success') 
-        { 
-            $wallet = $me['wallet'] + $amount;
-            $update = $user->updateStatic($me['user_id'],array('wallet' => $wallet));
-
-            $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
-                                  'amount' => $amount,
-                                  'type' => 'Advertise',
-                                  'time' => time()));
-            $data = array(
-                'status' => 200,
-                'url' => $config['site_url'] . "/ads/wallet"
-            ); 
-        }
-        else {
+        catch (Exception $e) {
             $data = array(
                 'status' => 400,
-                'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                'error' => $e->getMessage()
+            );
+        }
+    }
+    elseif (!empty($_POST['type']) && $_POST['type'] == 'social_donation' && !empty($_POST['amount'])) {
+        $amount = Generic::secure($_POST['amount']);
+        try {
+            if ($verify_pay->data->status === 'success') 
+            {             
+                $update = $user->distributeSocialDonations(Generic::secure($_GET['amount']));
+
+                $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                              'amount' => Generic::secure($_GET['amount']),
+                                              'type' => 'Donations',
+                                              'time' => time()));
+                
+                $_SESSION['donated'] = $me['user_id']; 
+                $data = array(
+                    'status' => 200,
+                    'url' => $config['site_url'] . "/navigation/wallet/info/thanks"
+                );
+            }
+            else {
+                $data = array(
+                    'status' => 400,
+                    'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                );
+            }
+        }
+        catch (Exception $e) {
+            $data = array(
+                'status' => 400,
+                'error' => $e->getMessage()
             );
         }
     }
@@ -607,11 +744,16 @@ if ($action == 'bank_transfer' && IS_LOGGED) {
                 $mode        = 'wallet';
                 $price       = Generic::secure($_POST['price']);
             }
+            if (!empty($_POST['type']) && $_POST['type'] == 'social_donation' && !empty($_POST['price']) && is_numeric($_POST['price']) && $_POST['price'] > 0) {
+                $description = 'Social Wallet and Charity Donation';
+                $mode        = 'social_donation';
+                $price       = Generic::secure($_POST['price']);
+            }
             if (!empty($_POST['type']) && $_POST['type'] == 'donate' && !empty($_POST['price']) && is_numeric($_POST['price']) && $_POST['price'] > 0 && !empty($_POST['fund_id'])) {
                 $description = 'Donate to funding ';
                 $mode        = 'donate';
                 $price       = Generic::secure($_POST['price']);
-                $funding_id = Generic::secure($_POST['fund_id']);
+                $funding_id  = Generic::secure($_POST['fund_id']);
             }
             if (!empty($upload)) { 
                 $image = $upload['filename'];
@@ -853,7 +995,71 @@ if ($action == 'stripe_donate' && IS_LOGGED && $config['credit_card'] == 'on' &&
             }
         }
     }
+    
+}
 
-    
-    
+
+if ($action == 'paystack_donate' && IS_LOGGED && $config['paystack'] == 'on' && !empty($config['paystack_public']) && !empty($config['paystack_secret'])) {
+    if (!empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0 && !empty($_POST['fund_id']) && is_numeric($_POST['fund_id']) && $_POST['fund_id'] > 0) {
+
+        require_once('sys/import3p/Paystack/src/autoload.php'); 
+        $pinit      = new Yabacon\Paystack($config['paystack_secret']); 
+        $reference  = $_POST['reference'];
+        $verify_pay = $pinit->transaction->verify( [ 'reference' => $reference ] ); 
+     
+        $fund = $user->GetFundingById($fund_id);
+        if (!empty($fund)) {
+            try {
+                if ($verify_pay->data->status === 'success') 
+                { 
+                    $admin_com = 0;
+                    if (!empty($config['donate_percentage']) && is_numeric($config['donate_percentage']) && $config['donate_percentage'] > 0) {
+                        $admin_com = ($config['donate_percentage'] * $amount) / 100;
+                        $amount = $amount - $admin_com;
+                    }
+
+                    $db->where('user_id',$fund->user_id)->update(T_USERS,array('balance'=>$db->inc($amount)));
+                    $db->insert(T_FUNDING_RAISE,array('user_id' => $me['user_id'],
+                                                      'funding_id' => $fund_id,
+                                                      'amount' => $amount,
+                                                      'time' => time()));
+
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                      'amount' => $amount,
+                                      'type' => 'donate',
+                                      'time' => time(),
+                                      'admin_com' => $admin_com));
+
+                    $notif   = new Notifications();
+                    $re_data = array(
+                        'notifier_id' => $me['user_id'],
+                        'recipient_id' => $fund->user_id,
+                        'type' => 'donated',
+                        'url' => $config['site_url'] . "/funding/".$fund_id,
+                        'time' => time()
+                    );
+
+                    try {
+                        $notif->notify($re_data);
+                    } catch (Exception $e) {
+                    }
+                    $data = array(
+                        'status' => 200
+                    );
+                }
+                else {
+                    $data = array(
+                        'status' => 400,
+                        'error' => '<b>'.$verify_pay->data->message. ':</b> '.$verify_pay->message
+                    );
+                }
+            }
+            catch (Exception $e) {
+                $data = array(
+                    'status' => 400,
+                    'error' => $e->getMessage()
+                );
+            }
+        }
+    }
 }

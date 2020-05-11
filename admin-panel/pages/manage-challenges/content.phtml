@@ -15,20 +15,11 @@ if (!empty($filter_keyword)) {
 }
 
 $challenge = $admin::$db->orderBy('id', 'DESC')->paginate(T_CHALLENGE, $page, array(
-    'id',
-    'name',
-    'info',
-    'pro_level',
-    'community',
-    'c_rank',
-    'status',
-    'start_date',
-    'close_date',
-    'entry_bonus',
-    'winner_prize'
+    'id', 'name', 'info', 'pro_level', 'community', 'exclusive', 'c_rank', 'status', 
+    'start_date', 'close_date', 'entry_bonus', 'winner_prize'
 ));
 
-$community = '<option value="0">Not Applicable</option>';
+$community   = '<option value="0">Not Applicable</option>';
 $communities = $admin::listCommunityPlans();
 if ($communities) {
     foreach ($communities as $comm) {
@@ -36,6 +27,15 @@ if ($communities) {
     }
 } 
 
+$exclusive  = '<option value="0">Not Applicable</option>';
+$exclusives = $admin::listExclusivePlans();
+if ($exclusives) {
+    foreach ($exclusives as $excl) {
+        $el = str_ireplace(['{{LANG ', '}}'], ['',''], $excl['title'], $ce);
+        $exclusive .= '<option value="'.$excl['id'].'">'.($ce==2 ? lang($el) : $el).'</option>';
+    }
+} 
+ 
 if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
 	header("Location: " . pxp_acp_link('manage-challenges'));
 	exit();
@@ -80,10 +80,10 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                                 <tr>
                                     <th><input type="checkbox" id="check-all" class="filled-in check-all" ><label for="check-all"></label></th>
                                     <th>ID</th>
-                                    <th>Title</th>
-                                    <th>Challenge Link</th>
+                                    <th>Title</th> 
                                     <th>Status</th>
                                     <th>Subscription</th>
+                                    <th>Exclusive</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                 </tr>
@@ -93,12 +93,16 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                                     if (!empty($challenge)) {
                                         foreach ($challenge as $key => $context['challenge']) {
                                             $context['challenge'] = o2array($context['challenge']);
+                                            $context['community'] = $admin::listCommunityPlans($context['challenge']['community']);
+                                            $context['exclusive'] = $admin::listExclusivePlans($context['challenge']['exclusive']);
+                                            $el = $context['exclusive'] ? str_ireplace(['{{LANG ', '}}'], ['',''], $context['exclusive']['title'], $cec) : null;
+                                            $context['exclusive']['title'] = ($el ? lang($el) : $el);  
                                             echo $admin->loadPage('manage-challenges/list');
                                         }
                                     }
                                     else{
                                         echo $admin::createHtmlEl('tr',null,$admin::createHtmlEl('td',array(
-                                            'colspan' => 6,
+                                            'colspan' => 9,
                                             'class' => 'empty-table',
                                         ),"No challenges found"));
                                     }  
@@ -246,6 +250,12 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                             <?php echo $community?>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="exclusive">Exclusive</label>
+                        <select class="form-control" id="exclusive" name="exclusive">
+                            <?php echo $exclusive?>
+                        </select>
+                    </div>
                     <?php if ($config['payouts_approval'] == 'on'):?>
                     <div class="form-group">
                         <label for="entry_bonus">Acceptance Bonus (<?php echo $config['currency']?> / %)</label>
@@ -308,7 +318,8 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
             $('#edit-modal #close_date').val($(this).data('close_date'));
             $('#edit-modal #status').val($(this).data('status')).change();
             $('#edit-modal #pro_level').val($(this).data('pro_level')).change();
-            $('#edit-modal #community').val($(this).data('c_rank')).change();
+            $('#edit-modal #community').val($(this).data('community')).change();
+            $('#edit-modal #exclusive').val($(this).data('exclusive')).change();
             $('#edit-modal #entry_bonus').val($(this).data('entry_bonus')).change();
             $('#edit-modal #winner_prize').val($(this).data('winner_prize')).change();
             $('#edit-modal').attr('data-id', $(this).attr('data-id')).modal('show');

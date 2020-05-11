@@ -17,19 +17,13 @@
 			data-close_date="<?php echo($cd['challenge']['close_date']); ?>"
 			data-status="<?php echo($cd['challenge']['status']); ?>"
 			data-pro_level="<?php echo($cd['challenge']['pro_level']); ?>"
-			data-c_rank="<?php echo($cd['challenge']['c_rank']); ?>"
+			data-community="<?php echo($cd['challenge']['community']); ?>"
+			data-exclusive="<?php echo($cd['challenge']['exclusive']); ?>"
 			data-entry_bonus="<?php echo($cd['challenge']['entry_bonus']); ?>"
 			data-winner_prize="<?php echo($cd['challenge']['winner_prize']); ?>"> 
 			<?php echo($cd['challenge']['name']); ?>
 		</a>
-	</td>
-	<td>
-		<span>
-			<a href="<?php echo(chal2url($cd['challenge']['id'])); ?>">
-				<?php echo(chal2url($cd['challenge']['id'])); ?>
-			</a>
-		</span>
-	</td>
+	</td> 
 	<td>
 		<span>
 			<?php echo $cd['challenge']['status'] == '1' ? 'Active' : 'Inactive'; ?>
@@ -37,7 +31,12 @@
 	</td>
 	<td>
 		<span>
-			<?php echo $cd['challenge']['pro_level'] == '2' ? 'Pro' : ($cd['challenge']['pro_level'] == '1' ? 'Standard' : 'Free for all'); ?>
+			<?php echo $cd['challenge']['pro_level'] == '3' ? $cd['community']['title'].' Community' : ($cd['challenge']['pro_level'] == '2' ? 'Pro' : ($cd['challenge']['pro_level'] == '1' ? 'Standard' : 'Free')); ?>
+		</span>
+	</td>
+	<td>
+		<span>
+			<?php echo $cd['exclusive']['title'] ? $cd['exclusive']['title'] : 'Not Exclusive'; ?>
 		</span>
 	</td>
 	<td>
@@ -58,5 +57,8 @@
 		<button class="btn btn-danger waves-effect waves-light delete-challenge" data-id="<?php echo($cd['challenge']['id']); ?>">
 			DELETE
 		</button>
+		<a href="<?php echo(chal2url($cd['challenge']['exclusive'], 'info')); ?>" class="btn btn-success waves-effect waves-light m-t-5">
+			GOTO
+		</a>
 	</td>
 </tr>
