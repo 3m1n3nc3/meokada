@@ -28,25 +28,26 @@ if (!empty($challenges)) {
 }	
 
 if ($set_page && $_GET['page'] == 'challenge' && !empty($page)) { 
-	$exclusive             = !empty($_GET[$page]) ? $_GET[$page] : '';
-	$exclusive_data        = $context['exclusive'] = $user->listExclusivePlans($exclusive);
-	$user_level			   = $user->verifyProLevel(NULL, $exclusive_data['pro_level']);
+	$exclusive         = !empty($_GET[$page]) ? $_GET[$page] : '';
+	$exlsv_data        = $context['exclusive'] = $user->listExclusivePlans($exclusive);
+	$user_level		   = $user->verifyProLevel(NULL, $exlsv_data['pro_level']);
 
-	if ($page !== 'info' && $exclusive_data['pro_level'] > $user_level['pro_level'] || ($exclusive_data['pro_level'] = 3 && !$user_level['community_access'])) {
+	if ($page !== 'info' && $exlsv_data['pro_level'] > $user_level['pro_level'] || ($exlsv_data['pro_level'] = 3 && !$user_level['community_access'])) {
 		header("Location: $site_url/go_pro");
 		exit;
 	}
 
-	$exclusive_data['icon'] = decode($exclusive_data['icon']);
+	$exlsv_data['icon'] = decode($exlsv_data['icon']);
+	$exlsv_data['description'] = decode($exlsv_data['description']);
 	$exclusive_url         = isset($_GET[$page]) ? '/' . $page . '/' . $_GET[$page] : '';
 	$context['page_link']  = 'navigation/challenge' . $exclusive_url;
 	$context['exjs']       = true;
 	$context['app_name']   = 'navigation';
 	$context['page_name']  = $page;
 	$context['page_title'] = $context['lang']['challenge'];
-	$context['header']     = $pixelphoto->PX_LoadPage('navigation/templates/navigation/header', $exclusive_data);
-	$context['content']    = $pixelphoto->PX_LoadPage('navigation/templates/navigation/challenge', $exclusive_data);
-} 
+	$context['header']     = $pixelphoto->PX_LoadPage('navigation/templates/navigation/header', $exlsv_data);
+	$context['content']    = $pixelphoto->PX_LoadPage('navigation/templates/navigation/challenge', $exlsv_data);
+}
 elseif ($set_page && $_GET['page'] == 'wallet') {
 	$wallet_url            = isset($_GET[$page]) ? '/' . $page . '/' . $_GET[$page] : '';
 	$context['wallets']    = $user->socialWallet(NULL, 1);
