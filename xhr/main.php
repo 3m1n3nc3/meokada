@@ -556,16 +556,27 @@ else if ($action == 'upload_store_image' && IS_LOGGED) {
 
 elseif ($action == 'manifest-modal') {
     $users    = new User;
-    $response = $users->noticeModalContent(null, true, 'homepage');
+
+    $post_data['id']   = Generic::secure($_POST['id']);
+    $post_data['page'] = Generic::secure($_POST['page']);
+
+    $response = $users->noticeModalContent(null, true, $post_data['page']);
 
     $html = '';
     if ($response) {
         foreach ($response as $key => $info) {
-            $context['title'] = $info['title'];
-            $context['content'] = decode($info['content']);
-            $html    .= $pixelphoto->PX_LoadPage('main/templates/includes/manifest-content');
+            if ($info['status'] !== 'off') { 
+                $context['title']   = $info['title'];
+                $context['content'] = decode($info['content']);
+                $use_title          = $info['use_title'] !== 'off' ? $info['title'] : null;
+            }
         }
+    } else {
+        $context['title']   = 'No content';
+        $context['content'] = 'There is no available content';
+        $use_title          = null;
     }
+    $html .= $pixelphoto->PX_LoadPage('main/templates/includes/manifest-content');
 
     $config['always_show_manifest'];
 
@@ -577,6 +588,7 @@ elseif ($action == 'manifest-modal') {
         }
     }
 
+    $data['title']  = $use_title;
     $data['html']   = $html;
     $data['status'] = 200; 
 }
@@ -592,6 +604,18 @@ elseif ($action == 'verify_account_number') {
     } else {
         $data['name']   = 'Account not found, only proceed if you are sure'; 
         $data['status'] = 400;
+    }
+}
+
+elseif ($action == 'accepted_terms') {
+    $data['status'] = 400;  
+    if (isset($_SESSION['terms_accepted'])) {
+        $data['status']  = 200;  
+        $data['message'] = 'Well Accepted';  
+    } else {
+        $_SESSION['terms_accepted'] = true;
+        $data['status'] = 200;  
+        $data['message'] = 'Now Accepted'; 
     }
 }
 

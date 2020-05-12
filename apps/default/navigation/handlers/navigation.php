@@ -62,9 +62,9 @@ elseif ($set_page && $_GET['page'] == 'wallet') {
 	$context['content']     = $pixelphoto->PX_LoadPage('navigation/templates/navigation/wallet', $wallet_data);
 }
 else{
-	$context['user_ads'] = $user->GetUserAds();
-	$context['page_link'] = 'navigation';
-	$context['exjs'] = true;
+	$context['user_ads']   = $user->GetUserAds();
+	$context['page_link']  = 'navigation';
+	$context['exjs']       = true;
 	$context['app_name']   = 'navigation';
 	$context['page_title'] = $context['lang']['challenge'];
 	$context['exclusive']  = $user->listExclusivePlans();

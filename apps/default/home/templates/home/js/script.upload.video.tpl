@@ -86,7 +86,10 @@
 			var thumb   = new File([base64_2_blob(window.cframe.dataUri)], "thumb.png", {type:"image/png"});
 						
 			let chal      = $("#challenge option:selected").val(); 
-			let challenge = typeof(chal) != 'undefined' ? chal : '';
+			let challenge = typeof(chal) != 'undefined' ? chal : false;
+			
+			let tv        = $("input[name=post_tv]").val(); 
+			let post_tv   = typeof(tv) != 'undefined' ? tv : false;
 
 			if (!video || !window.cframe) {
 				return false;
@@ -97,7 +100,12 @@
 			formData.append('thumb',thumb);
 			formData.append('video',video);
 			formData.append('caption',caption);
-			formData.append('challenge',challenge);
+			if (challenge) {
+				formData.append('challenge',challenge);
+			}
+			if (post_tv) {
+				formData.append('post_tv',post_tv);
+			}
 
 			var action = $(this).attr('action') + '?hash=' + $(this).find('input[name=hash]').val();
 			$(".user-heading #pp_loader").fadeIn(100);

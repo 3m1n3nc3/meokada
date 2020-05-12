@@ -6,6 +6,7 @@ $query   = (!empty($_GET['query'])) ? $admin::secure($_GET['query']) : '';
 $all_content =  $admin->noticeModalContent($query, true);
 $content     =  $admin->noticeModalContent($post_id);
 $status      = (!empty($content['status']) ? $content['status'] : 'on');
+$use_title   = (!empty($content['use_title']) ? $content['use_title'] : 'on');
 $content_id  = (!empty($content['id']) ? $content['id'] : '');
 ?>
 
@@ -13,7 +14,7 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
     <h2 class="breadcrumb">Pages <i class="material-icons">keyboard_arrow_right</i> Notice Modal Content</h2>
 </div>
 <div class="row clearfix">
-    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+    <div class="col-md-12">
         <div class="card">
             <div class="header">
                 <h2>Write Terms of use of this website</h2>
@@ -34,6 +35,7 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
                                 <label class="form-label">Pages Allowed (Comma Separated, titles or id's)</label> 
                                 <input type="text" id="in_pages" name="in_pages" class="form-control" value="<?php echo (!empty($content['in_pages']) ? $content['in_pages'] : ''); ?>">
                             </div>
+                            <small class="text-info">community_terms, homepage</small>
                         </div>
 
                         <label for="upload_system">Status</label>
@@ -43,6 +45,15 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
                             <input type="radio" name="status" id="status-disabled" value="off" <?php echo ($status == 'off') ? 'checked': '';?>>
                             <label for="status-disabled" class="m-l-20">Inactive</label>
                         </div>
+
+                        <label for="upload_system">Use Title</label>
+                        <div class="form-group">
+                            <input type="radio" name="use_title"  value="on" id="use_title-enabled" <?php echo ($use_title == 'on') ? 'checked': '';?>>
+                            <label for="use_title-enabled">Use</label>
+                            <input type="radio" name="use_title" id="use_title-disabled" value="off" <?php echo ($use_title == 'off') ? 'checked': '';?>>
+                            <label for="use_title-disabled" class="m-l-20">Use Default</label>
+                        </div>
+
 						<div class="form-group">
 							<textarea name="content" id="content"><?php echo (!empty($content['content']) ? $content['content'] : ''); ?></textarea>
 						</div>
@@ -52,7 +63,7 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
             </div>
         </div>
     </div>
-    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+    <div class="col-md-12">
         <div class="card">
             <div class="header">
                 <h2>Manage Content</h2>
@@ -131,7 +142,7 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
             type: 'POST',
             dataType: 'json',
             beforeSubmit: function(arr,form){
-                arr[4]['value'] = btoa(unescape(encodeURIComponent(arr[4]['value'])));
+                arr[5]['value'] = btoa(unescape(encodeURIComponent(arr[5]['value'])));
                 $(form).find('button[type=submit]').text('Please wait.').attr('disabled', 'true');
             },
             success: function(data, status, xhr, form){

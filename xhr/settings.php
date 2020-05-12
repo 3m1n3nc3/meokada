@@ -222,6 +222,65 @@ else if ($action == 'profile' && IS_LOGGED && !empty($_POST['user_id'])) {
 	}
 }
 
+else if ($action == 'big_brother' && IS_LOGGED && !empty($_POST['user_id'])) {
+
+	$error     = false;
+	$request   = array();
+	$request[] = (isset($_POST['profession']) && isset($_POST['dob']));
+	$request[] = (isset($_POST['nationality']) && isset($_POST['marital_status']));
+	$request[] = (isset($_POST['join_reason']) && isset($_POST['profession'])); 
+
+	if (in_array(false, $request)) {
+		$error = lang('please_check_details');
+	}
+
+	else if(empty($user->isOwner($_POST['user_id'])) && empty($user->isAdmin())){
+		$error = lang('unknown_error');
+	}
+
+	else{
+		$user_id   = Generic::secure($_POST['user_id']);
+		$user_data = $db->where('user_id',$user_id)->getOne(T_USERS);
+		$me        = $user_data;
+		if (empty($user_data)) {
+			$error = lang('user_not_exist');
+		} 
+	}
+
+	if (empty($error)) {	
+		$up_data = array(
+			'nationality_id' => ((len($_POST['nationality'])) ? Generic::secure($_POST['nationality']) : ''),
+			'marital_status' => ((len($_POST['marital_status'])) ? Generic::secure($_POST['marital_status']) : ''),
+			'dob'          => ((len($_POST['dob'])) ? date('Y-m-d', strtotime(Generic::secure($_POST['dob']))) : ''),
+			'join_reason'  => ((len($_POST['join_reason'])) ? Generic::secure($_POST['join_reason']) : ''),
+			'profession'   => ((len($_POST['profession'])) ? Generic::secure($_POST['profession']) : ''),
+			'acting'       => ($_POST['acting'] == 'on' ? 1 : 0),
+			'like_acting'  => ($_POST['like_acting'] == 'on' ? 1 : 0),
+			'artist'       => ($_POST['artist'] == 'on' ? 1 : 0),
+			'artist_contract' => ($_POST['artist_contract'] == 'on' ? 1 : 0),
+			'dancer'       => ($_POST['like_acting'] == 'on' ? 1 : 0),
+			'be_dancer'    => ($_POST['be_dancer'] == 'on' ? 1 : 0),
+			'signed_model' => ($_POST['signed_model'] == 'on' ? 1 : 0),
+			'be_signed_model' => ($_POST['be_signed_model'] == 'on' ? 1 : 0),
+			'sports'          => ((len($_POST['sports'])) ? Generic::secure($_POST['sports']) : ''),
+			'pro_sports'      => ($_POST['pro_sports'] == 'on' ? 1 : 0),
+			'managed_sports'  => ($_POST['managed_sports'] == 'on' ? 1 : 0),
+			'sports_contract' => ($_POST['sports_contract'] == 'on' ? 1 : 0),
+			'ent_interest'    => ((len($_POST['ent_interest'])) ? Generic::secure($_POST['ent_interest']) : ''),
+			'big_brother_mate'=> Generic::secure(1)
+		);    
+		$update          = $user->updateStatic($me->user_id,$up_data); 
+		$data['status']  = 200;
+		$data['message'] = lang('changes_saved');	
+	}
+
+	else{
+		
+		$data['status']  = 400;
+		$data['message'] = $error;
+	}
+}
+
 else if ($action == 'edit-avatar' && IS_LOGGED && !empty($_POST['user_id'])) {
 
 	if(is_numeric($_POST['user_id']) && ($user->isOwner($_POST['user_id']) || $user->isAdmin())){

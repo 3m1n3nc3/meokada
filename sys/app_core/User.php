@@ -1531,15 +1531,24 @@ class User extends Generic{
 		}
 	}
 
-	public function bankOption($selected = '')
+	public function bankOption($sel = '')
 	{ 
 		$admin = new Admin;
-		$process = $admin->paystackProcessor('bank')->data; 
+        if (!empty($_SESSION['bank_list'])) {
+            $process = $_SESSION['bank_list'];
+        } else {
+            $process = $admin->paystackProcessor('bank')->data; 
+            if ($process['status'] == 1) {
+                $_SESSION['bank_list'] = $process;
+            } else {
+                unset($_SESSION['bank_list']);
+            }
+        }
 		if (!empty($process['data']))
 		{	
 			$select = '';
 			foreach ($process['data'] as $option) {
-				$selected = ($selected == $option['name'] || $selected == $option['code']) ? ' selected="selected"' : $selected; 
+				$selected = ($sel == $option['name'] || $sel == $option['code'] ? ' selected="selected"' : ''); 
 				$select .= 
 					'<option value="' . $option['code'] . '" data-type="' . $option['type'] . '"' . $selected . '>' . $option['name'] . 
 					'</option>';

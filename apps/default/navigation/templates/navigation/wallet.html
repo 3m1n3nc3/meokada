@@ -44,7 +44,7 @@
 							<h3>
 								<?php echo $wallet['title'] ?><br>
 								<b>
-									<?php echo $context['currency_symbol'].number_format($wallet['balance'], 2); ?>
+									<?php echo $context['currency_symbol'].number_format($wallet['balance']+$wallet['paidout'], 2); ?>
 								</b>
 							</h3>
 						<?php endforeach ?>

@@ -97,10 +97,6 @@
 		</div>
 	</div>
 
-	<?php 
-		include $context['dirname_theme'].'/main/templates/modals/read-manifest.html';
-	?>
-
 	<script>
 		jQuery(document).ready(function($) {
 			$("form#login").ajaxForm({
@@ -142,20 +138,9 @@
 			var show_manifest = "<?php echo ($config['always_show_manifest'] !== 'never' && !empty($_SESSION['manifest_shown'])) ? $_SESSION['manifest_shown'] : false ?>";
 
 	        if (!show_manifest) {
-		        $('#manifest-modal').modal('show');
 		        load_noticeModal();
 	        }
 		});
-
-		function load_noticeModal() {
-			$('body').addClass('app-loading');
-	        $.post(xhr_url()+'main/manifest-modal', {id:'id',action:'action'}, function (data) { 
-	            if (data.status == 200) { 
-	                $('div.manifest-modal-content').html(data.html);
-					$('body').removeClass('app-loading'); 
-	            }
-	        });
-	    }
 	</script>
 
 	<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />

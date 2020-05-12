@@ -232,10 +232,12 @@ elseif ($action == 'wallet-settings' && !empty($_POST['id'])) {
 		$update['id']             = $admin::secure($_POST['id'][$i]);
 		$update['title']          = $admin::secure($_POST['title'][$i]);
 		$update['percentage']     = $admin::secure($_POST['percentage'][$i]);
-		$update['d_percentage']    = $admin::secure($_POST['d_percentage'][$i]);
+		$update['d_percentage']   = $admin::secure($_POST['d_percentage'][$i]);
 		$update['account_number'] = $admin::secure($_POST['account_number'][$i]); 
+		$update['account_type']   = $admin::secure($_POST['account_type'][$i]); 
+		$update['bank_code']      = $admin::secure($_POST['bank_code'][$i]); 
 		$update['description']    = $admin::secure($_POST['description'][$i]);
-		$update['public']         = $admin::secure($_POST['public'][$i]);
+		$update['public']         = $admin::secure($_POST['public'][$i]); 
 		if (empty($update['title'])) {
 			$error .= 'Title for Settings '.($i+1).' cannot be empty'; 
 		} elseif (empty($update['percentage'])) {
@@ -764,15 +766,16 @@ elseif ($action == 'info-modal') {
 	$data = array(
 		'sid'  => '',
 		'status'  => 400,
-		'message' => 'Can not save page, please check your input'
+		'message' => 'Can not save page, please check your input.'
 	);
 
 	if (empty($_POST['action'])) { 
-		$save_data['id']       = Generic::secure($_POST['id']);
-		$save_data['title']    = Generic::secure($_POST['title']);
-		$save_data['status']   = Generic::secure($_POST['status']);
-		$save_data['in_pages'] = Generic::secure($_POST['in_pages']);
-		$save_data['content']  = Generic::secure(base64_decode(encode($_POST['content'])));
+		$save_data['id']        = Generic::secure($_POST['id']);
+		$save_data['title']     = Generic::secure($_POST['title']);
+		$save_data['status']    = Generic::secure($_POST['status']);
+		$save_data['use_title'] = Generic::secure($_POST['use_title']);
+		$save_data['in_pages']  = Generic::secure($_POST['in_pages']);
+		$save_data['content']   = Generic::secure(base64_decode(encode($_POST['content'])));
 
 		$save = $admin->saveInfoModal($save_data);
 		if ($save) {
@@ -820,6 +823,22 @@ elseif ($action == 'about-us' && !empty($_POST['about_us'])) {
 	);
 
 	$save  = $admin->savePage('about_us',$page);
+	if ($save) {
+		$data  = array(
+			'status' => 200,
+			'message' => 'Your changes has been successfully saved!'
+		);
+	}
+}
+elseif ($action == 'disclaimer' && !empty($_POST['disclaimer'])) {
+	$admin = new Admin();
+	$page  = base64_decode(encode($_POST['disclaimer']));
+	$data  = array(
+		'status' => 400,
+		'message' => 'Can not save page, please check the details'
+	);
+
+	$save  = $admin->savePage('disclaimer',$page);
 	if ($save) {
 		$data  = array(
 			'status' => 200,

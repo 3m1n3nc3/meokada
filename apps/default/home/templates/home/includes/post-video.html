@@ -62,7 +62,7 @@
 	</div>
 	<div class="post-video fluid">
 		<?php foreach ($post_data['media_set'] as $key => $media_file) { ?>
-			<video  class="afterglow embed-responsive embed-responsive-16by9" id="postvideo-<?php echo($post_data['post_id']) ?>" data-skin="dark" onplay="px_add_view(<?php echo($post_data['post_id']) ?>)" poster="<?php echo(media($media_file['extra'])); ?>">
+			<video class="afterglow embed-responsive embed-responsive-16by9" id="postvideo-<?php echo($post_data['post_id']) ?>" data-skin="dark" onplay="px_add_view(<?php echo($post_data['post_id']) ?>)" poster="<?php echo(media($media_file['extra'])); ?>">
 				<source src="<?php echo(media($media_file['file'])) ?>" type="video/mp4">
 				<source src="<?php echo(media($media_file['file'])) ?>" type="video/mov">
 				<source src="<?php echo(media($media_file['file'])) ?>" type="video/webm">

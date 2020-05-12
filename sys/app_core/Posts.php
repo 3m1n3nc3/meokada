@@ -40,11 +40,11 @@ class Posts extends User{
 		));
 		try {
 			$posts = self::$db->rawQuery($sql);
-		} 
+		}
 		catch (Exception $e) {
 			$posts = array(); 
 		} 
-		
+
 		foreach ($posts as $key => $post_data) {
 			$post_data->thumb = '';
 			$t = $post_data->type;
@@ -63,6 +63,7 @@ class Posts extends User{
 
 		return $data;
 	}
+
 	public function exploreBoostedPosts($limit = 1){
 		if (empty(IS_LOGGED)) {
 			return false;
@@ -255,6 +256,51 @@ class Posts extends User{
 			't_blocks' => T_PROF_BLOCKS,
 			't_users' => T_USERS,
 			'user_id' => $user_id,
+			'total_limit' => $limit,
+			'offset' => $offset,
+		));
+
+		try {
+			$posts = self::$db->rawQuery($sql);
+		} 
+		catch (Exception $e) {
+			$posts = array();
+		}
+
+		foreach ($posts as $key => $post_data) {
+			$post_data = $this->postData($post_data);
+			$data[]    = $post_data;
+		}
+
+		$user = new User();
+		$ad = $user->GetRandomAd();
+		if (!empty($ad)) {
+			$ad->type = 'ad';
+			$ad->user_data = $user->getUserDataById($ad->user_id);
+			$data[] = $ad;
+		}
+		
+		return $data;
+	}
+	public function getTvPosts($offset = false,$limit = 5, $tv = false, $restricted = false){
+		if (empty(IS_LOGGED)) {
+			return false;
+		}
+
+		$data    = array();
+		$user_id = self::$me->user_id;
+		$tv      = ($tv ? $tv : $user_id);
+		$sql     = pxp_sqltepmlate('posts/get.tv.posts',array(
+			't_posts' => T_POSTS,
+			't_conn' => T_CONNECTIV,
+			't_likes' => T_POST_LIKES,
+			't_comm' => T_POST_COMMENTS,
+			't_blocks' => T_PROF_BLOCKS,
+			't_users' => T_USERS,
+			'user_id' => $user_id,
+			'tv' => $tv,
+			'restricted' => $restricted,
+			'channel' => $tv,
 			'total_limit' => $limit,
 			'offset' => $offset,
 		));
@@ -524,13 +570,17 @@ class Posts extends User{
 		return $challenge;
 	}
 
-	public function challengeHashTag($text = '', $cid = null)
+	public function challengeHashTag($text = '', $cidTag = null, $c_tag = false)
 	{ 
-		if ($cid) {
-			$challenge = $this->toArray($this->challengeData($cid));
+		if ($cidTag) {
+			$challenge = $this->toArray($this->challengeData($cidTag));
+			if ($c_tag) {
+				$challenge['name'] = $cidTag;
+			}
 			if (!empty($challenge['name'])) {
 				$tag = preg_replace('/[^A-Za-z0-9\-]/', '', $challenge['name']);
 				$tag = strtolower(trim(str_ireplace(' ', '_', $challenge['name'])));
+				$tag = str_ireplace('_tv', '_TV', $tag);
 				$text .= "\n#" . $tag;
 			}
 		}

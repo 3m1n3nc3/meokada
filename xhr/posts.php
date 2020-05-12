@@ -42,11 +42,19 @@ else if ($action == 'new-embed' && IS_LOGGED && ($config['import_videos'] == 'on
 		$context['playtube_support'] = $playtube_support;
 		$context['playtube_link'] = $config['playtube_url'];
 	}
+
+	if (!empty($challenge)) {
+		$context['challenge'] = o2array($challenge); 
+	}	
 	$data['status'] = 200;
 	$data['html']    = $pixelphoto->PX_LoadPage('home/templates/home/includes/embed-video');
 }
 
 else if ($action == 'new-gif' && IS_LOGGED && ($config['import_images'] == 'on')) {
+
+	if (!empty($challenge)) {
+		$context['challenge'] = o2array($challenge); 
+	}	
 	$data['status'] = 200;
 	$data['html']    = $pixelphoto->PX_LoadPage('home/templates/home/includes/import-gifs');
 }
@@ -55,6 +63,10 @@ else if ($action == 'new-story' && IS_LOGGED && ($config['story_system'] == 'on'
 	$story          = new Story();
 	$data['status'] = 400;
 	$can_addstory   = $story->setUserById($me['user_id'])->canAddStory();
+
+	if (!empty($challenge)) {
+		$context['challenge'] = o2array($challenge); 
+	}	
 	
 	if ($can_addstory) {
 		$data['status']  = 200;
@@ -107,6 +119,12 @@ else if ($action == 'upload-post-images' && IS_LOGGED && ($config['upload_images
             if (!empty($_POST['challenge'])) { 
 				$re_data['challenge_id'] = $_POST['challenge'];
 				$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
+			} 
+
+            if (!empty($_POST['post_tv'])) { 
+            	$text2                  = !empty($re_data['description']) ? $re_data['description'] : $text;
+				$re_data['tv']          = $_POST['post_tv'];
+				$re_data['description'] = $posts->challengeHashTag($text2, $config['site_name'] . ' TV', true);
 			} 
 
 			$post_id = $posts->insertPost($re_data);
@@ -248,6 +266,12 @@ else if ($action == 'upload-post-images' && IS_LOGGED && ($config['upload_images
 						$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']); 
 					}
 
+		            if (!empty($_POST['post_tv'])) { 
+		            	$text2                  = !empty($re_data['description']) ? $re_data['description'] : $text;
+						$re_data['tv']          = $_POST['post_tv'];
+						$re_data['description'] = $posts->challengeHashTag($text2, ' ' . $config['site_name'] .' TV');
+					} 
+
 					$post_id = $posts->insertPost($re_data);
 					if (is_numeric($post_id)) {
 
@@ -365,6 +389,12 @@ else if($action == 'ffmpeg-video-upload' && IS_LOGGED && ($config['upload_videos
 						$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
 					}
 
+		            if (!empty($_POST['post_tv'])) { 
+		            	$text2                  = !empty($re_data['description']) ? $re_data['description'] : $text;
+						$re_data['tv']          = $_POST['post_tv'];
+						$re_data['description'] = $posts->challengeHashTag($text2, ' ' . $config['site_name'] .' TV');
+					} 
+
 					$post_id = $posts->insertPost($re_data);
 
 					if (is_numeric($post_id)) {
@@ -469,6 +499,12 @@ else if($action == 'upload-post-video' && IS_LOGGED){
 				$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
 			} 
 
+            if (!empty($_POST['post_tv'])) { 
+            	$text2                  = !empty($re_data['description']) ? $re_data['description'] : $text;
+				$re_data['tv']          = $_POST['post_tv'];
+				$re_data['description'] = $posts->challengeHashTag($text2, $config['site_name'] . ' TV', true);
+			} 
+
 			$post_id = $posts->insertPost($re_data);
 
 			if (is_numeric($post_id)) {
@@ -555,6 +591,12 @@ else if($action == 'embed-post-video' && IS_LOGGED && ($config['import_videos'] 
 				$re_data['challenge_id'] = $_POST['challenge'];
 				$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
 			}
+
+            if (!empty($_POST['post_tv'])) { 
+            	$text2                  = !empty($re_data['description']) ? $re_data['description'] : $text;
+				$re_data['tv']          = $_POST['post_tv'];
+				$re_data['description'] = $posts->challengeHashTag($text2, $config['site_name'] . ' TV', true);
+			} 
 
 			if($_POST['embed'] == 'mp4' && !empty($_FILES['thumb'])){
 				$media->setFile(array(
@@ -662,6 +704,12 @@ else if($action == 'embed-post-video' && IS_LOGGED && ($config['import_videos'] 
 				$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
 			}
 
+            if (!empty($_POST['post_tv'])) { 
+            	$text2                  = !empty($re_data['description']) ? $re_data['description'] : $text;
+				$re_data['tv']          = $_POST['post_tv'];
+				$re_data['description'] = $posts->challengeHashTag($text2, $config['site_name'] . ' TV', true);
+			} 
+
 			$post_id = $posts->insertPost($re_data);
 
 			$posts->setPostId($post_id);
@@ -707,6 +755,12 @@ else if($action == 'import-post-gifs' && IS_LOGGED && ($config['import_images'] 
 					$re_data['challenge_id'] = $_POST['challenge'];
 					$re_data['description']  = $posts->challengeHashTag($text, $_POST['challenge']);
 				}
+
+	            if (!empty($_POST['post_tv'])) { 
+	            	$text2                  = !empty($re_data['description']) ? $re_data['description'] : $text;
+					$re_data['tv']          = $_POST['post_tv'];
+					$re_data['description'] = $posts->challengeHashTag($text2, $config['site_name'] . ' TV', true);
+				} 
 
 				$post_id = $posts->insertPost($re_data);
 
@@ -1141,12 +1195,49 @@ elseif ($action == 'load-tl-posts' && IS_LOGGED) {
 		if (len($qset) > 0) {
 			foreach ($qset as $post_data) {
 
-
+ 
 				if ($post_data['type'] == 'image' || $post_data['type'] == 'gif') {
 					$html  .= $pixelphoto->PX_LoadPage('home/templates/home/includes/post-image');
 				}
 
 				elseif ($post_data['type'] == 'video') {
+					$html  .= $pixelphoto->PX_LoadPage('home/templates/home/includes/post-video');
+				}
+
+				elseif ($post_data['type'] == 'youtube') {
+					$html  .= $pixelphoto->PX_LoadPage('home/templates/home/includes/post-youtube');
+				}
+				
+				elseif ($post_data['type'] == 'vimeo') {
+					$html  .= $pixelphoto->PX_LoadPage('home/templates/home/includes/post-vimeo');
+				}	
+							
+				elseif ($post_data['type'] == 'dailymotion') {
+					$html  .= $pixelphoto->PX_LoadPage('home/templates/home/includes/post-dailymotion');
+				}
+			}
+
+			$data['status'] = 200;
+			$data['html']   = $html;
+		}
+	}
+}
+
+elseif ($action == 'load-tv-posts' && IS_LOGGED) {
+	if (!empty($_GET['offset']) && is_numeric($_GET['offset'])) {
+		$last_id  = $_GET['offset'];
+		$this_tv  = !empty($_GET['this_tv']) ? $_GET['this_tv'] : false;
+		$restricted = !empty($_GET['restricted']) ? $_GET['restricted'] : false;
+		$posts    = new Posts();
+		$data     = array('status' => 404);
+		$qset     = $posts->getTvPosts($last_id, NULL, $this_tv, $restricted);
+		$qset     = (!empty($qset)) ? o2array($qset) : 0;
+		$html     = "";
+
+		if (len($qset) > 0) {
+			foreach ($qset as $post_data) { 
+
+				if ($post_data['type'] == 'video') {
 					$html  .= $pixelphoto->PX_LoadPage('home/templates/home/includes/post-video');
 				}
 

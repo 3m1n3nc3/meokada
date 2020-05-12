@@ -33,10 +33,7 @@ if ($auto_payout) {
             $create_customer = $admin->payUser('create_recipient', $user_data);
             $recipient_code = $create_customer['data']['recipient_code'] ?? '';
             if ($recipient_code) {
-                $admin::$db->where('id',$request_id)->update(T_WITHDRAWAL,array('recipient_code' => $recipient_code));
-            }
-
-            if ($recipient_code) {
+                $admin::$db->where('id',$request_data['id'])->update(T_WITHDRAWAL,array('recipient_code' => $recipient_code));
                 $meta[] = array('recipient' => $recipient_code, 'amount' => $request_data['amount']);  
             } else {
                 $meta = [];
@@ -106,27 +103,46 @@ if ($auto_payout) {
         }
     }
 }
+            header("Content-type: application/json");
 
-if ($config['auto_pay_wallet'] !== 'off') {
- // && $config['auto_pay_wallet_limit'] >=0
-    $wallets        = $admin->socialWallet();
+if ($config['auto_pay_wallet'] !== 'off') { 
+    $wallets = $admin->socialWallet();
+    $i = 0;
     foreach ($wallets as $key => $wallet) {
-        // $new_percent = (100 / $distro_percent) * $wallet['percentage'];
-        // $balance     = ($new_percent / 100)*$amount; 
-
-        // $r_data['balance'] = self::$db->inc($balance);
-
-        // self::$db->where('id', $wallet['id'])->update(T_SOCIAL_WALLET, $r_data); 
+        $i++;  
         
         $amount = ($wallet['balance']-$wallet['paidout']);
-        $user_data = array(
-            'type'           => $wallet['account_type'],
-            'name'           => $wallet['title'],
-            'description'    => 'Social Wallet Payouts from ' . $config['site_name'],
-            'account_number' => $wallet['account_number'],
-            'bank_code'      => $wallet['bank_code'],
-            'amount'         => $amount*($config['currency'] == 'NGN' || $config['currency'] == 'GHS' ? 100 : 0)
-        );
+        if ($wallet['account_number'] && $amount > $config['auto_pay_wallet_limit']) { 
+            $user_data = array(
+                'paidout'        => $wallet['paidout'],
+                'type'           => $wallet['account_type'],
+                'name'           => $wallet['title'],
+                'description'    => 'Social Wallet Payouts from ' . $config['site_name'],
+                'account_number' => $wallet['account_number'],
+                'bank_code'      => $wallet['bank_code'],
+                'amount'         => $amount*($config['currency'] == 'NGN' || $config['currency'] == 'GHS' ? 100 : 0)
+            );
+
+            $create_customer = $admin->payUser('create_recipient', $user_data);
+            $recipient_code  = $create_customer['data']['recipient_code'] ?? '';
+            if ($recipient_code) {
+                $wallet_meta[] = array('recipient' => $recipient_code, 'amount' => $amount);  
+                $admin::$db->where('id',$wallet['id'])->update(T_SOCIAL_WALLET, array('recipient_code' => $recipient_code));
+            } else {
+                $wallet_meta = [];
+            } 
+        } 
+    }
+
+    if (!empty($wallet_meta)) {
+        $wallet_process = $admin->payUser('initiate_bulk_transfer', ['transfers' => $wallet_meta]);
+        if (!empty($wallet_process['data'])) {
+            foreach ($wallet_process['data'] as $request_id) 
+            {
+                $admin::$db->where('recipient_code', $request_id['recipient'])->update(T_SOCIAL_WALLET,array('paidout' => $admin::$db->inc($request_id['amount']), 'balance' => $admin::$db->dec($request_id['amount'])));
+            }
+        }
+        $_SESSION['last_auto_pay_wallet'] = time();
     }
 }
 // echo$admin::$db->getLastQuery();

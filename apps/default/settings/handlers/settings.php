@@ -19,6 +19,7 @@ $pages  = array(
 	'delete',
 	'password',
 	'general',
+	'big_brother',
 	'profile',
 	'privacy',
 	'notifications',

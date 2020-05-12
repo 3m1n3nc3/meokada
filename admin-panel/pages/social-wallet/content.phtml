@@ -4,7 +4,7 @@
     </div>
     <!-- Vertical Layout -->
     <div class="row">
-        <div class="col-lg-6 col-md-6"> 
+        <div class="col-md-12"> 
             <div class="card">
                 <div class="header">
                     <h2>Exclusive Plans / General Categories</h2>
@@ -46,10 +46,10 @@
                     <form class="wallet-settings" method="POST">
                         <div class="form-alert"></div> 
 
-                        <?php $wallets = $admin->socialWallet(); $i = 0;
+                        <?php $wallets = $admin->socialWallet(); $i = 0; 
                             if (!empty($wallets)) { ?>
-                                <?php foreach ($wallets as $key => $wallet) { $i++; ?> 
-                                    <div id="wallet_<?php echo $wallet['id'] ?>" class="form_container">
+                                <?php foreach ($wallets as $key => $wallet) { $i++; $even = ($i%2) ?> 
+                                    <div id="wallet_<?php echo $wallet['id'] ?>" class="form_container col-md-6" style="border-right: solid lightgray <?php echo $even ? '1px;' : '0px;'?> padding: 5px">
                                         <label for="title">
                                             <?php echo $i . '. ' . $wallet['title'] ?> 
                                             <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span>
@@ -90,7 +90,7 @@
                                                 </div> 
                                             </div> 
 
-                                            <input type="hidden" name="account_type[]" id="account_type<?php echo $i?>" value="">
+                                            <input type="hidden" name="account_type[]" id="account_type<?php echo $i?>" value="<?php echo $wallet['account_type'] ?>">
 
                                             <div class="col-md-6">
                                                 <div class="form-group form-float">
@@ -102,10 +102,10 @@
                                             </div> 
 
                                             <div class="col-md-6">
-                                                <div class="form-group form-float">
+                                                <div class="form-group form-float account_validator">
                                                     <div class="form-line">
-                                                        <input type="text" name="account_number[]" id="account_number<?php echo $i?>" class="form-control" value="<?php echo $wallet['account_number'] ?>">
-                                                        <label class="form-label">Account Number</label>
+                                                        <input type="text" name="account_number[]" id="account_number<?php echo $i?>" class="form-control account_number" value="<?php echo $wallet['account_number'] ?>">
+                                                        <label class="form-label">Account Number</label> 
                                                     </div>
                                                 </div>  
                                             </div>   
@@ -216,7 +216,7 @@
                 communityForm.find('button[type=submit]').text('Save').removeAttr('disabled');
             }
         });
-         
+          
         var cexclusiveForm = $("form.create-wallet");
         cexclusiveForm.ajaxForm({
             url: acpajax_url('create-wallet'),
@@ -245,34 +245,14 @@
                 var account_number = $('#account_number'+posn).val(); 
                 var selected       = $(this).children("option:selected"); 
                 $('#account_type'+posn).val(selected.data('type'));
-
                 console.log(selected.text());
-                console.log(selected.data('type'));
-                console.log(selected.val());
-                console.log(account_number);
+                // console.log(selected.data('type'));
+                // console.log(selected.val()); 
             }); 
-            $("#account_number"+posn).keydown(function(event) { 
-                var account_number = $(this).val(); 
-                var bank_code      = $("select#bank_code"+posn).children("option:selected").val(); 
-                if (account_number.length >= 7) {
-                    checkAccountNumber(event, account_number, bank_code, div_id = '');
-                }
-            }); 
+            $('select#bank_code'+posn).checkAccountNumberTrigger(posn);
+            $('#account_number'+posn).checkAccountNumber(posn);
         }); 
     });
-    
-    function checkAccountNumber(e, account_number, bank_code, div_id = '') {
-        charStr = String.fromCharCode(e.keyCode);
-        if (/[0-9-_]/.test(charStr)) {
-            // $.post(link('main/verify_account_number'), 
-            //     {account_number:account_number,bank_code:selected.val()}, 
-            //     function(data, textStatus, xhr) {
-
-            // });
-            console.log('Checking Account Number'); 
-            console.log(account_number.length, account_number, bank_code);
-        } 
-    }
          
     function deleteSomething(id,what) {
         $.post(

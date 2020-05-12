@@ -6,7 +6,11 @@ if ($tpage == 'terms-of-use') {
 }
 
 elseif ($tpage == 'privacy-and-policy') {
-	$pname = 'privacy_and_policy';
+    $pname = 'privacy_and_policy';
+}
+
+elseif ($tpage == 'disclaimer') {
+    $pname = 'disclaimer';
 }
 
 elseif ($tpage == 'contact_us') {
@@ -15,6 +19,7 @@ elseif ($tpage == 'contact_us') {
 
 $pagecont = $user->getPage($pname);
 
+$context['page_link']  = $tpage;
 $context['pname'] = $pname;
 $context['tpage'] = $tpage;
 $context['page_title'] = lang($pname);

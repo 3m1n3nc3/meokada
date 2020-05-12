@@ -94,6 +94,7 @@ $pages        = array(
         'terms',
         'privacy-and-policy',
         'about-us',
+        'disclaimer',
         'contact_us'
     ),
     'mobile_api' => array(
@@ -579,6 +580,11 @@ if (empty($page_content)) {
                                         About us
                                     </a>
                                 </li>
+                                <li class="<?php echo $admin->activeMenu('disclaimer'); ?>">
+                                    <a href="<?php echo pxp_acp_link('disclaimer'); ?>" class=" waves-effect waves-block">
+                                        Disclaimer
+                                    </a>
+                                </li>
                                 <li class="<?php echo $admin->activeMenu('contact_us'); ?>">
                                     <a href="<?php echo pxp_acp_link('contact_us'); ?>" class=" waves-effect waves-block">
                                         Contact Us
@@ -665,6 +671,7 @@ if (empty($page_content)) {
         <script src="<?php echo pxp_acp_link('js/admin.js');?>"></script>
         <script src="<?php echo pxp_acp_link('js/demo.js');?>"></script>
         <script src="<?php echo pxp_acp_link('js/script.js');?>"></script>
+        <script src="<?php echo pxp_acp_link('js/hoolicon.js');?>"></script>
         <script src="<?php echo pxp_acp_link('plugins/bootstrap-toggle/bootstrap-toggle.min.js');?>"></script>
         <script src="<?php echo pxp_acp_link('plugins/jquery-form/jquery-form.v3.51.0.js');?>"></script>
         <script src="<?php echo $context['theme_url'] ?>/main/static/js/libs/toast/src/jquery.m.toast.js"></script>

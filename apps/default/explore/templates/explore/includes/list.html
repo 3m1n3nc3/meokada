@@ -18,7 +18,11 @@
 		<div class="image" onclick="lightbox('<?php echo($post_data['post_id']) ?>','<?php echo($context['app_name']) ?>');" style="background-image: url('<?php echo(media($post_data['thumb'])) ?>');">
 			<?php if ($post_data['type'] != 'image' && $post_data['type'] != 'gif' && $post_data['type'] != 'fetched') { ?>
 				<span class="category">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="feather feather-video"><path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z" /></svg>
+					<?php if ($post_data['tv'] != 1) { ?>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="feather feather-video"><path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z" /></svg>
+					<?php } else { ?>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"class="feather feather-video"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+					<?php } ?>
 				</span>
 				<span class="play-btn">
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="feather feather-play"><path d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg>

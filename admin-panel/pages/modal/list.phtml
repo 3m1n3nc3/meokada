@@ -8,9 +8,10 @@
 	<td>
 		<span>
 			<a href="<?php echo(pxp_acp_link('modal?post_id='.$cd['content']['id'])); ?>">
-				<?php echo($cd['content']['title'] ?? 'Removed Challenge'); ?>
+				<?php echo($cd['content']['title'] ?? 'Removed Content'); ?>
 			</a> 
 		</span>
+		<div><?php echo($cd['content']['in_pages'] ?? ''); ?></div>
 	</td>
 	<td>
 		<span>

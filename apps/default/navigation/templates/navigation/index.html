@@ -29,15 +29,24 @@
 				</div>   
 
 				<?php if ($context['exclusive']): ?>
-					<?php foreach ($context['exclusive'] as $exclusive): $set_id = $exclusive['id'];?>
+					<?php foreach ($context['exclusive'] as $exclusive): 
+						$set_id     = $exclusive['id'];
+						$prolevel   = isset($_SESSION['terms_accepted']) ? true : $exclusive['pro_level']; 
+						$set_link   = 'navigation/challenge/exclusive/'.$set_id;
+						if ($exclusive['pro_level'] == 2 && $context['user']['big_brother_mate'] !== 1) {
+							if (!isset($_SESSION['_redirect_'])) {
+								$_SESSION['_redirect_'] = pxp_link($set_link);
+							}
+							$set_link   = 'settings/big_brother/'.$context['user']['user_id'];
+						} ?>
 
 						<div class="col-md-4">
 							<div class="text-center go_pro_plan pro_plan">
 								<b class="pp_exp_head_svg unset"><?php echo decode($exclusive['icon']) ?></b>
 								<h3><?php echo $exclusive['title'] ?></h3>
-								<hr> 
+								<hr>
 								<div class="button_go_pro button_go_pro_upgrade">
-									<button onclick="location.href='{{LINK navigation/challenge/exclusive/<?php echo $set_id ?>}}';"><span>{{LANG enter}}</span></button> 
+									<button onclick="loadCommunityTC(<?php echo $prolevel?>, '{{LINK <?php echo $set_link ?>}}');"><span>{{LANG enter}}</span></button> 
 								</div>
 							</div>
 						</div>  
@@ -50,3 +59,39 @@
 		</div>
 	</div> 
 </div> 
+
+<script> 
+
+	function acceptCommunityTC(e, check) { 
+ 		var accepted = $(check)[0].checked;
+ 		var link     = $(e[0]).val();
+ 
+ 		if (accepted === true) {
+ 			$.post(xhr_url()+'main/accepted_terms');
+ 			location.href=link;
+ 		} else {
+			$('#manifest-modal').modal('hide');
+ 		}
+ 		return false;
+    }
+
+	function loadCommunityTC(pro_level = 0, link = '') {  
+		
+		const community_terms_form = 
+		'<form method="post" class="community_terms_form" onsubmit="return acceptCommunityTC(this, \'#accept_CTC\');">'+
+			'<div class="form-group text-danger">'+
+				'<input type="hidden" id="link" value="'+link+'"> '+
+				'<input type="checkbox" id="accept_CTC" required> '+
+				'<label> I have read, Understood and Accepted these terms</label> '+
+				'<button type="submit" class="btn btn-success">Continue</button>'+
+				'<button type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'+
+			'</div>'+
+		'</form>';
+
+ 		if (pro_level === 3) { 
+		    load_noticeModal(null, 'community_terms', community_terms_form); 
+ 		} else {
+ 			location.href=link;
+ 		} 
+    } 
+</script>

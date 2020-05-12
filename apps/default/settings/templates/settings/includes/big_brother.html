@@ -1,0 +1,249 @@
+<form class="form row pp_sett_form" id="edit-big_brother-settings">
+	<div class="sett-active">
+		<div class="header">
+			<h4>{{LANG big_brother_challenge}} {{LANG settings}}</h4>
+			<div class="clear"></div>
+		</div>
+		<hr>
+		<div class="col-md-2"></div>
+		<div class="col-md-8">
+			<div class="pp_mat_select">
+				<label class="pp_mat_label">Nationality*</label>
+				<div>
+					<select name="nationality" class="form-control" required>
+						<?php foreach ($context['countries_name'] as $cid => $cname) { ?>
+							<option value="<?php echo($cid) ?>" <?php if($context['me']['nationality_id'] == $cid){ ?> selected <?php } ?>>
+								<?php echo $cname; ?>
+							</option>
+						<?php } ?>
+					</select>
+					<span class="bar"></span>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<div class="pp_mat_select" style="margin-bottom: 1.7em;">
+				<label class="pp_mat_label">Marital Status*</label>
+				<div>
+					<select name="marital_status" class="form-control" required>
+						<option value="Single" <?php if($context['me']['marital_status'] == 'Single'){ ?> selected <?php } ?>>
+							Single
+						</option>
+						<option value="Married" <?php if($context['me']['marital_status'] == 'Married'){ ?> selected <?php } ?>>
+							Married
+						</option>
+						<option value="Divorced" <?php if($context['me']['marital_status'] == 'Divorced'){ ?> selected <?php } ?>>
+							Divorced
+						</option>
+						<option value="Other" <?php if($context['me']['marital_status'] == 'Other'){ ?> selected <?php } ?>>
+							Other
+						</option>
+					</select>
+					<span class="bar"></span>
+				</div>
+				<div class="clear"></div>
+			</div>
+			
+			<label>Date of Birth*</label>
+			<div class="pp_mat_input" style="margin-bottom: 1.7em;">
+				<input type="date" name="dob" class="form-control" value="<?php echo($context['me']['dob']) ?>" required>
+				<span class="bar"></span>
+			</div>
+			<div class="pp_mat_select" style="margin-bottom: 1.7em;">
+				<label class="pp_mat_label">Reasons for participating*</label>
+				<div>
+					<select name="join_reason" class="form-control" required>
+						<option value="Fame" <?php if($context['me']['join_reason'] == 'Fame'){ ?> selected <?php } ?>>
+							Fame
+						</option>
+						<option value="Fun" <?php if($context['me']['join_reason'] == 'Fun'){ ?> selected <?php } ?>>
+							Fun
+						</option>
+						<option value="Prize" <?php if($context['me']['join_reason'] == 'Prize'){ ?> selected <?php } ?>>
+							Prize
+						</option>
+						<option value="Fame and Prize" <?php if($context['me']['join_reason'] == 'Fame and Prize'){ ?> selected <?php } ?>>
+							Fame and Prize
+						</option>
+						<option value="Fame and Fun" <?php if($context['me']['join_reason'] == 'Fame and Fun'){ ?> selected <?php } ?>>
+							Fame and Fun
+						</option>
+						<option value="Fun and Prize" <?php if($context['me']['join_reason'] == 'Fun and Prize'){ ?> selected <?php } ?>>
+							Fun and Prize
+						</option>
+						<option value="All" <?php if($context['me']['join_reason'] == 'All'){ ?> selected <?php } ?>>
+							All
+						</option>
+					</select>
+					<span class="bar"></span>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<div class="pp_mat_input">
+				<input type="text" name="profession" class="form-control" value="<?php echo($context['me']['profession']) ?>" required>
+				<span class="bar"></span>
+				<label>Profession*</label>
+			</div> 
+			<br> 
+		</div>
+		<div class="col-md-2"></div>
+		
+		<div class="clear"></div>
+	</div>
+
+	<div class="sett-active">
+		<div class="header">
+			<h4>Entertainment Interests</h4>
+			<div class="clear"></div>
+		</div>
+		<hr> 
+
+		<div class="col-md-2"></div>
+		<div class="col-md-8">
+			
+			<div class="form-row">
+				<h3 class="col-xs-9 col-sm-9 col-md-9">Acting / Role Playing</h3>
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Have you featured in any movie?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['acting'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="acting" name="acting">
+						<label class="tgl-btn" for="acting"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Would you want to feature in a {{CONFIG site_name}} TV movie</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['like_acting'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="like_acting" name="like_acting">
+						<label class="tgl-btn" for="like_acting"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
+
+			<div class="form-row">
+				<h3 class="col-xs-9 col-sm-9 col-md-9">Music</h3>
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Do you have any studio recordings</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['artist'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="artist" name="artist">
+						<label class="tgl-btn" for="artist"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Will you consider a CONTRACT agreement as an Artist with this Platform?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['artist_contract'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="artist_contract" name="artist_contract">
+						<label class="tgl-btn" for="artist_contract"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
+
+			<div class="form-row">
+				<h3 class="col-xs-9 col-sm-9 col-md-9">Dancing</h3>
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Are you a professional dancer?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['dancer'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="dancer" name="dancer">
+						<label class="tgl-btn" for="dancer"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Do you want to be a professional dancer?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['be_dancer'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="be_dancer" name="be_dancer">
+						<label class="tgl-btn" for="be_dancer"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
+
+			<div class="form-row">
+				<h3 class="col-xs-9 col-sm-9 col-md-9">Modeling</h3>
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Are you signed into any modeling agency?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['signed_model'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="signed_model" name="signed_model">
+						<label class="tgl-btn" for="signed_model"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Will you consider being ‘Signed’ as a Model by the Platform?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['be_signed_model'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="be_signed_model" name="be_signed_model">
+						<label class="tgl-btn" for="be_signed_model"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
+
+			<div class="form-row">
+				<h3 class="col-xs-9 col-sm-9 col-md-9" style="margin-bottom: 1em;">Sport</h3>
+				<div class="clear"></div>
+
+				<div class="pp_mat_input">
+					<input type="text" name="sports" class="form-control" value="<?php echo($context['me']['sports']) ?>">
+					<span class="bar"></span>
+					<label>Your active Sport</label>
+				</div> 
+
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Have you taken your sport interest to a professional level?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['pro_sports'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="pro_sports" name="pro_sports">
+						<label class="tgl-btn" for="pro_sports"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">Do you have a Sport Agency Managing you?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['managed_sports'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="managed_sports" name="managed_sports">
+						<label class="tgl-btn" for="managed_sports"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-xs-9 col-sm-9 col-md-9">will you consider having a Contract Agreement with the platform?</label>
+					<div class="col-xs-3 col-sm-3 col-md-3">
+						<input type="checkbox" <?php if($context['me']['sports_contract'] == 1){ ?> checked <?php } ?> class="tgl tgl-ios" id="sports_contract" name="sports_contract">
+						<label class="tgl-btn" for="sports_contract"></label>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
+
+			<div class="form-row">
+				<h3 class="col-xs-9 col-sm-9 col-md-9" style="margin-bottom: 1em;">None of the above</h3>
+					<div class="clear"></div>
+				<div class="form-group">
+					<div class="pp_mat_input">
+						<input type="text" name="ent_interest" class="form-control" value="<?php echo($context['me']['ent_interest']) ?>">
+						<span class="bar"></span>
+						<label>What is you interest in entertainment?</label>
+					</div> 
+				</div>
+			</div> 
+
+			<div class="pp_load_loader"><button class="btn btn-info pp_flat_btn" type="submit"><span>{{LANG save_changes}}</span></button></div>
+			<div class="clear"></div>
+			<input type="hidden" name="user_id" value="<?php echo($context['me']['user_id']) ?>">
+			<input type="hidden" name="redirect" value="<?php echo(isset($_SESSION['_redirect_']) ? $_SESSION['_redirect_'] : '') ?>">
+			<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>">
+		</div>
+		<div class="col-md-2"></div>
+	</div>
+</form> 
+<?php 
+include $context['dirname_theme'].'/main/templates/includes/lazy-load.html';
+include $context['dirname_theme'].'/settings/templates/settings/js/script.html';
+ ?>

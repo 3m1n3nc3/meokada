@@ -9,6 +9,8 @@ $donate                = $donate + $admin_earn;
 
 $wallet                = $admin::$db->where('type','Advertise')->getValue(T_TRANSACTIONS, 'sum(amount)');
 $pro                   = $admin::$db->where('type','pro_member')->getValue(T_TRANSACTIONS, 'sum(amount)');
+   
+$social_wallet         = $admin->socialWallet(NULL);
 
 $transactions          = $admin::$db->orderBy('id','DESC')->paginate(T_TRANSACTIONS,$page);
 
@@ -23,7 +25,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
         <h2>Earnings</h2>
     </div>
     <div class="row">
-        <div class="col-lg-3 col-md-3">
+        <div class="col-lg-4 col-md-4">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">attach_money</i>
@@ -31,12 +33,12 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 <div class="content">
                     <div class="text">Total Earnings</div>
                     <div class="number count-to" data-from="0" data-to="<?php echo $total; ?>" data-speed="1000" data-fresh-interval="20">
-                        <?php echo Pxp_GetCurrency($context['config']['currency']).$total; ?>
+                        <?php echo Pxp_GetCurrency($context['config']['currency']).number_format($total, 2); ?>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-3 ">
+        <div class="col-lg-4 col-md-4 ">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">attach_money</i>
@@ -44,12 +46,12 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 <div class="content">
                     <div class="text">Admin Earnings</div>
                     <div class="number count-to" data-from="0" data-to="<?php echo $admin_earn; ?>" data-speed="1000" data-fresh-interval="20">
-                        <?php echo Pxp_GetCurrency($context['config']['currency']).$admin_earn; ?>
+                        <?php echo Pxp_GetCurrency($context['config']['currency']).number_format($admin_earn, 2); ?>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-3 ">
+        <div class="col-lg-4 col-md-4 ">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">attach_money</i>
@@ -57,12 +59,12 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 <div class="content">
                     <div class="text">Total Donation With Commission</div>
                     <div class="number count-to" data-from="0" data-to="<?php echo $donate; ?>" data-speed="1000" data-fresh-interval="20">
-                        <?php echo Pxp_GetCurrency($context['config']['currency']).$donate; ?>
+                        <?php echo Pxp_GetCurrency($context['config']['currency']).number_format($donate, 2); ?>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-3 ">
+        <div class="col-lg-4 col-md-4 ">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">attach_money</i>
@@ -70,12 +72,12 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 <div class="content">
                     <div class="text">Total Ads Paid</div>
                     <div class="number count-to" data-from="0" data-to="<?php echo $wallet; ?>" data-speed="1000" data-fresh-interval="20">
-                        <?php echo Pxp_GetCurrency($context['config']['currency']).$wallet; ?>
+                        <?php echo Pxp_GetCurrency($context['config']['currency']).number_format($wallet, 2); ?>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-3 ">
+        <div class="col-lg-4 col-md-4 ">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
                     <i class="material-icons">attach_money</i>
@@ -83,11 +85,26 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                 <div class="content">
                     <div class="text">Pro Members</div>
                     <div class="number count-to" data-from="0" data-to="<?php echo $pro; ?>" data-speed="1000" data-fresh-interval="20">
-                        <?php echo Pxp_GetCurrency($context['config']['currency']).$pro; ?>
+                        <?php echo Pxp_GetCurrency($context['config']['currency']).number_format($pro, 2); ?>
                     </div>
                 </div>
             </div>
         </div>
+        <?php foreach ($social_wallet  as $swallet): ?>
+            <div class="col-lg-4 col-md-4 ">
+                <div class="info-box bg-blue hover-expand-effect">
+                    <div class="icon">
+                        <i class="material-icons">account_balance_wallet</i>
+                    </div>
+                    <div class="content">
+                        <div class="text"><?php echo $swallet['title'] ?></div>
+                        <div class="number count-to" data-from="0" data-to="<?php echo $pro; ?>" data-speed="1000" data-fresh-interval="20">
+                            <?php echo $context['currency_symbol'].number_format($swallet['balance']+$swallet['paidout'], 2); ?>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        <?php endforeach ?>
 <!--         <div class="col-lg-3 col-md-3 ">
             <div class="info-box bg-blue hover-expand-effect">
                 <div class="icon">
@@ -99,7 +116,7 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
                         <?php echo @$declined_requests; ?>
                     </div>
                 </div>
-            </div>
+            </div> 
         </div>
         <div class="col-lg-3 col-md-3 ">
             <div class="info-box bg-blue hover-expand-effect">

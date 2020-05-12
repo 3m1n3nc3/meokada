@@ -540,10 +540,11 @@ class Generic{
 	    if (!empty($cid) || $rows) { 
 	        if (is_numeric($cid)) {
 	            self::$db->where('`id`', "$cid"); 
+	            $content_id = $cid;
 	        } elseif ($cid) {
 	            self::$db->where('`title`',"%$cid%",'LIKE');
 	        } 
-	        if ($allowed_page) {
+	        if ($allowed_page && empty($content_id)) {
 	        	$i = 0;
 	        	foreach (explode(',', $allowed_page) as $key => $page) {
 	        		$i++; 
@@ -554,6 +555,7 @@ class Generic{
 		    $content = self::$db->orderBy('priority', 'ASC')->$get(T_MODAL, NULL, array(
 		        'id',
 		        'title',
+		        'use_title',
 		        'content',
 		        'status',
 		        'in_pages'

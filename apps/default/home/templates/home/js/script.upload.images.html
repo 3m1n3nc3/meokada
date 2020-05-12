@@ -213,7 +213,10 @@
 			let caption   = $(this).find('textarea').val();
 			
 			let chal      = $("#challenge option:selected").val(); 
-			let challenge = typeof(chal) != 'undefined' ? chal : '';
+			let challenge = typeof(chal) != 'undefined' ? chal : false;
+			
+			let tv        = $("input[name=post_tv]").val(); 
+			let post_tv   = typeof(tv) != 'undefined' ? tv : false;
 			
 			let images    = document.getElementById('upload-images').files;
 			
@@ -235,12 +238,17 @@
 				formData.append('filter_video_thumb',video_thumb);
 			}
 			formData.append('attach',attach);
-			formData.append('challenge',challenge);
 			formData.append('caption',caption);
 			if (images.length > 0) {
 				for (var i = 0; i < images.length; i++) {
 					formData.append('images['+i+']',images[i]);
 				}
+			}
+			if (challenge) {
+				formData.append('challenge',challenge);
+			}
+			if (post_tv) {
+				formData.append('post_tv',post_tv);
 			}
 			
 			
