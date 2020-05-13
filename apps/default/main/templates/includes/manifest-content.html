@@ -4,7 +4,7 @@
         { 
             if ($info['status'] !== 'off') { 
             ?>
-                <h1><?php echo($info['title']) ?></h1>
+                <h1 class="text-center"><?php echo($info['title']) ?></h1>
 
                 <?php echo(decode($info['content']));?>
 
@@ -12,6 +12,6 @@
         }
     } else {
         echo '<h1 class="text-center">No content</h1>';
-        echo 'There is no available content'; 
+        echo '<h3 class="text-center">There is no available content</h3>'; 
     }
 ?>
