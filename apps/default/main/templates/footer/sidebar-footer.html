@@ -3,7 +3,7 @@
 		<div class="footer-powered">
 			<p>&copy; 2018 {{CONFIG site_name}}</p>
 		</div>
-	</div>
+	</div> 
 	<ul class="nav">
 		<li class="dropup" style="padding-right: 0px;">
 			<span class="dropdown-toggle" data-toggle="dropdown">
@@ -22,11 +22,16 @@
 		<li><a href="<?php echo(pxp_link('disclaimer')) ?>"  data-ajax="ajax_loading.php?app=terms&apph=terms&page=disclaimer">Disclaimer</a></li>
 		<li><a href="<?php echo(pxp_link('about-us')) ?>"  data-ajax="ajax_loading.php?app=terms&apph=terms&page=about-us">{{LANG about}}</a></li>
 		<li><a href="<?php echo(pxp_link('contact_us')) ?>"  data-ajax="ajax_loading.php?app=terms&apph=terms&page=contact_us">{{LANG contact_us}}</a></li>
+		<li><a href="<?php echo(pxp_link('contact_us')) ?>"  data-ajax="ajax_loading.php?app=terms&apph=terms&page=contact_us">{{LANG contact_us}}</a></li>
 		<?php if ($config['user_ads'] == 'on') { ?>
 			<li><a href="{{CONFIG site_url}}/ads" data-ajax="ajax_loading.php?app=ads&apph=ads">{{LANG advertising}}</a></li>
 		<?php } ?>
 		<?php if ($config['blog_system'] == 'on') { ?>
 		    <li><a href="{{CONFIG site_url}}/blog" data-ajax="ajax_loading.php?app=blog&apph=blog">{{LANG blog}}</a></li>
 		<?php } ?>
+		<?php if ($config['footer_credit'] != '') { ?>
+			<li><span class="fluid copyright"><?php echo decode($config['footer_credit']); ?></span></li>
+		<?php } ?>
+		<?php Generic::socialContainer('sidebar_footer', true) ?> 
 	</ul>
 </div>

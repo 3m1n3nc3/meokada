@@ -25,7 +25,7 @@ $eid        = !empty($_GET['exclusive']) ? $_GET['exclusive'] : NULL;
 $challenges = $posts->challengeData(['exclusive' => $eid]);
 if (!empty($challenges)) {
 	$context['challenges'] = o2array($challenges); 
-}	
+}	 
 
 if ($set_page && $_GET['page'] == 'challenge' && !empty($page)) { 
 	$exclusive         = !empty($_GET[$page]) ? $_GET[$page] : '';

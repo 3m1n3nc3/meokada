@@ -31,6 +31,7 @@ INSERT INTO `pxp_config` (`name`, `value`) VALUES
 ('social_wallet', 'on'), 
 ('exclusive_system', 'on'), 
 ('auto_pay_wallet', 'off'), 
+('footer_credit', ''), 
 ('auto_pay_wallet_limit', '5000'); 
 
 ALTER TABLE `pxp_challenges` 

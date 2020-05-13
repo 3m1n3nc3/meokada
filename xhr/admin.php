@@ -324,6 +324,14 @@ elseif ($action == 'site-settings' && !empty($_POST)) {
 		$update['google_analytics'] = $admin::encode($update['google_analytics']);
 	}
 
+	if (!empty($update['social_container'])) {
+		$update['social_container'] = $admin::encode($update['social_container']);
+	}
+
+	if (!empty($update['footer_credit'])) {
+		$update['footer_credit'] = $admin::encode($update['footer_credit']);
+	}
+
 	if (empty($error)) {
 		$query  = $admin->updateSettings($update);
 

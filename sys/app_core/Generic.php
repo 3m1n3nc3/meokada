@@ -534,6 +534,23 @@ class Generic{
 		return $saved;
 	}
 
+	public static function socialContainer($page = '', $echo = false)
+	{ 
+		global $config; 
+
+        if ($config['social_container']) { 
+        	if (in_array($page, explode(',', $config['social_container_pages']))) {
+        		$social_container = decode($config['social_container']);
+        		if ($echo) {
+        			echo $social_container;
+        			echo '<div class="clear"></div>';
+        		} else {
+        			return $social_container;
+        		}
+        	}
+        }
+	}
+
 	public function noticeModalContent($cid = '', $rows = false, $allowed_page = '')
 	{ 
 	    $get = ($rows) ? 'get' : 'getOne';
