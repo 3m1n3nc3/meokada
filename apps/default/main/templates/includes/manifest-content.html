@@ -1,2 +1,17 @@
-<h1><?php echo($context['title']) ?></h1>
-<?php echo($context['content']) ?>
+<?php 
+    if (!empty($context['response'])) {
+        foreach ($context['response'] as $key => $info) 
+        { 
+            if ($info['status'] !== 'off') { 
+            ?>
+                <h1><?php echo($info['title']) ?></h1>;
+
+                <?php echo(decode($info['content']));?>
+
+            <?php }
+        }
+    } else {
+        echo '<h1>No content</h1>';
+        echo 'There is no available content'; 
+    }
+?>

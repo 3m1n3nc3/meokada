@@ -562,25 +562,20 @@ elseif ($action == 'manifest-modal') {
 
     $response = $users->noticeModalContent(null, true, $post_data['page']);
 
-    $html = '';
+    $html = $use_title = '';
     if ($response) {
+        $context['response'] = $response;
         $context['title'] = $context['content'] = '';
         $i = 0;
         foreach ($response as $key => $info) {
             $i++; 
-            if ($info['status'] !== 'off') { 
-                $context['title']   .= $info['title'];
-                $context['content'] .= decode($info['content']);
+            if ($info['status'] !== 'off') {  
                 if ($i == 1) {
-                    $use_title       = $info['use_title'] !== 'off' ? $info['title'] : null;
+                    $use_title  = $info['use_title'] !== 'off' ? $info['title'] : null;
                 }
             }
         }
-    } else {
-        $context['title']   = 'No content';
-        $context['content'] = 'There is no available content';
-        $use_title          = null;
-    }
+    } 
     $html .= $pixelphoto->PX_LoadPage('main/templates/includes/manifest-content');
 
     $config['always_show_manifest'];
