@@ -66,6 +66,7 @@ else{
 	$context['user_ads']   = $user->GetUserAds();
 	$context['page_link']  = 'navigation';
 	$context['exjs']       = true;
+	$context['footer'] 	   = false;
 	$context['app_name']   = 'navigation';
 	$context['page_title'] = $context['lang']['challenge'];
 	$context['exclusive']  = $user->listExclusivePlans();
