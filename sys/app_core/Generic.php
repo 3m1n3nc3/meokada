@@ -548,12 +548,13 @@ class Generic{
 	        }
 	        if ($allowed_page && empty($content_id)) {
 	        	$i = 0;
-	        	foreach (explode(',', $allowed_page) as $key => $page) {
-	        		$i++; 
-	        		if (!empty($page)) {
-	            		self::$db->where('`in_pages`', "$page", "=", $next); 
-	        		}
-	        	}
+	        	self::$db->where('`in_pages`', "$page", "=", $next); 
+	        	// foreach (explode(',', $allowed_page) as $key => $page) {
+	        	// 	$i++; 
+	        	// 	if (!empty($page)) {
+	         //    		self::$db->where('`in_pages`', "$page", "=", $next); 
+	        	// 	}
+	        	// }
 	        }
 	    
 		    $content = self::$db->orderBy('priority', 'ASC')->$get(T_MODAL, NULL, array(
