@@ -564,11 +564,16 @@ elseif ($action == 'manifest-modal') {
 
     $html = '';
     if ($response) {
+        $context['title'] = $context['content'] = '';
+        $i = 0;
         foreach ($response as $key => $info) {
+            $i++; 
             if ($info['status'] !== 'off') { 
-                $context['title']   = $info['title'];
-                $context['content'] = decode($info['content']);
-                $use_title          = $info['use_title'] !== 'off' ? $info['title'] : null;
+                $context['title']   .= $info['title'];
+                $context['content'] .= decode($info['content']);
+                if ($i == 1) {
+                    $use_title       = $info['use_title'] !== 'off' ? $info['title'] : null;
+                }
             }
         }
     } else {

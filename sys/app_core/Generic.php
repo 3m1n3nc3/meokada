@@ -537,24 +537,26 @@ class Generic{
 	public function noticeModalContent($cid = '', $rows = false, $allowed_page = '')
 	{ 
 	    $get = ($rows) ? 'get' : 'getOne';
-	    $next = 'AND';
+
 	    if (!empty($cid) || $rows) { 
 	        if (is_numeric($cid)) {
 	            self::$db->where('`id`', "$cid"); 
 	            $content_id = $cid; 
 	        } elseif ($cid) {
 	            self::$db->where('`title`',"%$cid%",'LIKE');
-	            $next = 'OR';
+	            $content_id = $cid; 
 	        }
 	        if ($allowed_page && empty($content_id)) {
 	        	$i = 0;
-	        	self::$db->where('`in_pages`', "$page", "=", $next); 
-	        	// foreach (explode(',', $allowed_page) as $key => $page) {
-	        	// 	$i++; 
-	        	// 	if (!empty($page)) {
-	         //    		self::$db->where('`in_pages`', "$page", "=", $next); 
-	        	// 	}
-	        	// }
+	        	if (stripos($allowed_page, 'homepage') !== false) {
+	        		self::$db->where('`in_pages`', "", "=", "OR"); 
+	        	}
+	        	foreach (explode(',', $allowed_page) as $key => $page) {
+	        		$i++; 
+	        		if ($page) {
+	            		self::$db->where('`in_pages`', "$page", "=", "OR"); 
+	        		}
+	        	}
 	        }
 	    
 		    $content = self::$db->orderBy('priority', 'ASC')->$get(T_MODAL, NULL, array(
@@ -565,10 +567,10 @@ class Generic{
 		        'status',
 		        'in_pages'
 		    ));
-		    //echo self::$db->getLastQuery();
+		    // echo self::$db->getLastQuery();
 
 		    if (!$rows && $content) $content->content = decode($content->content);
-		    
+
 		    return o2Array($content);
 	    }  
 	}
