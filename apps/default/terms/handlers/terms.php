@@ -26,4 +26,5 @@ $context['page_title'] = lang($pname);
 $context['pagecont'] = $pagecont;
 $context['app_name'] = 'terms';
 $context['xhr_url'] = "$site_url/aj/main";
+$context['social_container'] = $pname;
 $context['content'] = $pixelphoto->PX_LoadPage('terms/templates/terms/index');

@@ -21,8 +21,9 @@
 				</ul>
 			</div>
 			<div class="pp_term_body">
-				<div class="content"><?php echo (htmlspecialchars_decode($context['pagecont'])); ?>
-					
+				<div class="content">
+                    <?php echo (htmlspecialchars_decode($context['pagecont'])); ?>
+                    <?php Generic::socialContainer($context['social_container'], true) ?> 
 				</div>
 			</div>
 		</div>
