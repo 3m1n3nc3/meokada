@@ -25,15 +25,17 @@
 						<?php } ?>
 					</ul>
 				</li>
-				<?php if ($config['footer_credit'] != '') { ?>
-					<li><span class="fluid copyright"><?php echo decode($config['footer_credit']); ?></span></li>
-				<?php } ?>
 				<?php Generic::socialContainer('footer', true) ?> 
 			</ul>
 			<ul class="nav">
 				<li>
 					<span class="fluid copyright">Copyright &copy; 2018 {{CONFIG site_name}}</span>
 				</li>
+				<?php if ($config['footer_credit'] != '') { ?> 
+				<li>
+					<span class="fluid copyright"><?php echo decode($config['footer_credit']); ?></span>
+				</li> 
+				<?php } ?>
 			</ul>
 		</div>
 	</div>
