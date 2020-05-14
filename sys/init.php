@@ -88,13 +88,13 @@ define('IS_ADMIN', $context['is_admin']);
 if (!empty($_GET['ref']) && $context['loggedin'] == false && !isset($_COOKIE['src']) && $config['affiliate_system'] == 1) {
 
     $get_ip = get_ip_address();
-    if (!isset($_SESSION['ref']) && !empty($get_ip)) {
+    if (!isset($_SESSION['ref'])) {
         $_GET['ref'] = $user::secure($_GET['ref']);
         $user->setUserByName($_GET['ref']);
 		$user_data = $user->userData($user->getUser());
 		$user_data = o2array($user_data);
         if (!empty($user_data)) {
-            if ($config['affiliate_type'] == 0) {
+            if ($config['affiliate_type'] == 0 && !empty($get_ip)) {
                 if (ip_in_range($user_data['ip_address'], '/24') === false && $user_data['ip_address'] != $get_ip) {
                     $_SESSION['ref'] = $user_data['username'];
                 }
