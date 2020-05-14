@@ -124,9 +124,10 @@ class Notifications extends User{
 		        	'seen' => time()
 		        ));
 	        }
+
+	    	$data = $this->setNotificationSession($data);
 	    }
 
-	    $data = $this->setNotificationSession($data);
 	    return $data;
 	}
 

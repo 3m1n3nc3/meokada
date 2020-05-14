@@ -317,6 +317,7 @@ class User extends Generic{
 			if ($unpaid) {
 				self::$db->where('user_id', $user_data['user_id'])->update(T_USERS, $r_paid);
 
+                $r_data['src']     = self::secure('Referrer');
 				$r_data['balance'] = self::$db->inc($balance);
 
 	       		$notif->notify($notif_data);
@@ -349,18 +350,21 @@ class User extends Generic{
             'registered' => date('Y') . '/' . intval(date('m'))
 		);
 		$user_object = new User();
-		if (!empty($_SESSION['ref']) && self::$config['affiliate_type'] == 0 && self::$config['affiliate_system'] == 1) {
+		if (!empty($_SESSION['ref']) && self::$config['affiliate_system'] == 1) {
 			
 			$user_object->setUserByName($_SESSION['ref']);
 			
 			$user_data = $user_object->userData($user_object->getUser());
             $ref_user_id = $user_data->user_id;
 
-            if (!empty($ref_user_id) && is_numeric($ref_user_id)) {
+            if (self::$config['affiliate_type'] == 0 && !empty($ref_user_id) && is_numeric($ref_user_id)) {
                 $insert_data['referrer'] = self::secure($ref_user_id);
                 $insert_data['src']      = self::secure('Referrer');
                 self::$db->where('user_id',$ref_user_id)->update(T_USERS,array('balance' => self::$db->inc(self::$config['amount_ref'])));
                 //unset($_SESSION['ref']);
+            } 
+            elseif (!empty($ref_user_id) && is_numeric($ref_user_id)) {
+                $insert_data['referrer'] = self::secure($ref_user_id);
             }
         }
 		if (!empty($_POST['device_id'])) {
@@ -375,7 +379,7 @@ class User extends Generic{
 			$insert_data['email_code'] = $email_code;
 		}
 
-        $user_id     = self::$db->insert(T_USERS, $insert_data);
+        $user_id     = self::$db->insert(T_USERS, $insert_data); 
         //$user_id     = 4;
         $signup      = false;
 

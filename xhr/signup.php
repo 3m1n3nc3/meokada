@@ -59,11 +59,20 @@ if ($action == 'signup' && $config['signup_system'] == 'on') {
 	if (empty($error)) {
 		
 		$register = User::registerUser();
-		$data['status']  = 200;
-		if ($config['email_validation'] == 'on') {
-			$data['message'] = lang('successfully_joined_created');
-		} else {
-			$data['message'] = lang('successfully_joined_desc');
+		if ($db->getLastErrno() === 0)
+		{
+			$data['status']  = 200;
+			if ($config['email_validation'] == 'on') {
+				$data['message'] = lang('successfully_joined_created');
+			} else {
+				$data['message'] = lang('successfully_joined_desc');
+			}
+		}
+		else
+		{
+		    
+			$data['status']  = 400;
+			$data['message'] = 'Register failed. Error: '. $db->getLastError();
 		}
 	}
 	else{

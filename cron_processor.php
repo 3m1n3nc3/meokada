@@ -103,7 +103,7 @@ if ($auto_payout) {
         }
     }
 }
-            header("Content-type: application/json");
+
 
 if ($config['auto_pay_wallet'] !== 'off') { 
     $wallets = $admin->socialWallet();
@@ -145,4 +145,4 @@ if ($config['auto_pay_wallet'] !== 'off') {
         $_SESSION['last_auto_pay_wallet'] = time();
     }
 }
-// echo$admin::$db->getLastQuery();
+// echo $admin::$db->getLastQuery();
