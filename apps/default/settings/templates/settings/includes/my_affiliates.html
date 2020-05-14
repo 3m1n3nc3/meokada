@@ -12,7 +12,7 @@
 				<?php 
 					if( $config['amount_percent_ref'] > 0  || $config['community_percent_ref'] > 0 ){
 						$earn_users_pro = '';
-						if( $config['amount_percent_ref'] > 0  || $config['community_percent_ref'] > 0 ){
+						if( $config['amount_percent_ref'] > 0 ){
 							$earn_users = str_replace('{amount}', $config['amount_percent_ref'], $context['lang']['earn_users']);
 							$earn_users = str_replace('$', '%', $earn_users);
 							
@@ -20,7 +20,7 @@
 							$earn_users_pro .= str_replace('$', '%', $earn_users_pro);
 						}
 
-						if( $config['community_percent_ref'] > 0  || $config['community_percent_ref'] > 0 ){
+						if( $config['community_percent_ref'] > 0 ){
 							$earn_users = str_replace('{amount}', $config['community_percent_ref'], $context['lang']['earn_users']);
 							$earn_users = str_replace('$', '%', $earn_users);
 							
@@ -29,7 +29,7 @@
 						}
 
 
-					}else if( $config['amount_ref'] > 0 ){
+					} else if( $config['amount_ref'] > 0 ){
 
 						$earn_users = str_replace('{amount}', $config['amount_ref'], $context['lang']['earn_users']);
 						$earn_users = str_replace('$', $context['currency_symbol'], $earn_users);
@@ -40,9 +40,9 @@
 					}
 				?>
 				<?php if($config['affiliate_type'] == 0) { ?>
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V18H3V6M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M7,8A2,2 0 0,1 5,10V14A2,2 0 0,1 7,16H17A2,2 0 0,1 19,14V10A2,2 0 0,1 17,8H7Z" /></svg> <?php echo $earn_users; ?>
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V18H3V6M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M7,8A2,2 0 0,1 5,10V14A2,2 0 0,1 7,16H17A2,2 0 0,1 19,14V10A2,2 0 0,1 17,8H7Z" /></svg> <?php echo $earn_users; ?> <br>
 				<?php } else { ?>
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V18H3V6M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M7,8A2,2 0 0,1 5,10V14A2,2 0 0,1 7,16H17A2,2 0 0,1 19,14V10A2,2 0 0,1 17,8H7Z" /></svg> <?php echo nl2br($earn_users_pro); ?>
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V18H3V6M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M7,8A2,2 0 0,1 5,10V14A2,2 0 0,1 7,16H17A2,2 0 0,1 19,14V10A2,2 0 0,1 17,8H7Z" /></svg> <?php echo nl2br($earn_users_pro); ?> <br>
 				<?php } ?>				
 				</div>
 			</div>
