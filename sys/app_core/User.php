@@ -376,6 +376,9 @@ class User extends Generic{
 		
 		if( $email_validation == "on" ){
 			$email_code = sha1(time() + rand(111,999));
+            $_SESSION['email_code'] = $email_code;
+            $email_code = $_SESSION['email_code'];
+
 			$insert_data['email_code'] = $email_code;
 		}
 
@@ -411,6 +414,7 @@ class User extends Generic{
 					'is_html' => true
 				);
 				$send_message = Generic::sendMail($send_email_data);
+                unset($_SESSION['email_code']);
 		   	} else {
 		   		
 	        	$session_id  = sha1(rand(11111, 99999)) . time() . md5(microtime());
