@@ -84,7 +84,7 @@ $context['csrf_token']  = pxp_gencsrf_token();
 $context['currency_symbol']  = Pxp_GetCurrency($config['currency']);
 define('IS_LOGGED', $context['loggedin']);
 define('IS_ADMIN', $context['is_admin']);
-
+ 
 if (!empty($_GET['ref']) && $context['loggedin'] == false && !isset($_COOKIE['src']) && $config['affiliate_system'] == 1) {
 
     $get_ip = get_ip_address();
@@ -103,8 +103,7 @@ if (!empty($_GET['ref']) && $context['loggedin'] == false && !isset($_COOKIE['sr
             }
         }
     }
-}
-
+} 
 
 $context['call_action'] = array(
     '1' => 'read_more',
