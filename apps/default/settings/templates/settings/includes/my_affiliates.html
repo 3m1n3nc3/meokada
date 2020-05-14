@@ -17,7 +17,7 @@
 							$earn_users = str_replace('$', '%', $earn_users);
 							
 							$earn_users_pro = str_replace('{amount}', $config['amount_percent_ref'], $context['lang']['earn_users_pro']);
-							$earn_users_pro .= str_replace('$', '%', $earn_users_pro);
+							$earn_users_pro = str_replace('$', '%', $earn_users_pro);
 						}
 
 						if( $config['community_percent_ref'] > 0 ){
