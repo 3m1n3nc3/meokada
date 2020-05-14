@@ -94,7 +94,11 @@ if (!empty($_GET['ref']) && $context['loggedin'] == false && !isset($_COOKIE['sr
 		$user_data = $user->userData($user->getUser());
 		$user_data = o2array($user_data);
         if (!empty($user_data)) {
-            if (ip_in_range($user_data['ip_address'], '/24') === false && $user_data['ip_address'] != $get_ip) {
+            if ($config['affiliate_type'] == 0) {
+                if (ip_in_range($user_data['ip_address'], '/24') === false && $user_data['ip_address'] != $get_ip) {
+                    $_SESSION['ref'] = $user_data['username'];
+                }
+            } else {
                 $_SESSION['ref'] = $user_data['username'];
             }
         }
