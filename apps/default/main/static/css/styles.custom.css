@@ -19,7 +19,7 @@
 }
 @media (max-width: 920px) { 
     .welcome-page-container .banner-image {
-        min-height: 200px;
+        min-height: 350px;
     } 
 }
 @media (max-width: 680px) { 
