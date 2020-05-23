@@ -29,7 +29,7 @@
 }
 @media (max-width: 455px) { 
     .welcome-page-container .banner-image {
-        min-height: 260px;
+        min-height: 200px;
     } 
 }
 .welcome-page-container .banner-image img { 
