@@ -1561,7 +1561,7 @@ class User extends Generic{
 			$select = '';
 			foreach ($process['data'] as $option) {
 				$selected = ($sel == $option['name'] || $sel == $option['code'] ? ' selected="selected"' : ''); 
-				$select .= 
+				$select  .= 
 					'<option value="' . $option['code'] . '" data-type="' . $option['type'] . '"' . $selected . '>' . $option['name'] . 
 					'</option>';
 			}	

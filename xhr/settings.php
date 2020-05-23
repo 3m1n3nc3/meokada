@@ -416,6 +416,7 @@ else if ($action == 'notifications' && IS_LOGGED && !empty($_POST['user_id'])) {
 			'n_on_follow' => ((!empty($_POST['on_follow'])) ? '1' : '0'),
 			'n_on_mention' => ((!empty($_POST['on_mention'])) ? '1' : '0'),
 			'n_on_comment_reply' => ((!empty($_POST['on_comment_reply'])) ? '1' : '0'),
+			'n_on_tv' => ((!empty($_POST['n_on_tv'])) ? '1' : '0')
 		);
 
 		$update = $user->updateStatic($user_id,$up_data);

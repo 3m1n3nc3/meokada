@@ -146,6 +146,22 @@ $ffmpeg_binary = $config['ffmpeg_binary'];
                             <label for="raise_money_type-disabled" class="m-l-20">All Users</label>
                         </div>
 
+                        <label for="tv_in_tv">Show TV Content on Timeline ?</label>
+                        <div class="form-group">
+                            <input type="radio" <?php echo ($config['tv_in_tv'] == 'on' ? 'checked' : ''); ?> name="tv_in_tv"  value="on" id="tv_in_tv-enabled">
+                            <label for="tv_in_tv-enabled" id="tv_in_tv-enabled">TV stays on TV</label>
+                            <input type="radio" <?php echo ($config['tv_in_tv'] == 'off' ? 'checked' : ''); ?> name="tv_in_tv" id="tv_in_tv-disabled" value="off">
+                            <label for="tv_in_tv-disabled" class="m-l-20">Show</label>
+                        </div>
+
+                        <label for="restrict_tv_creation">Who can upload to TV ?</label>
+                        <div class="form-group">
+                            <input type="radio" <?php echo ($config['restrict_tv_creation'] == 'on' ? 'checked' : ''); ?> name="restrict_tv_creation"  value="on" id="restrict_tv_creation-enabled">
+                            <label for="restrict_tv_creation-enabled" id="restrict_tv_creation-enabled">Admin</label>
+                            <input type="radio" <?php echo ($config['restrict_tv_creation'] == '0ff' ? 'checked' : ''); ?> name="restrict_tv_creation" id="restrict_tv_creation-disabled" value="off">
+                            <label for="restrict_tv_creation-disabled" class="m-l-20">All Users</label>
+                        </div>
+
                         <label for="upload_system">Make URL clickable for pro users</label>
                         <div class="form-group">
                             <input type="radio" <?php echo $clickable_url_on; ?> name="clickable_url"  value="on" id="clickable_url-enabled">
@@ -190,6 +206,14 @@ $ffmpeg_binary = $config['ffmpeg_binary'];
                             <label for="email_validation-enabled" id="email_validation-enabled">Enabled</label>
                             <input type="radio" <?php echo $email_validation_off; ?> name="email_validation" id="email_validation-disabled" value="off">
                             <label for="email_validation-disabled" class="m-l-20">Disabled</label>
+                        </div>
+
+                        <label for="send_tv_notifs">Send Admin TV notifications</label> 
+                        <div class="form-group">
+                            <input type="radio" <?php echo ($config['send_tv_notifs'] == 'on') ? 'checked': '';?> name="send_tv_notifs"  value="on" id="send_tv_notifs-enabled">
+                            <label for="send_tv_notifs-enabled" id="send_tv_notifs-enabled">Enabled</label>
+                            <input type="radio" <?php echo ($config['send_tv_notifs'] == 'off') ? 'checked': '';?> name="send_tv_notifs" id="send_tv_notifs-disabled" value="off">
+                            <label for="send_tv_notifs-disabled" class="m-l-20">Disabled</label>
                         </div>
 
                         <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
@@ -334,6 +358,15 @@ $ffmpeg_binary = $config['ffmpeg_binary'];
                                 </label>
                             </div>
                         </div>
+ 
+                        <div class="form-group form-float"> 
+                            <div class="form-line">
+                                <input type="text" id="api_refresh_interval" name="api_refresh_interval" class="form-control" value="<?php echo($config['api_refresh_interval']); ?>">
+                                <label class="form-label">
+                                    API Refresh Interval (Hrs)
+                                </label>
+                            </div>
+                        </div> 
 
                         <label for="upload_system">Offline API Access</label>
                         <div class="form-group">

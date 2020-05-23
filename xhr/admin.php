@@ -1512,6 +1512,14 @@ elseif ($action == 'update_design_setting') {
         );
         $media    = $admin->Pxp_UploadLogo($fileInfo);
     }
+    if (isset($_FILES['light-logo']['name'])) {
+        $fileInfo = array(
+            'file' => $_FILES["light-logo"]["tmp_name"],
+            'name' => $_FILES['light-logo']['name'],
+            'size' => $_FILES["light-logo"]["size"]
+        );
+        $media    = $admin->Pxp_UploadLogo($fileInfo, 'logo-light');
+    }
     if (isset($_FILES['favicon']['name'])) {
         $fileInfo = array(
             'file' => $_FILES["favicon"]["tmp_name"],
@@ -1520,13 +1528,21 @@ elseif ($action == 'update_design_setting') {
         );
         $media    = $admin->Pxp_UploadLogo($fileInfo,'fav');
     }
-    if (isset($_FILES['light-logo']['name'])) {
+    if (isset($_FILES['banner']['name'])) {
         $fileInfo = array(
-            'file' => $_FILES["light-logo"]["tmp_name"],
-            'name' => $_FILES['light-logo']['name'],
-            'size' => $_FILES["light-logo"]["size"]
+            'file' => $_FILES["banner"]["tmp_name"],
+            'name' => $_FILES['banner']['name'],
+            'size' => $_FILES["banner"]["size"]
         );
-        $media    = $admin->Pxp_UploadLogo($fileInfo, 'logo-light');
+        $media    = $admin->Pxp_UploadLogo($fileInfo, 'banner');
+    }
+    if (isset($_FILES['background-image']['name'])) {
+        $fileInfo = array(
+            'file' => $_FILES["background-image"]["tmp_name"],
+            'name' => $_FILES['background-image']['name'],
+            'size' => $_FILES["background-image"]["size"]
+        );
+        $media    = $admin->Pxp_UploadLogo($fileInfo, 'background-image');
     }
 
 }

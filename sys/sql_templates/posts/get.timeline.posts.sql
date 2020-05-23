@@ -15,6 +15,9 @@ SELECT p.*,u.`avatar`,u.`username`,(SELECT COUNT(l.`id`) FROM  `{%t_likes%}` l W
 				WHERE c.`follower_id` = '{%user_id%}' AND c.`type` != '2'
 		)
 	)
+	{%if hidetv%} 
+		AND p.`tv` != '1' 
+	{%endif%}
 
 	AND p.`user_id` NOT IN (SELECT b1.`profile_id` FROM `{%t_blocks%}` b1 WHERE b1.`user_id` = {%user_id%})
 

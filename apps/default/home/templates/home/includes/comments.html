@@ -25,7 +25,8 @@
 				</div>
 				<div class="form-group">
 					<input type="text" class="form-control comment" onkeydown="pxp_reply_comment(<?php echo $comment['id']; ?>,event);" placeholder="{{LANG write_comment}}" id="emojionearea_comment<?php echo $comment['id']; ?>">
-				</div>
+					<button type="button" value="send" class="btn" onclick="event.keyCode = 13;comment_post(<?php echo $post_data['post_id']; ?>,event);">Send</button>
+				</div> 
 			</div>
 			<div class="reply_commenting_overlay hidden">
 				<div id="pp_loader"><div class="speeding_wheel"></div></div>

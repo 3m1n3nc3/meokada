@@ -14,7 +14,7 @@ if (!empty($filter_keyword)) {
     } 
 }
 
-$challenge = $admin::$db->orderBy('id', 'DESC')->paginate(T_CHALLENGE, $page, array(
+$challenge = $admin::$db->orderBy('c_rank', 'ASC')->paginate(T_CHALLENGE, $page, array(
     'id', 'name', 'info', 'pro_level', 'community', 'exclusive', 'c_rank', 'status', 
     'start_date', 'close_date', 'entry_bonus', 'winner_prize'
 ));

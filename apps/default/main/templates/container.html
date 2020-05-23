@@ -74,7 +74,7 @@
 		<script src="{{THEME_URL}}/main/static/js/libs/highcharts/exporting.js"></script>
 		
 		<?php if ($context['app_name'] == 'welcome' || $context['app_name'] == 'signup') { ?>
-		<link rel="stylesheet" href="{{THEME_URL}}/main/static/css/styles.welcome.css">
+		<link rel="stylesheet" href="{{THEME_URL}}/main/static/css/styles.welcome.css"> 
 	    <?php } else{ ?>
 		<link rel="stylesheet" href="{{THEME_URL}}/main/static/css/styles.master.css">
 	    <?php } ?>
@@ -86,6 +86,17 @@
 		<script type="text/javascript" src='https://www.google.com/recaptcha/api.js'></script>
 	    <?php } ?>
 	    
+		<link rel="stylesheet" href="{{THEME_URL}}/main/static/css/styles.custom.css"> 
+		
+		<?php if ($config['show_welcome_background'] == 'on' && ($context['app_name'] == 'welcome' || $context['app_name'] == 'signup')) { ?> 
+		<style type="text/css">
+			body {
+				background-blend-mode: overlay;
+				background-color: #f1f1f1;
+				background-image: url('{{CONFIG site_url}}/media/img/background-image.{{CONFIG background_extension}}');
+			} 
+		</style>
+	    <?php }?>
 
 	    <?php if (!empty($context['app_name']) && ($context['app_name'] == 'explore' || $context['app_name'] == 'tags' || $context['app_name'] == 'profile' || $context['app_name'] == 'home' || $context['app_name'] == 'tv' || $context['app_name'] == 'navigation') ) { ?>
 	    <?php } ?>

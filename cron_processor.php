@@ -1,5 +1,7 @@
 <?php
-require_once('./sys/init.php');
+require_once('./sys/init.php'); 
+
+header('Content-type: text/json'); 
 
 if (!empty($_GET) OR !empty($_POST) OR !IS_LOGGED) { 
     header('HTTP/1.1 401 Access Denied.', TRUE, 401);
@@ -7,12 +9,21 @@ if (!empty($_GET) OR !empty($_POST) OR !IS_LOGGED) {
     exit(1);
 } 
 
-$admin = new Admin();
-$postC = new Posts;
+$admin  = new Admin();
+$userC  = new User;
+$postC  = new Posts;
+$notifC = new Notifications;
+
+
+$last_auto_pay_wallet = ($_SESSION['last_auto_pay_wallet']??null);
+$last_auto_payouts    = ($_SESSION['last_auto_payouts']??null);
+$refresh_interval     = $config['api_refresh_interval'];
+$api_refreshed        = strtotime("NOW - $refresh_interval Hour");
+
 
 $auto_payout = ($config['auto_payout_approved_challenge'] == 'on' OR $config['auto_payout_won_challenge'] == 'on' OR $config['auto_payout_referals'] == 'on');
 
-if ($auto_payout) {
+if ($auto_payout && (empty($last_auto_payouts) || $last_auto_payouts < $api_refreshed)) {
 
     // Pay cashout request to bank
     $requests = o2array($admin::$db->where('status','0')->where('paid','0')->get(T_WITHDRAWAL));
@@ -49,7 +60,6 @@ if ($auto_payout) {
                 $user->updateBalance($request_id['recipient'], true, true);
             }
         }
-        $_SESSION['last_auto_payouts'] = time();
     }
 
 
@@ -102,10 +112,12 @@ if ($auto_payout) {
             }
         }
     }
+    $_SESSION['last_auto_payouts'] = time();
 }
 
 
-if ($config['auto_pay_wallet'] !== 'off') { 
+// Make socialWallet Payouts
+if ($config['auto_pay_wallet'] !== 'off' && (empty($last_auto_pay_wallet) || $last_auto_pay_wallet < $api_refreshed)) {
     $wallets = $admin->socialWallet();
     $i = 0;
     foreach ($wallets as $key => $wallet) {
@@ -142,7 +154,60 @@ if ($config['auto_pay_wallet'] !== 'off') {
                 $admin::$db->where('recipient_code', $request_id['recipient'])->update(T_SOCIAL_WALLET,array('paidout' => $admin::$db->inc($request_id['amount']), 'balance' => $admin::$db->dec($request_id['amount'])));
             }
         }
-        $_SESSION['last_auto_pay_wallet'] = time();
+    }
+    $_SESSION['last_auto_pay_wallet'] = time();
+}
+
+
+// Send TV notifications
+if ($config['send_tv_notifs'] == 'on') { 
+
+    $t_notif = T_NOTIF;
+    $t_users = T_USERS; 
+    $t_posts = T_POSTS; 
+
+    $all_users = $admin->getAllUsers();
+ 
+    $admin::$db->where("tv = 1 AND time >= $api_refreshed");
+    $all_tv = $admin::$db->get("{$t_posts} p", NULL, "post_id, user_id, time, tv"); 
+
+    foreach ($all_tv as $tv) 
+    {
+        foreach ($all_users as $user) 
+        {
+
+            $username = $user->username;
+
+            try 
+            { 
+                $notif_conf     = null; 
+                if (is_numeric($user->user_id)) 
+                {
+                    $notif_conf = $notifC->notifSettings($user->user_id,'on_tv'); 
+                }
+        
+                $admin::$db->where('n.type',"new_tv_post.ar.{$tv->post_id}"); 
+                $query = $admin::$db->get("{$t_notif} n",NULL,"n.*");
+                if (empty($query) && $notif_conf) 
+                {
+                    if ($tv->user_id && $tv->user_id != $user->user_id) 
+                    {
+                        $re_data = array(
+                            'notifier_id' => $tv->user_id,
+                            'recipient_id' => $user->user_id,
+                            'type' => 'new_tv_post.ar.'.$tv->post_id,
+                            'url' => pid2url($tv->post_id),
+                            'time' => time()
+                        ); 
+                        $notifC->notify($re_data);
+                    } 
+                }
+            } 
+            catch (Exception $e) 
+            {  
+                echo $e;
+            }
+        }
     }
 }
 // echo $admin::$db->getLastQuery();

@@ -86,7 +86,7 @@ $langs = $admin::getLangs();
                                     Server Key
                                 </label>
                             </div>  
-                        </div>
+                        </div> 
                         <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
                     </form>
                 </div>
@@ -201,6 +201,14 @@ $langs = $admin::getLangs();
                             <label for="always_show_manifest-disabled" class="m-l-20">Disabled</label>
                             <input type="radio" <?php echo $show_manifest_nev; ?> name="always_show_manifest" id="always_show_manifest-never" value="never">
                             <label for="always_show_manifest-never" class="m-l-20">Never</label>
+                        </div>
+                        <div class="form-group form-float"> 
+                            <label for="upload_system">Crone Processor URL</label>
+                            <div>
+                                <a href="<?php echo(pxp_link('cron_processor.php')); ?>">
+                                    <?php echo(pxp_link('cron_processor.php')); ?>
+                                </a>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
                     </form>

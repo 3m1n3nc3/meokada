@@ -803,7 +803,7 @@ main.container-blog-main {max-width: 100% !important;width: 100% !important;padd
 .messages-container .row.content .conversation .select-chat .empty_state {margin: auto; }
 .messages-container .row.content .conversation .select-chat .empty_state button{display:none;margin: 60px auto 0;}
 
-/*Dropdown Menu*/
+/*Dropdown Menu
 @keyframes drop-down-zoom {0% {transform: scale(0); }100% {transform: scale(1); } }
 @keyframes drop-up-zoom {0% {transform: scale(0); }100% {transform: scale(1); } }
 .open > .dropdown-menu.zoom {animation-name: drop-down-zoom;animation-duration: .15s;transform-origin: right 2px;border-radius: 5px;border: 0;-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }

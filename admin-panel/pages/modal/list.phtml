@@ -3,21 +3,32 @@
 		<span>
 			<?php echo($cd['content']['id']); ?>
 		</span>
-		<span  class="handle material-icons" style="cursor: move;">swap_vert</span>
+		<span  class="handle material-icons" style="cursor: move;">swap_vert</span><i class="text-danger"></i>
 	</td> 
 	<td>
 		<span>
-			<a href="<?php echo(pxp_acp_link('modal?post_id='.$cd['content']['id'])); ?>">
+			<a href="<?php echo(pxp_acp_link('modal-writer?post_id='.$cd['content']['id'])); ?>">
 				<?php echo($cd['content']['title'] ?? 'Removed Content'); ?>
 			</a> 
 		</span>
 		<div><?php echo($cd['content']['in_pages'] ?? ''); ?></div>
 	</td>
 	<td>
-		<span>
-			<?php echo($cd['content']['status'] == 'on' ? 'Active' : 'Inactive'); ?>
+		<span> 
+			<?php if ($cd['content']['status'] == 1): ?>
+				<strong class="label label-success">
+					Inactive
+				</strong>
+			<?php else: ?>
+				<strong class="label label-warning">
+					Active
+				</strong>
+			<?php endif; ?>
 		</span>
 		<br>
+		<button class="btn btn-success waves-effect waves-light" onclick="location.href='<?php echo(pxp_acp_link('modal-writer?post_id='.$cd['content']['id'])); ?>'">
+			EDIT
+		</button>
 		<button class="btn btn-danger waves-effect waves-light delete-content" data-id="<?php echo($cd['content']['id']);?>">
 			DELETE
 		</button>

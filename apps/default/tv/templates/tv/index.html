@@ -6,7 +6,7 @@
 			</div><br><br>
 			<?php } ?>
 			<div class="col-md-8">
-				<?php if ($context['post_sys']) { ?>
+				<?php if ($context['post_sys'] && ($me['admin'] || $config['restrict_tv_creation'] == 'off')) { ?>
 					<input type="hidden" name="post_tv" value="1">
 					<div class="postin-area">
 						<?php include 'js/publisher-box.html'; ?>

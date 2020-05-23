@@ -91,6 +91,7 @@ $pages        = array(
     ),
     'pages' => array(
         'modal',
+        'modal-writer',
         'terms',
         'privacy-and-policy',
         'about-us',
@@ -553,6 +554,7 @@ if (empty($page_content)) {
                                 </li>
                             </ul>
                         </li> 
+                        <?php endif;?>
  
                         <li class="<?php echo $admin->activeMenu('pages'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle waves-effect waves-block">
@@ -562,9 +564,11 @@ if (empty($page_content)) {
                             <ul class="ml-menu">
                                 <li class="<?php echo $admin->activeMenu('modal'); ?>">
                                     <a href="<?php echo pxp_acp_link('modal'); ?>" class=" waves-effect waves-block">
-                                        Notice Modal
+                                        Manifest and Info Board
                                     </a>
                                 </li>
+                                
+                                <?php if (admin_access($admin_role, 3)):?>
                                 <li class="<?php echo $admin->activeMenu('terms'); ?>">
                                     <a href="<?php echo pxp_acp_link('terms'); ?>" class=" waves-effect waves-block">
                                         Terms of use
@@ -590,6 +594,7 @@ if (empty($page_content)) {
                                         Contact Us
                                     </a>
                                 </li>
+                                <?php endif;?>
                             </ul>
                         </li>
                         <li class="<?php echo $admin->activeMenu('mobile_api'); ?>">
@@ -623,7 +628,6 @@ if (empty($page_content)) {
                                 <span>FAQs &amp; Docs</span>
                             </a>
                         </li>
-                        <?php endif;?>
                     </ul>
                 </div>
                 <div class="legal">

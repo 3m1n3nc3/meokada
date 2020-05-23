@@ -19,6 +19,15 @@
                             <input type="radio" name="affiliate_system" id="affiliate_system-disabled" value="0" <?php echo ($config['affiliate_system'] == 0) ? 'checked': '';?>>
                             <label for="affiliate_system-disabled" class="m-l-20">Disabled</label>
                         </div>
+
+                        <label for="hide_affiliate_info">Hide Affiliate Information</label> 
+                        <div class="form-group">
+                            <input type="radio" <?php echo ($config['hide_affiliate_info'] == 'on') ? 'checked': '';?> name="hide_affiliate_info"  value="on" id="hide_affiliate_info-enabled">
+                            <label for="hide_affiliate_info-enabled" id="hide_affiliate_info-enabled">Enabled</label>
+                            <input type="radio" <?php echo ($config['hide_affiliate_info'] == 'off') ? 'checked': '';?> name="hide_affiliate_info" id="hide_affiliate_info-disabled" value="off">
+                            <label for="hide_affiliate_info-disabled" class="m-l-20">Disabled</label>
+                        </div>
+                        
                         <label for="affiliate_type">User will earn money when</label>
                         <select class="form-control show-tick" id="affiliate_type" name="affiliate_type">
                           <option value="0" <?php echo ($config['affiliate_type'] == 0) ? 'selected': '';?> >New user is registred</option>

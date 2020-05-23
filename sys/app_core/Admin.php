@@ -190,7 +190,21 @@ class Admin extends User{
 		            return true;
 		        }
 		    }
-	    } else if ($type == 'logo-light') {
+	    } else if ($type == 'banner') {
+            $filename = $dir . "site-banner.{$file_extension}";
+            if (move_uploaded_file($data['file'], $filename)) {
+                if ($this->updateSettings(array('banner_extension' => $file_extension))) {
+                    return true;
+                }
+            }
+        } else if ($type == 'background-image') {
+            $filename = $dir . "background-image.{$file_extension}";
+            if (move_uploaded_file($data['file'], $filename)) {
+                if ($this->updateSettings(array('background_extension' => $file_extension))) {
+                    return true;
+                }
+            }
+        } else if ($type == 'logo-light') {
             $filename = $dir . "light-logo.{$file_extension}";
             if (move_uploaded_file($data['file'], $filename)) {
                 if ($this->updateSettings(array('logo_extension' => $file_extension))) {
@@ -241,9 +255,9 @@ class Admin extends User{
         $data = array();
         // print_r($post_data);
         
-        $domain_path = pathinfo($_SERVER['SERVER_NAME'], PATHINFO_FILENAME);
-	    $arr = array("localhost","127.0.0.1","::1", $domain_path.".te", $domain_path.".test");
-
+        $domain_path    = pathinfo($_SERVER['SERVER_NAME'], PATHINFO_FILENAME);
+	    $arr            = array("localhost","127.0.0.1","::1", $domain_path.".te", $domain_path.".test");
+	    $data['status'] = 0;
 	    if( !in_array( $_SERVER['SERVER_NAME'], $arr ) OR $config['offline_access'] == 'on' ){
 	        if ($action == 'balance') 
 	        {

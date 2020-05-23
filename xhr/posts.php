@@ -297,6 +297,11 @@ else if ($action == 'upload-post-images' && IS_LOGGED && ($config['upload_images
 
 						#Notify mentioned users
 						$notif->notifyMentionedUsers($_POST['caption'],pid2url($post_id));
+
+						#Notify users of new tv post
+			            if (!empty($_POST['post_tv'])) {  
+							$notif->notifyAllUsers($_POST['caption'], pid2url($post_id), 'new_tv_post');
+						} 
 					}
 				}
 				else{
@@ -425,6 +430,11 @@ else if($action == 'ffmpeg-video-upload' && IS_LOGGED && ($config['upload_videos
 
 						#Notify mentioned users
 						$notif->notifyMentionedUsers($_POST['caption'],pid2url($post_id));
+
+						#Notify users of new tv post
+			            if (!empty($_POST['post_tv'])) {  
+							$notif->notifyAllUsers($_POST['caption'], pid2url($post_id), 'new_tv_post');
+						} 
 
 						@unlink($upload['filename']);
 
@@ -668,6 +678,11 @@ else if($action == 'embed-post-video' && IS_LOGGED && ($config['import_videos'] 
 
 				#Notify mentioned users
 				$notif->notifyMentionedUsers($_POST['caption'],pid2url($post_id));
+						
+				#Notify users of new tv post
+	            if (!empty($_POST['post_tv'])) {  
+					$notif->notifyAllUsers($_POST['caption'], pid2url($post_id), 'new_tv_post');
+				} 
 			}
 			else{
 				$data['status']  = 500;
@@ -725,6 +740,11 @@ else if($action == 'embed-post-video' && IS_LOGGED && ($config['import_videos'] 
 
 			#Notify mentioned users
 			$notif->notifyMentionedUsers($_POST['caption'],pid2url($post_id));
+						
+			#Notify users of new tv post
+	        if (!empty($_POST['post_tv'])) {  
+				$notif->notifyAllUsers($_POST['caption'], pid2url($post_id), 'new_tv_post');
+			} 
 		}
 		
 	}
@@ -789,6 +809,11 @@ else if($action == 'import-post-gifs' && IS_LOGGED && ($config['import_images'] 
 
 					#Notify mentioned users
 					$notif->notifyMentionedUsers($_POST['caption'],pid2url($post_id));
+						
+					#Notify users of new tv post
+		            if (!empty($_POST['post_tv'])) {  
+						$notif->notifyAllUsers($_POST['caption'], pid2url($post_id), 'new_tv_post');
+					} 
 	            }
 	            else{
 					$data['status']  = 500;
@@ -896,7 +921,7 @@ else if($action == 'add-comment' && IS_LOGGED) {
 				}
 
 				#Notify mentioned users
-				$notif->notifyMentionedUsers($_POST['text'],pid2url($post_id));
+				$notif->notifyMentionedUsers($_POST['text'],pid2url($post_id)); 
 			}
 		}
 	}

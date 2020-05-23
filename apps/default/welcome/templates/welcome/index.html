@@ -6,6 +6,12 @@
 				</div>
 				<h1 class="animated fadeInUpBig">{{LANG welcome_to}}  {{CONFIG site_name}}</h1>
 				<div class="row margin0">
+					<?php if ($config['show_welcome_banner'] == 'on') { ?> 
+					<h2 class="animated fadeInUpBig">{{CONFIG banner_title}}</h2>
+					<div class="col-md-12 rounded animated fadeInUpBig banner-image" style="background-image: url('{{CONFIG site_url}}/media/img/site-banner.{{CONFIG banner_extension}}');">
+						<!-- <img src="{{CONFIG site_url}}/media/img/site-banner.{{CONFIG banner_extension}}" alt="logo"> -->
+					</div>
+	    			<?php }?>
 					<div class="col-md-4 feature_block animated fadeInUpBig">
 						<div class="inner_blck">
 							<b>{{LANG like}}</b>

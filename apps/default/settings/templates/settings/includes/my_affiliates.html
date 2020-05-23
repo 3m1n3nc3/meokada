@@ -5,6 +5,7 @@
 	</div>
 	<hr>
 	<form class="form pp_sett_form" id="edit-general-settings">
+	<?php if ($config['hide_affiliate_info'] == 'off'): ?>
 		<div class="row">
 			<div class="col-md-1"></div>
 			<div class="col-md-10">
@@ -48,6 +49,7 @@
 			</div>
 			<div class="col-md-1"></div>
 		</div>
+	<?php endif; ?>
 		<div class="row">
 			<div class="col-md-2"></div>
 			<div class="col-md-8">

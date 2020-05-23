@@ -1127,23 +1127,26 @@ function px_add_view(post_id) {
 	});
 }
 function add_emoji(id) {
-	var el = $("#emojionearea"+id).emojioneArea({
-		pickerPosition: "bottom",
-	    tonesStyle: "radio",
-	    events: {
-	     	keyup: function (editor, event) {
-		      $("div[data-post-id='"+id+"']").find('.comment').val(el[0].emojioneArea.getText());
+    var el = $("#emojionearea"+id).emojioneArea({
+        pickerPosition: "bottom",
+        tonesStyle: "radio",
+        events: {
+            keyup: function (editor, event) {
+              $("div[data-post-id='"+id+"']").find('.comment').val(el[0].emojioneArea.getText());
               comment_post(id,event);
-		    }
-	    },
-	    filters: {
-	        flags : false,
-	        objects : false,
-	        travel_places : false,
-	        activity : false
-	    }
-	});
-}
+            },
+            blur: function (editor, event) {
+              $("div[data-post-id='"+id+"']").find('.comment').val(el[0].emojioneArea.getText());  
+            } 
+        },
+        filters: {
+            flags : false,
+            objects : false,
+            travel_places : false,
+            activity : false
+        }
+    });
+} 
 function add_comment_emoji(id) {
 	var el = $("#emojionearea_comment"+id).emojioneArea({
 		pickerPosition: "bottom",

@@ -71,18 +71,25 @@ class Notifications extends User{
 	function setNotificationSession($notifs = array()) {
 		if ($notifs) {
 			foreach ($notifs as $key => $notif) {  
-				$explode = explode('.', $notif->type);
+				$explode = explode('.', $notif->type); 
 				if (count($explode)===4) 
 				{
 					$notifs[$key]->type = $explode[0];
 					
 					if ($explode[1] === 'ss') 
-					{
+					{ 
 						$e_key = $explode[3]; 
 						$_SESSION[$explode[2]] = $notif->$e_key;  
+					} 
+				}
+				elseif (count($explode)===3)
+				{
+					if ($explode[1] == 'ar') 
+					{
+						$notifs[$key]->type = $explode[0];
 					}
 				}
-			}
+			} 
 		}
 		return $notifs;
 	}
@@ -188,17 +195,59 @@ class Notifications extends User{
 		}
 	}
 
+	public function notifyAllUsers($text = "", $url = "", $type = "new_tv_post"){
+		if (empty(IS_LOGGED) || empty($text) || empty($url)) {
+			return false;
+		}
+ 
+		$all_users = self::getAllUsers();
+		$user_id   = self::$me->user_id;
+
+		if ($type == 'new_tv_post') {
+			$notif_settings = 'on_tv';
+		}
+		
+
+		foreach ($all_users as $users) {
+			$username = $users->username;
+			try {
+				$recipientu_id  = $this->setUserByName($username);
+
+				$notif_conf     = null;
+
+				if (is_numeric($recipientu_id)) {
+					$notif_conf = $this->notifSettings($recipientu_id, $notif_settings);
+				}
+
+				if ($recipientu_id && ($recipientu_id != $user_id) && $notif_conf) {
+					$re_data = array(
+						'notifier_id' => $user_id,
+						'recipient_id' => $recipientu_id,
+						'type' => $type,
+						'url' => $url,
+						'time' => time()
+					); 
+					$this->notify($re_data);
+				}
+			} 
+			catch (Exception $e) {
+				
+			}
+		}
+	}
+
 	public function notifSettings($user_id = false,$type = ''){
 		if (empty($user_id) || empty($type) || !is_numeric($user_id)) {
 			return false;
 		}
 
-		elseif (!in_array($type, array('on_like','on_mention','on_comment','on_follow','on_comment_like','on_comment_reply'))) {
+		elseif (!in_array($type, array('on_like','on_mention','on_comment','on_follow','on_comment_like','on_comment_reply', 'on_tv'))) {
 			return false;
 		}
 
 		$type  = self::secure($type);
 		$query = self::$db->where('user_id',$user_id)->getOne(T_USERS,array("n_$type"));
+
 		$val   = null;
 
 		if (!empty($query)) {

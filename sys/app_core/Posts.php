@@ -245,15 +245,18 @@ class Posts extends User{
 		if (empty(IS_LOGGED)) {
 			return false;
 		}
+		global $config;
 
 		$data    = array();
 		$user_id = self::$me->user_id;
+		$hidetv  = ($config['tv_in_tv'] == 1 || $config['tv_in_tv'] == 'on' ? 1 : 0);
 		$sql     = pxp_sqltepmlate('posts/get.timeline.posts',array(
 			't_posts' => T_POSTS,
 			't_conn' => T_CONNECTIV,
 			't_likes' => T_POST_LIKES,
 			't_comm' => T_POST_COMMENTS,
 			't_blocks' => T_PROF_BLOCKS,
+			'hidetv' => $hidetv,
 			't_users' => T_USERS,
 			'user_id' => $user_id,
 			'total_limit' => $limit,
@@ -541,7 +544,8 @@ class Posts extends User{
 		$pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0))); 
 		$community = self::listCommunityPlans($user['community']);
 		$c_rank    = ($community && $user['community'] > 0) ? $community['price'] : 0;
-
+ 
+	    self::$db->orderBy('c_rank','ASC');
 		if (isset($cid['exclusive'])) {
 			self::$db->where('exclusive', $cid['exclusive']);
 		}

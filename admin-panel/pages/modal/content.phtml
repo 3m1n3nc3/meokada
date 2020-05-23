@@ -13,62 +13,17 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
 <div class="block-header">
     <h2 class="breadcrumb">Pages <i class="material-icons">keyboard_arrow_right</i> Notice Modal Content</h2>
 </div>
-<div class="row clearfix">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="header">
-                <h2>Write Terms of use of this website</h2>
-            </div>
-            <div class="body">
-                <div class="clearfix">
-                    <form class="form info-modal-form">
-                    	<div class="form-alert"></div>
-                        <input type="hidden" id="id" name="id" value="<?php echo $content_id; ?>">
-                        <div class="form-group"> 
-                            <div class="form-line">
-                                <label class="form-label">Content Title</label> 
-                                <input type="text" id="title" name="title" class="form-control" value="<?php echo (!empty($content['title']) ? $content['title'] : ''); ?>" required>
-                            </div>
-                        </div>
-                        <div class="form-group"> 
-                            <div class="form-line">
-                                <label class="form-label">Pages Allowed (Comma Separated, titles or id's)</label> 
-                                <input type="text" id="in_pages" name="in_pages" class="form-control" value="<?php echo (!empty($content['in_pages']) ? $content['in_pages'] : ''); ?>">
-                            </div>
-                            <small class="text-info">community_terms, homepage</small>
-                        </div>
-
-                        <label for="upload_system">Status</label>
-                        <div class="form-group">
-                            <input type="radio" name="status"  value="on" id="status-enabled" <?php echo ($status == 'on') ? 'checked': '';?>>
-                            <label for="status-enabled">Active</label>
-                            <input type="radio" name="status" id="status-disabled" value="off" <?php echo ($status == 'off') ? 'checked': '';?>>
-                            <label for="status-disabled" class="m-l-20">Inactive</label>
-                        </div>
-
-                        <label for="upload_system">Use Title</label>
-                        <div class="form-group">
-                            <input type="radio" name="use_title"  value="on" id="use_title-enabled" <?php echo ($use_title == 'on') ? 'checked': '';?>>
-                            <label for="use_title-enabled">Use</label>
-                            <input type="radio" name="use_title" id="use_title-disabled" value="off" <?php echo ($use_title == 'off') ? 'checked': '';?>>
-                            <label for="use_title-disabled" class="m-l-20">Use Default</label>
-                        </div>
-
-						<div class="form-group">
-							<textarea name="content" id="content"><?php echo (!empty($content['content']) ? $content['content'] : ''); ?></textarea>
-						</div>
-                        <button type="submit" class="btn btn-primary m-t-15 waves-effect">Save</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+<div class="row clearfix"> 
+    <div class="col-lg-3 col-md-3 p-b-5">
+        <button class="btn btn-info btn-lg" onclick="location.href='<?php echo(pxp_acp_link('modal-writer')); ?>'">Add new content</button>
     </div>
     <div class="col-md-12">
         <div class="card">
-            <div class="header">
-                <h2>Manage Content</h2>
-            </div>
+            <div class="header"> 
+                <h2>Manage Manifest and Info Board</h2>
+            </div> 
             <div class="body">
+                <small class="text-info">Drag Handle to reposition</small>
                 <div class="table-alert"></div>
                 <div class="table-responsive1">
                     <table class="table table-bordered table-striped table-hover table-users">
@@ -102,74 +57,7 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
 </div>
 <script src="<?php echo pxp_acp_link('plugins/tinymce/tinymce.js');?>"></script>
 <script>
-    jQuery(document).ready(function($) {
-        tinymce.init({
-            selector: '#content',
-            relative_urls: false,
-            remove_script_host: false,
-            height:500,
-            toolbar: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | preview fullpage | forecolor backcolor emoticons',
-            plugins: [
-                'advlist autolink link  lists charmap  preview hr anchor spellchecker',
-                'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
-                'save table contextmenu directionality emoticons template paste textcolor'
-            ]
-        });
-
-        var info_modal_form = $("form.info-modal-form");
-
-        info_modal_form.submit(function(event) {
-            var text = tinymce.activeEditor.getContent({format: 'raw'});
-            if (!text){
-                info_modal_form.find('div.form-alert').scroll2().html($('<div>',{
-                    class:'alert alert-danger',
-                    text:'Can not save changes, something went wrong Please try again'
-                }));
-
-                setTimeout(function(){
-                    window.location.reload();
-                });
-
-                return false;
-            }
-            else{
-                $("#content").val(text);
-            }   
-        });
-
-        info_modal_form.ajaxForm({
-            url: acpajax_url('info-modal'),
-            type: 'POST',
-            dataType: 'json',
-            beforeSubmit: function(arr,form){
-                arr[5]['value'] = btoa(unescape(encodeURIComponent(arr[5]['value'])));
-                $(form).find('button[type=submit]').text('Please wait.').attr('disabled', 'true');
-            },
-            success: function(data, status, xhr, form){
-                var set_id = $(form).find('#id').val();
-                if (data.status == 200) {
-                    $(form).find('#id').val((set_id ? set_id : (data.sid ? data.sid : '')));
-                    $(form).find('div.form-alert').scroll2().html($('<div>',{
-                        class: 'alert alert-success',
-                        text: data.message
-                    }));
-                    setTimeout(function(){
-                        info_modal_form.find('div.form-alert .alert').slideUp('fast',function(){
-                            $(this).remove(); 
-                        })    
-                    },3000);console.log(set_id);
-                }
-                else{
-                    $(form).find('div.form-alert').scroll2().html($('<div>',{
-                        class: 'alert alert-warning',
-                        text: data.message
-                    }));
-                }
-                
-                info_modal_form.find('button[type=submit]').text('Save').removeAttr('disabled');
-            }
-        });
-
+    jQuery(document).ready(function($) { 
         $(document).on('click', '.delete-content',function(event) {
             event.preventDefault();
 
@@ -199,6 +87,8 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
         zIndex               : 999999,
         update: function (event, ui) {
             var sort_order = $(this).sortable('serialize');
+            var _i = $(event.toElement).next('i');
+            _i.text(' wait...').show(); 
             $.ajax({
                 async: true,
                 type: 'POST',
@@ -207,6 +97,7 @@ $content_id  = (!empty($content['id']) ? $content['id'] : '');
                 dataType: 'JSON',
                 success: function(resps) { 
                     console.log(resps);
+                    _i.hide(); 
                 },
                 error: function(xhr, status, error) { 
                     console.log(xhr, xhr.responseText);

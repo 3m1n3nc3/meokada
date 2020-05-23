@@ -7,6 +7,7 @@ if (IS_LOGGED !== true) {
 
 $chat  = array();
 $to_id = false;
+$new   = isset($new) ? $new : false;
 $chats_history = array();
 $messages  = new Messages();
 $user_data = array();
