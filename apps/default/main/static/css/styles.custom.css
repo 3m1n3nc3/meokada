@@ -22,11 +22,11 @@
         min-height: 200px;
     } 
 }
-@media (max-width: 680px) { 
+/*@media (max-width: 680px) { 
     .welcome-page-container .banner-image {
         min-height: 300px;
     } 
-}
+}*/
 @media (max-width: 455px) { 
     .welcome-page-container .banner-image {
         min-height: 200px;
