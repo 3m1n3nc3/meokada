@@ -25,6 +25,7 @@ RewriteRule ^embed/(\d+)(?:\/?)$ index.php?app=posts&apph=view_post&type=embed&p
 RewriteRule ^co/(.*)$ index.php?app=confirm&apph=confirm_email&code=$1 [QSA]
 #RewriteRule ^confirm/(.*)$ index.php?app=confirm&apph=confirm_email&code=$1 [QSA]
 RewriteRule ^tv(?:\/?|)$ index.php?app=tv&apph=tv [QSA]
+RewriteRule ^tv/(\d+)(?:\/?)$ index.php?app=tv&apph=view_post&pid=$1 [QSA]
 RewriteRule ^$ index.php?app=home&apph=home [QSA]
 
 RewriteRule ^reset-password/(.*)$ index.php?app=welcome&apph=reset&code=$1 [QSA]

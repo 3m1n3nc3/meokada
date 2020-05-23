@@ -22,10 +22,10 @@
     max-width: 100%; 
     box-shadow: 3px 3px 20px #020202;
 }
-.messages-container .row.content .conversation .messages { 
+/*.messages-container .row.content .conversation .messages { 
     position: absolute; 
     bottom: 90px;
-}
+}*/
 .messages-container .row.content .conversation .send-message .emojionearea .emojionearea-editor { 
     color: #262626 !important;
     height: 100%;

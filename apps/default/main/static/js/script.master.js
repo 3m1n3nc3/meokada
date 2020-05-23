@@ -1155,7 +1155,10 @@ function add_comment_emoji(id) {
 	     	keyup: function (editor, event) {
 		      $("[data-post-comment='"+id+"']").find('.comment').val(el[0].emojioneArea.getText());
               pxp_reply_comment(id,event);
-		    }
+		    },
+            blur: function (editor, event) {
+              $("[data-post-comment='"+id+"']").find('.comment').val(el[0].emojioneArea.getText());  
+            } 
 	    },
 	    filters: {
 	        flags : false,
@@ -1173,7 +1176,10 @@ function add_comment_emoji_lightbox(id) {
 	     	keyup: function (editor, event) {
 		      $("[data-post-comment='"+id+"']").find('.comment').val(el[0].emojioneArea.getText());
               pxp_reply_comment(id,event,'lightbox');
-		    }
+		    },
+            blur: function (editor, event) {
+              $("[data-post-comment='"+id+"']").find('.comment').val(el[0].emojioneArea.getText());  
+            } 
 	    },
 	    filters: {
 	        flags : false,
