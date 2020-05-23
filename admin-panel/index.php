@@ -132,7 +132,7 @@ if (empty($page_content)) {
             Admin Panel
         </title>
         
-        <link rel="icon" href="https://demo.pixelphotoscript.com/media/img/icon.<?php echo $config['favicon_extension']; ?>" type="image/x-icon">
+        <link rel="shortcut icon" type="image/png" href="<?php echo($config['site_url']); ?>/media/img/icon.<?php echo($config['favicon_extension']); ?>"/> 
 
         
         <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
