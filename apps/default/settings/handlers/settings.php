@@ -29,6 +29,7 @@ $pages  = array(
 	'my_affiliates',
 	'withdraw',
 	'requests',
+	'coupon',
 	'business_account'
 );
 

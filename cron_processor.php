@@ -17,8 +17,9 @@ $notifC = new Notifications;
 
 $last_auto_pay_wallet = ($_SESSION['last_auto_pay_wallet']??null);
 $last_auto_payouts    = ($_SESSION['last_auto_payouts']??null);
-$refresh_interval     = $config['api_refresh_interval'];
-$api_refreshed        = strtotime("NOW - $refresh_interval Hour");
+$last_generic_action  = ($_SESSION['last_generic_action']??null);
+ 
+$api_refreshed        = strtotime("NOW - {$config['api_refresh_interval']} Hour");
 
 
 $auto_payout = ($config['auto_payout_approved_challenge'] == 'on' OR $config['auto_payout_won_challenge'] == 'on' OR $config['auto_payout_referals'] == 'on');
@@ -210,4 +211,11 @@ if ($config['send_tv_notifs'] == 'on') {
         }
     }
 }
+
+// Delete Expired Coupons
+if ($config['coupon_system'] == 'on' && $last_generic_action < $api_refreshed) {
+    $admin::$db->where('expiry_date', date('Y-m-d H:i:s', strtotime('NOW - 12 Hours')), '<')->delete(T_COUPONS);  
+    $_SESSION['last_generic_action'] = time();
+}
 // echo $admin::$db->getLastQuery();
+// $db->getLastError();

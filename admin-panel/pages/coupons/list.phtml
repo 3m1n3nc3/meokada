@@ -1,0 +1,43 @@
+<tr id="list-<?php echo($cd['coupon']['id']); ?>" data-id="<?php echo($cd['coupon']['id']); ?>">
+	<td>
+		<input type="checkbox" id="check-coupon-<?php echo($cd['coupon']['id']); ?>" class="delete-checkbox filled-in">
+		<label for="check-coupon-<?php echo($cd['coupon']['id']); ?>"></label>
+	</td>
+	<td>
+		<span>
+			<?php echo($cd['i']); ?>
+		</span>
+	</td>
+	<td>
+		<h4>
+			<strong class="label label-success">
+				<?php echo($cd['coupon']['plan_name']); ?>
+			</strong>
+			<span class="text-info">
+				<?php echo($cd['comm'] ? ' |-> '.$cd['comm']['title'] : ''); ?>
+			</span>
+		</h4>
+	</td>
+	<td>
+		<h4>
+			<strong class="label label-info">
+				<?php echo($cd['coupon']['coupon_code']); ?>
+			</strong>
+		</h4>
+	</td>
+	<td>
+		<span>
+ 			<?php echo date('Y-m-d h:i:s', strtotime($cd['coupon']['create_date'])); ?>
+		</span>
+	</td>
+	<td>
+		<span>
+ 			<?php echo $cd['coupon']['expiry_date'] ? date('Y-m-d h:i:s', strtotime($cd['coupon']['expiry_date'])) : ''; ?>
+		</span>
+	</td>
+	<td> 
+		<button class="btn btn-danger waves-effect waves-light delete-coupon" data-id="<?php echo($cd['coupon']['id']); ?>">
+			DELETE
+		</button>
+	</td>
+</tr>

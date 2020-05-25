@@ -432,6 +432,43 @@
 		});
 	</script>
 <?php } ?>
+<?php if ($context['page'] == 'coupon') { ?>
+	<script>
+		jQuery(document).ready(function($) {
+			var form = $("form#apply-coupon-code");
+			form.ajaxForm({
+				url: link('go_pro/coupon'),
+				type: 'POST',
+				dataType: 'json',
+				beforeSend: function(){
+					$(form).find('.pp_load_loader').addClass('loadingg');
+					form.find('button[type="submit"]').attr('disabled','true');
+				},
+				success: function(data){
+					if (data.status == 200) {
+						var message = data.message;
+						var type = 'success'; 
+
+					    setTimeout(function () {
+							location.href = data.url;
+						},300); 
+					} else {
+						var message = data.error;
+						var type = 'danger';
+					}
+					$.toast(message,{
+	                	duration: 5000, 
+	                	type: type,
+	                	align: 'bottom',
+	                	singleton: true
+	                });
+					$(form).find('.pp_load_loader').removeClass('loadingg');
+					form.find('button[type="submit"]').removeAttr('disabled');
+				}
+			});
+		});
+	</script>
+<?php } ?>
 
 <script type="text/javascript">
 	$("#avatar").change(function(event) {

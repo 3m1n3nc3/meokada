@@ -187,3 +187,12 @@ function is_store_item_purchased($id){
         return false;
     }
 }
+function a_an_parser($text = '') {
+    $vowels = ['a', 'e', 'i', 'o', 'u']; 
+    if (in_array(substr(strtolower($text), 0, 1), $vowels)) {
+        $a_an = 'an ';
+    } else {
+        $a_an = 'a ';
+    }
+    return $a_an . $text;
+}

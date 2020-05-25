@@ -25,7 +25,7 @@ $paystack_currency = Pxp_GetCurrency($paystack_bal['currency'] ?? $config['curre
             </div>
             <div class="content">
                 <div class="text">PAYSTACK BALANCE</div>
-                <div class="number count-to" data-from="0" data-to="<?php echo $paystack_bal['balance']; ?>" data-speed="1000" data-fresh-interval="20">
+                <div class="number count-to" data-from="0" data-to="<?php echo ($paystack_bal['balance']??0); ?>" data-speed="1000" data-fresh-interval="20">
                     <?php echo $paystack_currency . number_format($paystack_bal['balance'] ?? 0); ?>
                 </div>
             </div>

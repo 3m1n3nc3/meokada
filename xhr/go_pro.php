@@ -776,6 +776,63 @@ if ($action == 'bank_transfer' && IS_LOGGED) {
     }
 }
 
+if ($action == 'coupon' && IS_LOGGED && $config['coupon_system'] == 'on' && !empty($_POST['coupon_code'])) {
+    $coupon_code = Generic::secure($_POST['coupon_code']);
+
+    try {
+        $coupon = $admin::$db->where('coupon_code', $coupon_code)->getOne(T_COUPONS);
+        if ($coupon) {
+            if (strtotime($coupon->expiry_date) >= time() || empty($coupon->expiry_date)) {
+                $tr_type  = $coupon->plan_name;
+                $commLink = '';
+
+                if ($tr_type == 'pro' || $tr_type == 'community' || $tr_type == 'standard') {
+                    if ($tr_type == 'pro') {
+                        $user->updateStatic($me['user_id'],array('is_pro' => 1, 'verified' => 1));
+                    } elseif ($tr_type == 'standard') {
+                        $user->updateStatic($me['user_id'],array('is_standard' => 1)); 
+                    } elseif ($tr_type == 'community') {
+                        $user->updateStatic($me['user_id'],array('is_pro' => 1, 'verified' => 1, 'community' => $coupon->plan_id));
+                        $commLink = "&community=" . $coupon->plan_id;
+                    }
+                    $date   = time(); 
+
+                    $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
+                                              'amount' => '0',
+                                              'type'   => $tr_type . '_member_coupon',
+                                              'time'   => $date));                 
+                } else {
+                    if ($tr_type == 'admin') {
+                        $user->updateStatic($me['user_id'],array('admin' => 1)); 
+                    }
+                }
+            } else {
+                $error = 'Coupon Code has Expired...';
+            }
+        } else {
+            $error = 'Invalid Coupon Code...';
+        }
+    }
+    catch (Exception $e) {
+        $error = $e;
+    }
+
+    if (empty($error)) { 
+        $admin::$db->where('coupon_code', $coupon_code)->delete(T_COUPONS);
+        $data = array(
+            'status' => 200,
+            'message' => 'Congratulations! You\'re now '.a_an_parser(ucwords($tr_type)).' Member.',
+            'url' => $config['site_url'] . "/upgraded?type=" . $tr_type . $commLink
+        ); 
+    }
+    else{
+        $data = array(
+            'status' => 400,
+            'error' => $error
+        ); 
+    }
+}
+
 
 
 

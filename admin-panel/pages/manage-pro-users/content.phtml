@@ -7,23 +7,17 @@ $admin::$db->pageLimit = 20;
 
 if (!empty($filter_keyword)) {
     //$admin::$db->where('is_pro',1);
-    $sql   = "(
-        `username`     LIKE '%$filter_keyword%' OR 
-        `email`        LIKE '%$filter_keyword%' OR 
-        `fname`   LIKE '%$filter_keyword%' OR 
-        `lname`   LIKE '%$filter_keyword%' 
-             )";
-    // // $admin::$db->where('username',"%$filter_keyword%",'LIKE');
-    // // $admin::$db->where('email',"%$filter_keyword%",'LIKE','OR');
-    // // $admin::$db->where('fname',"%$filter_keyword%",'LIKE','OR');
-    // // $admin::$db->where('lname',"%$filter_keyword%",'LIKE','OR');
-    // //$admin::$db->where('user_id',"$filter_keyword",'=','OR');
-    // $admin::$db->where($sql);
-	$users = $admin::$db->where($sql)->where('is_pro','1')->where('is_standard','1', 'OR')->orderBy('is_pro', 'DESC')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
+    $sql = "(
+        `username` LIKE '%$filter_keyword%' OR 
+        `email`    LIKE '%$filter_keyword%' OR 
+        `fname`    LIKE '%$filter_keyword%' OR 
+        `lname`    LIKE '%$filter_keyword%' 
+    )"; 
+	$users = $admin::$db->where($sql)->where('is_pro','1')->where('is_standard','1','OR')->where('community','0','OR','!=')->orderBy('is_pro', 'DESC')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
 } 
 
 else {
-	$users = $admin::$db->where('is_pro',1)->where('is_standard','1', '=','OR')->where('community','0', '!=' 'OR')->orderBy('is_pro', 'DESC')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
+	$users = $admin::$db->where('is_pro',1)->where('is_standard','1', '=','OR')->where('community','0','OR','!=')->orderBy('is_pro', 'DESC')->orderBy('user_id', 'DESC')->paginate(T_USERS, $page);
 }
 
 if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
@@ -92,9 +86,9 @@ if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
 
                                     else{
                                         echo $admin::createHtmlEl('tr',null,$admin::createHtmlEl('td',array(
-                                            'colspan' => 5,
+                                            'colspan' => 6,
                                             'class' => 'empty-table',
-                                        ),"No users found"));
+                                        ),"No premium users found"));
                                     } 
                                 ?>
                             </tbody>

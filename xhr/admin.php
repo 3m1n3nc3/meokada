@@ -643,6 +643,54 @@ elseif ($action == 'delete-report' && !empty($_POST['id']) && is_numeric($_POST[
 		}
 	}
 }
+elseif ($action == 'create-coupons' && !empty($_POST['quantity'])) {
+	$data['status'] = 400;
+	$quantity                   = $user::secure($_POST['quantity']);
+	$insert_data['plan_name']   = $user::secure($_POST['plan_name']);
+	$insert_data['plan_id']     = $user::secure($_POST['community']);
+	$insert_data['expiry_date'] = $_POST['expiry_date'] ? date('Y-m-d H:i:s', strtotime($user::secure($_POST['expiry_date']))) : NULL;
+	for ($i = 0; $i < $quantity; $i++) 
+	{
+		$insert_data['coupon_code'] = $config['coupon_prefix'] . rand(100000,999999);
+		if ($insert_data['plan_name'] == 'admin') 
+			$insert_data['coupon_code'] = $config['coupon_prefix'] . 'ADM' . rand(100,999);
+        $sts = $db->insert(T_COUPONS, $insert_data); 
+	}
+	if ($sts) {
+		$data['status']  = 200;
+		$data['message'] = $quantity . ' ' . ucwords($insert_data['plan_name']). ' coupons created successfully';
+		$admin::$db->pageLimit = 20;
+		$coupons         = $admin::$db->orderBy('id', 'DESC')->paginate(T_COUPONS, 1);
+        if (!empty($coupons)) {
+            $i = 0;
+            $html = '';
+            foreach ($coupons as $key => $context['coupon']) {
+                $i++;  
+                $context['coupon'] = o2array($context['coupon']);
+                $context['comm']   = $admin->listCommunityPlans($context['coupon']['plan_id']); 
+                $context['i']      = $i;
+                $html             .= $admin->loadPage('coupons/list'); 
+            }
+            $data['html'] = $html; 
+        } 
+	}
+}
+elseif ($action == 'delete-coupon' && !empty($_POST['id']) && is_numeric($_POST['id'])) {
+	$id     = $admin::secure($_POST['id']);   
+	$delete = $admin::$db->where('id',$id)->delete(T_COUPONS); 
+	if ($delete) {
+		$data['status'] = 200;
+	} 
+}
+elseif ($action == 'delete-multi-coupon' && !empty($_POST['ids']) && is_array($_POST['ids'])) {  
+	foreach ($_POST['ids'] as $id) {
+		$delete = $admin::$db->where('id',$admin::secure($id))->delete(T_COUPONS); 
+	}
+	$data = array('status' => 304);
+	if ($delete) {
+		$data['status'] = 200;
+	} 
+}
 elseif ($action == 'generate-sitemap') {
 	try {
 		$sitemap = new Sitemap($site_url);

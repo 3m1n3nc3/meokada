@@ -25,3 +25,24 @@ INSERT INTO `pxp_langs` (`ref`, `lang_key`, `english`) VALUES
 
 ALTER TABLE `pxp_users` 
     ADD `n_on_tv` INT(11) NOT NULL DEFAULT '0' AFTER `n_on_mention`;
+
+----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `pxp_coupons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `plan_id` int(11) NOT NULL,
+  `plan_name` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
+  `coupon_code` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expiry_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `pxp_config` (`name`, `value`) VALUES 
+('use_coupon', 'on'),
+('coupon_system', 'on'),
+('coupon_prefix', 'on');
+
+INSERT INTO `pxp_langs` (`ref`, `lang_key`, `english`) VALUES
+('', 'use_coupon', 'Use Coupon'),
+('', 'coupon', 'Coupon'),
+('', 'coupons', 'Coupons');

@@ -41,6 +41,7 @@ $pages        = array(
     ),
     'pro_system' => array(
         'pro-settings',
+        'coupons',
         'manage-pro-users'
     ),
     'advertisement' => array(
@@ -375,10 +376,9 @@ if (empty($page_content)) {
                         <li class="<?php echo $admin->activeMenu('pro_system'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle">
                                 <i class="material-icons">stars</i>
-                                <span>Pro System</span>
+                                <span>Premium System</span>
                             </a>
                             <ul class="ml-menu">
-
                                 <?php if (admin_access($admin_role, 3)):?>
                                 <li class="<?php echo $admin->activeMenu('pro-settings'); ?>">
                                     <a href="<?php echo pxp_acp_link('pro-settings'); ?>" class="waves-effect waves-block">
@@ -386,9 +386,15 @@ if (empty($page_content)) {
                                     </a>
                                 </li>
                                 <?php endif;?>
+
                                 <li class="<?php echo $admin->activeMenu('manage-pro-users'); ?>">
                                     <a href="<?php echo pxp_acp_link('manage-pro-users'); ?>" class="waves-effect waves-block">
-                                        Manage Pro Users
+                                        Manage Premium Users
+                                    </a>
+                                </li>
+                                <li class="<?php echo $admin->activeMenu('manage-pro-users'); ?>">
+                                    <a href="<?php echo pxp_acp_link('coupons'); ?>" class="waves-effect waves-block">
+                                        Manage Premium Coupons
                                     </a>
                                 </li>
                             </ul>

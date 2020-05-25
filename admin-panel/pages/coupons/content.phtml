@@ -1,0 +1,297 @@
+<?php 
+$page = (!empty($_GET['page-id'])) ? $_GET['page-id'] : 1;
+$filter_keyword = (!empty($_GET['query'])) ? $admin::secure($_GET['query']) : '';
+$filter_type    = '';
+$admin::$db->pageLimit = 20;
+
+if (!empty($filter_keyword)) { 
+    $admin::$db->where('plan_name',"%$filter_keyword%",'LIKE','OR');
+    $admin::$db->where('id',"%$filter_keyword%",'=','OR');
+    $admin::$db->where('plan_id',"$filter_keyword",'=','OR');
+    $coupons = $admin::$db->orderBy('id', 'DESC')->paginate(T_COUPONS, $page);
+} 
+else { 
+    $coupons = $admin::$db->orderBy('id', 'DESC')->paginate(T_COUPONS, $page);
+}
+
+$community   = '<option value="0">Not Applicable</option>';
+$communities = $admin::listCommunityPlans();
+if ($communities) {
+    foreach ($communities as $comm) {
+        $community .= '<option value="'.$comm['id'].'">'.$comm['title'].'</option>';
+    }
+}
+
+if (($page > $admin::$db->totalPages) && !empty($_GET['page-id'])) {
+	header("Location: " . pxp_acp_link('manage-users'));
+	exit();
+}
+?>
+<div class="clearfix">
+    <div class="block-header">
+        <h2 class="breadcrumb">Premium Settings <i class="material-icons">keyboard_arrow_right</i> Create and Manage Coupons</h2>
+    </div>
+    <!-- Vertical Layout -->
+    <div class="row">
+        <div class="col-lg-12 col-md-12">
+            <div class="card">
+                <div class="header">
+                    <h2>Create Coupons</h2>
+                </div>
+                <div class="body">  
+                    <form class="create-coupon">
+                        <div class="form-alert"></div>  
+                        <div class="form-group">
+                            <label for="plan_name">Plan Name</label>
+                            <select class="form-control" id="plan_name" name="plan_name"> 
+                                <option value="standard">Standard</option>
+                                <option value="pro">Pro</option>
+                                <option value="community">Community</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div> 
+                        <div class="form-group">
+                            <label for="community">Community</label>
+                            <select class="form-control" id="community" name="community">
+                                <?php echo $community?>
+                            </select>
+                        </div>
+                        <div class="row">   
+                            <div class="col-md-6">
+                                <label for="quantity">Quantity</label>
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="100"> 
+                                    </div>
+                                </div>
+                            </div> 
+                            <div class="col-md-6">
+                                <label for="expiry_date">Expiry Date</label>
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input type="date" id="expiry_date" name="expiry_date" class="form-control" value=""> 
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="clearfix"></div> 
+                        <button type="submit" class="btn btn-primary m-t-15 waves-effect">Create Coupons</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card" id="manageCoupons">
+                <div class="header">
+                    <h2>Manage Coupons</h2>
+                </div>
+                <div class="body">
+                    <div class="clearfix">
+                        <div class="col-md-6" style="margin-bottom:0;">
+                            <form method="get" action="<?php echo pxp_acp_link('coupons#manageCoupons'); ?>">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-float">
+                                            <div class="form-line">
+                                                <input type="text" name="query" id="query" class="form-control"  value="<?php echo($filter_keyword); ?>">
+                                                <label class="form-label search-form">Search for ID, Plan ID, Plan Name</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <button class="btn btn-info">Search</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive1">
+                        <table class="table table-bordered table-striped table-hover table-users">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="check-all" class="filled-in check-all" ><label for="check-all"></label>
+                                    </th>
+                                    <th>S/N</th>
+                                    <th>Plan Name</th>
+                                    <th>Coupon Code</th>
+                                    <th>Created</th>
+                                    <th>Expiry Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php  
+                                    if (!empty($coupons)) {
+                                        $i = 0;
+
+                                        foreach ($coupons as $key => $context['coupon']) {
+                                            $i++;  
+                                            $context['coupon'] = o2array($context['coupon']);
+                                            $context['i']      = $i;
+                                            $context['comm'] = $admin::listCommunityPlans($context['coupon']['plan_id']); 
+                                            echo $admin->loadPage('coupons/list'); 
+                                        }
+                                    }
+
+                                    else{
+                                        echo $admin::createHtmlEl('tr',null,$admin::createHtmlEl('td',array(
+                                            'colspan' => 6,
+                                            'class' => 'empty-table',
+                                        ),"No Coupons found"));
+                                    } 
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php if (!empty($coupons)): ?>      
+                        <div class="clearfix">
+                            <nav class="clearfix pagination-nav">
+                                <div class="left col-md-5">
+                                    <ul class="pagination">
+                                        <li>
+                                            <span>
+                                                <?php echo "Showing $page out of " . $admin::$db->totalPages; ?>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="clearfix col-md-7 right">
+                                    <ul class="pagination pull-right">
+                                        <li>
+                                            <a href="<?php echo pxp_acp_link('coupons?page-id=1'); ?>" class="waves-effect" title='First Page'>
+                                                <i class="material-icons">first_page</i>
+                                            </a>
+                                        </li>
+
+                                        <?php if ($page > 1) { ?>
+                                        <li>
+                                            <a href="<?php echo pxp_acp_link('coupons?page-id=' . ($page - 1)); ?>" class="waves-effect" title='Previous Page'>
+                                                <i class="material-icons">chevron_left</i>
+                                            </a>
+                                        </li>
+                                        <?php } ?>
+
+                                        <?php 
+                                            $nums = 0;
+                                            $nums_pages = ($page > 4) ? ($page - 4) : $page;
+                                            for ($i=$nums_pages; $i <= $admin::$db->totalPages; $i++) { 
+                                            if ($nums < 20) {?>
+
+                                            <li class="<?php echo ($page == $i) ? 'active' : ''; ?>">
+                                                <a href="<?php echo pxp_acp_link('coupons?page-id=' . ($i)); ?>" class="waves-effect">
+                                                <?php echo $i ?>
+                                                </a>
+                                            </li>
+                                            <?php } $nums++;
+                                            }
+                                        ?>
+
+                                        <?php if ($admin::$db->totalPages > $page) { ?>
+                                        <li>
+                                            <a href="<?php echo pxp_acp_link('coupons?page-id=' . ($page + 1)); ?>" class="waves-effect" title="Next Page">
+                                                <i class="material-icons">chevron_right</i>
+                                            </a>
+                                        </li>
+                                        <?php } ?>
+
+                                        <li>
+                                            <a href="<?php echo pxp_acp_link('coupons?page-id=' . ($admin::$db->totalPages)); ?>" class="waves-effect" title='Last Page'>
+                                                <i class="material-icons">last_page</i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="clearfix"></div>
+                <button type="button" class="btn btn-info waves-effect delete-selected" disabled style="margin-bottom: 10px;margin-left: 10px;">DELETE SELECTED<span></span></button>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+<!-- #END# Vertical Layout -->
+<div id="delete-modal" class="modal fade" role="dialog" data-id="">
+    <div class="modal-dialog">
+        <div class="modal-content modal-col-red">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DELETE COUPON</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to continue? this action can't be undo</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link waves-effect delete-button" data-dismiss="modal" data-type="coupon" data-id="">DELETE</button>
+                <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+jQuery(document).ready(function($) {
+	$(document).on('click', '.delete-coupon',function(event) {
+        event.preventDefault();
+        $('#delete-modal .delete-button').attr('data-id', $(this).attr('data-id')); 
+		$('#delete-modal').attr('data-id', $(this).attr('data-id')).modal('show');
+	});
+
+    $('.check-all').on('click', function(event) {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+    });
+
+    $('.delete-checkbox, .check-all').change(function(event) {
+        $('.delete-selected').attr('disabled', false);
+        var csel = $('.delete-checkbox:checked').size();
+        $('.delete-selected').find('span').text(csel>0 ? ' (' + csel + ')' : '');
+    });
+    
+    $('.delete-selected').on('click', function(event) {
+        event.preventDefault();
+        data = new Array();
+        $('td input:checked').parents('tr').each(function () {
+            data.push($(this).attr('data-id'));
+        }); 
+        if (confirm('Are you sure that you want to delete the selected coupon(s)?')) {
+            $('.delete-selected').attr('disabled', true);
+            $('.delete-selected').text('Please wait..');
+            $.post(acpajax_url('delete-multi-coupon'), {ids: data}, function () {
+                alert(+data.length+ ' coupons successfully deleted!');
+                $.each( data, function( index, value ){
+                    $('#list-' + value).remove();
+                });
+                $('.delete-selected').text('DELETE SELECTED');
+            });
+        }
+    });
+
+    var couponForm = $("form.create-coupon");
+    couponForm.ajaxForm({
+        url: acpajax_url('create-coupons'),
+        type: 'POST',
+        dataType: 'json',
+        beforeSubmit: function(arr,form){
+            $(form).find('button[type=submit]').text('Please wait.').attr('disabled', 'true');
+        },
+        success: function(data, status, xhr, form){
+            if (data.status == 200) {
+                var message = data.message;
+                var classs  = 'success';
+                $('tbody').html(data.html);
+            } else {
+                var message = data.error;
+                var classs  = 'danger';
+            }
+            $(form).find('div.form-alert').scroll2().html($('<div>',{
+                class:'alert alert-'+classs,
+                text: message
+            }));
+
+            couponForm.find('button[type=submit]').text('Create Coupons').removeAttr('disabled');
+        }
+    });
+});
+</script>

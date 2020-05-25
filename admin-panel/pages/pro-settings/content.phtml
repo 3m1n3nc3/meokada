@@ -19,6 +19,19 @@
                             <input type="radio" name="pro_system" id="pro_system-disabled" value="off" <?php echo ($config['pro_system'] == 'off') ? 'checked': '';?>>
                             <label for="pro_system-disabled" class="m-l-20">Disabled</label>
                         </div>
+                        <label for="coupon_system">Coupon System <span class="black" data-toggle="popover" data-trigger="hover"><i class="fa fa-question-circle fa-fw"></i></span></label>
+                        <div class="form-group">
+                            <input type="radio" name="coupon_system" id="coupon_system-enabled" value="on" <?php echo ($config['coupon_system'] == 'on') ? 'checked': '';?>>
+                            <label for="coupon_system-enabled">Enabled</label>
+                            <input type="radio" name="coupon_system" id="coupon_system-disabled" value="off" <?php echo ($config['coupon_system'] == 'off') ? 'checked': '';?>>
+                            <label for="coupon_system-disabled" class="m-l-20">Disabled</label>
+                        </div>
+                        <div class="form-group form-float">
+                            <div class="form-line">
+                                <input type="text" id="coupon_prefix" name="coupon_prefix" class="form-control" value="<?php echo $config['coupon_prefix'];?>">
+                                <label class="form-label">Coupon Prefix</label>
+                            </div>
+                        </div>
                         <div class="form-group form-float">
                             <div class="form-line">
                                 <input type="text" id="pro_price" name="pro_price" class="form-control" value="<?php echo $config['pro_price'];?>">
