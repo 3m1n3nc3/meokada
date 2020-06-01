@@ -146,6 +146,14 @@ $ffmpeg_binary = $config['ffmpeg_binary'];
                             <label for="raise_money_type-disabled" class="m-l-20">All Users</label>
                         </div>
 
+                        <label for="tv_in_tv">Allow Posting from Homepage</label>
+                        <div class="form-group">
+                            <input type="radio" <?php echo ($config['homepage_posting'] == 'on' ? 'checked' : ''); ?> name="homepage_posting"  value="on" id="homepage_posting-enabled">
+                            <label for="homepage_posting-enabled" id="homepage_posting-enabled">Allowed</label>
+                            <input type="radio" <?php echo ($config['homepage_posting'] == 'off' ? 'checked' : ''); ?> name="homepage_posting" id="homepage_posting-disabled" value="off">
+                            <label for="homepage_posting-disabled" class="m-l-20">Not Allowed</label>
+                        </div>
+
                         <label for="tv_in_tv">Show TV Content on Timeline ?</label>
                         <div class="form-group">
                             <input type="radio" <?php echo ($config['tv_in_tv'] == 'on' ? 'checked' : ''); ?> name="tv_in_tv"  value="on" id="tv_in_tv-enabled">
