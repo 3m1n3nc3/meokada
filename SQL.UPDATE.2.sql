@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `pxp_coupons` (
 INSERT INTO `pxp_config` (`name`, `value`) VALUES 
 ('use_coupon', 'on'),
 ('coupon_system', 'on'),
+('homepage_posting', 'off'),
 ('coupon_prefix', 'on');
 
 INSERT INTO `pxp_langs` (`ref`, `lang_key`, `english`) VALUES
