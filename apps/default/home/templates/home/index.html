@@ -6,7 +6,7 @@
 			</div><br><br>
 			<?php } ?>
 			<div class="col-md-8">
-				<?php if ($context['post_sys']) { ?>
+				<?php if ($context['post_sys'] && $config['homepage_posting'] == 'on') { ?>
 					<div class="postin-area">
 						<?php include 'js/publisher-box.html'; ?>
 						<div class="clear"></div>
