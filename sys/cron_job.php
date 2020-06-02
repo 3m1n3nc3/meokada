@@ -27,7 +27,7 @@ if ($config['last_clean_db'] <= (time() - 86400)) {
 	$admin::$db->where('deleted_fs2','1')->delete(T_MESSAGES);
 }
 
-if ($config['pro_system'] == 'on') {
+if ($config['pro_system'] == 'make_this_duration_dynamic_from_database'/*'on'*/) {
     $users_id = $admin::$db->where('type', 'pro_member')->where('time', strtotime("-30 days"), '<')->get(T_TRANSACTIONS, null, array('user_id'));
     $ids = array();
     foreach ($users_id as $key => $value) {
