@@ -3,4 +3,5 @@
 /templates
 /media/upload/
 /sys/config.php
+/.vscode
 /sys/import3p/ffmpeg-php/vendor/json.txt

@@ -573,7 +573,7 @@ if (empty($page_content)) {
                                     </a>
                                 </li>
                                 
-                                <?php if (admin_access($admin_role, 3)):?>
+                                <?php if (admin_access($admin_role, 1)):?>
                                 <li class="<?php echo $admin->activeMenu('terms'); ?>">
                                     <a href="<?php echo pxp_acp_link('terms'); ?>" class=" waves-effect waves-block">
                                         Terms of use
@@ -602,6 +602,7 @@ if (empty($page_content)) {
                                 <?php endif;?>
                             </ul>
                         </li>
+                        <?php if (admin_access($admin_role, 3)):?>
                         <li class="<?php echo $admin->activeMenu('mobile_api'); ?>">
                             <a href="javascript:void(0);" class="menu-toggle waves-effect waves-block">
                                 <i class="material-icons">compare_arrows</i>
@@ -633,6 +634,7 @@ if (empty($page_content)) {
                                 <span>FAQs &amp; Docs</span>
                             </a>
                         </li>
+                        <?php endif;?>
                     </ul>
                 </div>
                 <div class="legal">
