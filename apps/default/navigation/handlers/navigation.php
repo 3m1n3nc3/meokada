@@ -31,10 +31,15 @@ if ($set_page && $_GET['page'] == 'challenge' && !empty($page)) {
 	$exclusive         = !empty($_GET[$page]) ? $_GET[$page] : '';
 	$exlsv_data        = $context['exclusive'] = $user->listExclusivePlans($exclusive);
 	$user_level		   = $user->verifyProLevel(NULL, $exlsv_data['pro_level']);
-
-	if ($page !== 'info' && $exlsv_data['pro_level'] > $user_level['pro_level'] || ($exlsv_data['pro_level'] = 3 && !$user_level['community_access'])) {
+ 
+	if ($page !== 'info' && ($exlsv_data['pro_level'] > $user_level['pro_level'] || ($exlsv_data['pro_level'] == 3 && !$user_level['community_access']))) {
+		$_SESSION['_redirect_'] = pxp_link('navigation/challenge/'.$page.'/'.$exclusive); 
 		header("Location: $site_url/go_pro");
 		exit;
+	}
+
+	if (isset($_SESSION['_redirect_'])) {
+		unset($_SESSION['_redirect_']);
 	}
 
 	$exlsv_data['icon'] = decode($exlsv_data['icon']);
