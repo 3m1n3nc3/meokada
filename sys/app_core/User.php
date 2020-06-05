@@ -24,6 +24,38 @@ class User extends Generic{
 		return $data;
 	}
 
+	public function guestLogout(){ 
+	
+		if (!empty($_SESSION['guest'])) 
+		{
+			unset($_SESSION['guest']);
+		}
+
+		if (!empty($_COOKIE['guest'])) 
+		{
+			foreach ($_COOKIE['guest'] as $key => $value) {
+		    	unset($_COOKIE["guest[$key]"]);
+		    	setcookie("guest[$key]", null, -1);
+			}
+		    unset($_COOKIE['guest']); 
+		    setcookie('guest', null, -1); 
+		}
+	}
+
+	public function guestLogin($guest)
+	{ 
+	    if (!empty($guest)) {
+	    	$_SESSION['guest'] = array(
+	    		'email'     => Generic::secure($guest['email']),
+	    		'firstname' => Generic::secure($guest['firstname']),
+	    		'lastname'  => Generic::secure($guest['lastname'])
+	    	); 
+			setcookie("guest[email]", $guest['email'], time() + (10 * 365 * 24 * 60 * 60), "/");
+			setcookie("guest[firstname]", $guest['firstname'], time() + (10 * 365 * 24 * 60 * 60), "/");
+			setcookie("guest[lastname]", $guest['lastname'], time() + (10 * 365 * 24 * 60 * 60), "/");
+	    }
+	}
+
 	public function offset($whereProp, $whereValue = 'DBNULL', $operator = '=', $cond = 'AND'){
 		self::$db->where($whereProp, $whereValue, $operator);
 		return $this;

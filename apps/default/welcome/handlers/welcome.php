@@ -2,8 +2,7 @@
 if (IS_LOGGED) {
 	header("Location: $site_url");
 	exit;
-}
-
+} 
 
 $config['header'] = false;
 $config['footer'] = false;

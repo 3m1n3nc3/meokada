@@ -2,9 +2,9 @@
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <div class="settings-page-container content-shadow">
 	<div class="page-content sett_avatr_chng">
-		<?php include 'header2.html'; ?>
+		<?php include 'header2.html';?>
 
-		<?php if($context['page_name'] == 'info' && $context['page_view'] !== 'thanks' || ($context['page_view'] == 'thanks' && isset($_SESSION['donated']))): ?> 
+		<?php if($context['page_name'] == 'info' && $context['page_view'] !== 'thanks' && (!empty($_GET['info']) && $_GET['info'] !== 'donate') || ($context['page_view'] == 'thanks' && isset($_SESSION['donated']))): ?> 
 
             <div class="row mb-5">
                 <div class="pt-0"> 
@@ -33,6 +33,36 @@
 		        </div>
 		    </div>
 
+		<?php elseif($context['page_name'] == 'info' && (!empty($_GET['info']) && $_GET['info'] == 'donate')): ?> 
+			<div class="row m-0">
+				<div class="col-md-4"></div>
+				<div class="col-md-4">
+					<h5>Make Donations (<?php echo $context['currency_symbol']?>)</h5>
+					<div class="pp_mat_input">
+						<input required="true" type="number" name="amount" class="form-control" placeholder="0.00" id="amount">
+						<span class="bar"></span> 
+					</div>
+					<?php if (empty($me)): ?>  
+					<div class="form-group">
+						<label>Email Address</label>
+						<input required="true" type="text" name="email" class="form-control" id="email">
+					</div> 
+					<div class="form-group">
+						<label>First Name</label>
+						<input required="true" type="text" name="fname" class="form-control" id="fname">
+					</div> 
+					<div class="form-group">
+						<label>Last Name</label>
+						<input required="true" type="text" name="lname" class="form-control" id="lname">
+					</div>
+					<?php endif ?>
+					<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>">
+					<div class="pp_load_loader">
+						<button class="btn btn-info pp_flat_btn" type="button" onclick="Pxp_GetPaymentMethods('social_donation')" id="donate_btn"><span>{{LANG donate}}</span></button>
+					</div>
+				</div>
+				<div class="col-md-4"></div>
+			</div>
 		<?php else: ?>
 
 			<div class="row m-0 my_wallet">
@@ -51,21 +81,7 @@
 					</div>
 				</div>
 				<div class="col-md-1"></div>
-			</div>
-			<div></div>
-			<div class="row m-0">
-				<div class="col-md-4"></div>
-				<div class="col-md-4">
-				<h5>Make Donations (<?php echo $context['currency_symbol']?>)</h5>
-				<div class="pp_mat_input">
-				<input required="true" type="number" name="amount" class="form-control" placeholder="0.00" id="amount">
-				<span class="bar"></span> 
-			</div>
-			<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>">
-			<div class="pp_load_loader"><button class="btn btn-info pp_flat_btn" type="button" onclick="Pxp_GetPaymentMethods('social_donation')" id="donate_btn"><span>{{LANG donate}}</span></button></div>
-				</div>
-				<div class="col-md-4"></div>
-			</div>
+			</div>   
 		<?php endif; ?>
 	</div>
 	<div class="clear"></div>
@@ -189,27 +205,49 @@
 	});
 
 	function Pxp_GetPaymentMethods(type) {
-		$('#donate_btn').attr('disabled','true');
-		$('#donate_btn').find('span').html("{{LANG please_wait}}");
-		if ($('#amount').val() > 0) {
-			$.post(link('main/get_payment_methods'), {type: type}, function(data, textStatus, xhr) {
-				if (data.status == 200) {
-					$('.payment_methods_wallet_modal').html(data.html);
-					$('.wallet--modal').fadeIn(250);
-				}
-			});
-		}
-		else{
-			scroll2top();
+		var logged_id = Number('{{logged_id}}');
+		var firstname = $('input[name="fname"]').val();
+		var lastname  = $('input[name="lname"]').val();
+		var email     = $('input[name="email"]').val(); 
+
+		var no_log_use = (
+			(typeof firstname !== 'undefined' && firstname != '') && 
+			(typeof email !== 'undefined' && email != '') && 
+			(typeof lastname !== 'undefined' && lastname != '')
+		);
+
+		var guest = (no_log_use ? {firstname:firstname, lastname:lastname, email:email} : '');
+
+		if (logged_id || no_log_use) { 
+			$('#donate_btn').attr('disabled','true');
+			$('#donate_btn').find('span').html("{{LANG please_wait}}");
+			if ($('#amount').val() > 0) {
+				$.post(link('main/get_payment_methods'), {type: type, guest}, function(data, textStatus, xhr) {
+					if (data.status == 200) {
+						$('.payment_methods_wallet_modal').html(data.html);
+						$('.wallet--modal').fadeIn(250);
+					}
+				});
+			}
+			else{
+				scroll2top();
+				$.toast("{{LANG please_check_details}}",{
+	            	duration: 5000, 
+	            	type: 'success',
+	            	align: 'bottom',
+	            	singleton: true
+	            });
+			}
+			$('#donate_btn').removeAttr('disabled');
+			$('#donate_btn').find('span').html("{{LANG donate}}");
+		} else {
 			$.toast("{{LANG please_check_details}}",{
             	duration: 5000, 
-            	type: 'success',
+            	type: 'danger',
             	align: 'bottom',
             	singleton: true
-            });
+            }); 
 		}
-		$('#donate_btn').removeAttr('disabled');
-		$('#donate_btn').find('span').html("{{LANG submit}}");
 	}
 
 	function Pxp_GetPayPalLink(type) {
@@ -300,19 +338,29 @@
             });
 		}
 	}   
-
+ 
 	function Pxp_PaystackPayment(type, amount=0) {
 		if ($('#amount').val() > 0) {
 			var amount = $('#amount').val();
 			$('.btn-cart').attr('disabled','true'); 
 
+			var firstname = $('input[name="fname"]').val();
+			var lastname  = $('input[name="lname"]').val();
+			var email     = $('input[name="email"]').val(); 
+
+			var vemail    = "{{email}}";
+			if (typeof email === 'undefined') {
+				var firstname = "{{firstname}}";
+				var lastname  = "{{lastname}}";
+				var email     = "{{email}}";
+			} 
 	        var handler = PaystackPop.setup({
 	            key: "<?php echo $config['paystack_public'] ?>", // Replace with your public key
-	            email: "<?php echo $me['email'] ?>",
+	            email: email,
 	            currency: "<?php echo $config['currency'] ?>",
 	            amount: amount*100,
-	            firstname: "<?php echo ($me['fname'] ? $me['fname'] : $me['username']) ?>",
-	            lastname: "<?php echo $me['lname'] ?>",
+	            firstname: firstname,
+	            lastname: lastname,
 	            // label: "Optional string that replaces customer email"
 	            onClose: function(){
 	           	    $('.btn-cart').removeAttr('disabled');
@@ -341,5 +389,5 @@
             	singleton: true
             });
 		}
-	}
+	} 
 </script>

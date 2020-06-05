@@ -33,9 +33,9 @@ if ($post_type == 'community') {
     $community  = $uObj->listCommunityPlans($_POST['type'][$post_type]); 
     $com_is_pro = 1;
     $com_is_ver = 1;
-}
+} 
 
-if ($action == 'get_paypal_link' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret'])) {
+if ($action == 'get_paypal_link' && (IS_LOGGED || IS_GUEST) && !empty($config['paypal_id']) && !empty($config['paypal_secret'])) {
     $type = 'pro';
     $sum  = $config['pro_price'];
     $dec  = "Upgrade to pro";
@@ -111,7 +111,7 @@ if ($action == 'get_paypal_link' && IS_LOGGED && !empty($config['paypal_id']) &&
 }
 
 
-if ($action == 'get_paid' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID'])) {
+if ($action == 'get_paid' && (IS_LOGGED || IS_GUEST) && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID'])) {
     $paymentId = $_GET['paymentId'];
     $PayerID = $_GET['PayerID'];
     $payment = Payment::get($paymentId, $paypal);
@@ -151,7 +151,7 @@ if ($action == 'get_paid' && IS_LOGGED && !empty($config['paypal_id']) && !empty
     }
 }
 
-if ($action == 'get_community' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID'])) {
+if ($action == 'get_community' && (IS_LOGGED || IS_GUEST) && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID'])) {
     $paymentId = $_GET['paymentId'];
     $PayerID = $_GET['PayerID'];
     $payment = Payment::get($paymentId, $paypal);
@@ -193,7 +193,7 @@ if ($action == 'get_community' && IS_LOGGED && !empty($config['paypal_id']) && !
     }
 }
 
-if ($action == 'get_standard' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID'])) {
+if ($action == 'get_standard' && (IS_LOGGED || IS_GUEST) && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID'])) {
     $paymentId = $_GET['paymentId'];
     $PayerID = $_GET['PayerID'];
     $payment = Payment::get($paymentId, $paypal);
@@ -233,7 +233,7 @@ if ($action == 'get_standard' && IS_LOGGED && !empty($config['paypal_id']) && !e
     }
 }
 
-if ($action == 'wallet_top_up' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID']) && !empty($_GET['amount'])) {
+if ($action == 'wallet_top_up' && (IS_LOGGED || IS_GUEST) && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID']) && !empty($_GET['amount'])) {
     $paymentId = $_GET['paymentId'];
     $PayerID = $_GET['PayerID'];
     $payment = Payment::get($paymentId, $paypal);
@@ -265,7 +265,7 @@ if ($action == 'wallet_top_up' && IS_LOGGED && !empty($config['paypal_id']) && !
     }
 }
 
-if ($action == 'social_donation' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID']) && !empty($_GET['amount'])) {
+if ($action == 'social_donation' && (IS_LOGGED || IS_GUEST) && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && $_GET['success'] == 1 && !empty($_GET['paymentId']) && !empty($_GET['PayerID']) && !empty($_GET['amount'])) {
     $paymentId = $_GET['paymentId'];
     $PayerID = $_GET['PayerID'];
     $payment = Payment::get($paymentId, $paypal);
@@ -297,7 +297,7 @@ if ($action == 'social_donation' && IS_LOGGED && !empty($config['paypal_id']) &&
     }
 }
 
-if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' && !empty($config['stripe_id']) && !empty($config['stripe_id'])) { 
+if ($action == 'stripe_payment' && (IS_LOGGED || IS_GUEST) && $config['credit_card'] == 'on' && !empty($config['stripe_id']) && !empty($config['stripe_id'])) { 
 
     require_once('sys/import3p/stripe-php-3.20.0/vendor/autoload.php');
     $stripe = array(
@@ -483,10 +483,10 @@ if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' &
                 'currency' => 'usd'
             ));
             if ($charge) {
-                $update = $user->distributeSocialDonations(Generic::secure($_GET['amount']));
+                $update = $user->distributeSocialDonations(Generic::secure($_POST['amount']));
 
                 $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
-                                              'amount' => Generic::secure($_GET['amount']),
+                                              'amount' => Generic::secure($_POST['amount']),
                                               'type' => 'Donations',
                                               'time' => time()));
                 
@@ -506,7 +506,7 @@ if ($action == 'stripe_payment' && IS_LOGGED && $config['credit_card'] == 'on' &
     }
 }
 
-if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' && !empty($config['paystack_public']) && !empty($config['paystack_secret'])) 
+if ($action == 'paystack_payment' && (IS_LOGGED || IS_GUEST) && $config['paystack'] == 'on' && !empty($config['paystack_public']) && !empty($config['paystack_secret'])) 
 {
     require_once('sys/import3p/Paystack/src/autoload.php'); 
     $pinit      = new Yabacon\Paystack($config['paystack_secret']); 
@@ -533,7 +533,7 @@ if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' &&
                                       'amount' => $amount,
                                       'type' => 'pro_member',
                                       'time' => $date));
-            
+
                     $uObj->payUpgradeCommissions(null, 'pro');
 
                     $data = array(
@@ -675,10 +675,10 @@ if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' &&
         try {
             if ($verify_pay->data->status === 'success') 
             {             
-                $update = $user->distributeSocialDonations(Generic::secure($_GET['amount']));
+                $update = $user->distributeSocialDonations(Generic::secure($_POST['amount']));
 
                 $db->insert(T_TRANSACTIONS,array('user_id' => $me['user_id'],
-                                              'amount' => Generic::secure($_GET['amount']),
+                                              'amount' => Generic::secure($_POST['amount']),
                                               'type' => 'Donations',
                                               'time' => time()));
                 
@@ -704,7 +704,7 @@ if ($action == 'paystack_payment' && IS_LOGGED && $config['paystack'] == 'on' &&
     }
 }
 
-if ($action == 'bank_transfer' && IS_LOGGED) { 
+if ($action == 'bank_transfer' && (IS_LOGGED || IS_GUEST)) { 
     if (!empty($_FILES['image'])) {
         if (!empty($_FILES['image']) && file_exists($_FILES['image']['tmp_name'])) {
             $media = new Media();
@@ -776,7 +776,7 @@ if ($action == 'bank_transfer' && IS_LOGGED) {
     }
 }
 
-if ($action == 'coupon' && IS_LOGGED && $config['coupon_system'] == 'on' && !empty($_POST['coupon_code'])) {
+if ($action == 'coupon' && (IS_LOGGED || IS_GUEST) && $config['coupon_system'] == 'on' && !empty($_POST['coupon_code'])) {
     $coupon_code = Generic::secure($_POST['coupon_code']);
 
     try {
@@ -836,7 +836,7 @@ if ($action == 'coupon' && IS_LOGGED && $config['coupon_system'] == 'on' && !emp
 
 
 
-if ($action == 'paypal_donate' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret'])) {
+if ($action == 'paypal_donate' && (IS_LOGGED || IS_GUEST) && !empty($config['paypal_id']) && !empty($config['paypal_secret'])) {
 
     if (!empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0 && !empty($_POST['fund_id']) && is_numeric($_POST['fund_id']) && $_POST['fund_id'] > 0) {
 
@@ -905,7 +905,7 @@ if ($action == 'paypal_donate' && IS_LOGGED && !empty($config['paypal_id']) && !
     }
 }
 
-if ($action == 'donate_to_user' && IS_LOGGED && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && !empty($_GET['paymentId']) && !empty($_GET['PayerID']) && !empty($_GET['amount']) && !empty($_GET['fund_id'])) {
+if ($action == 'donate_to_user' && (IS_LOGGED || IS_GUEST) && !empty($config['paypal_id']) && !empty($config['paypal_secret']) && !empty($_GET['paymentId']) && !empty($_GET['PayerID']) && !empty($_GET['amount']) && !empty($_GET['fund_id'])) {
 
     $paymentId = $_GET['paymentId'];
     $PayerID = $_GET['PayerID'];
@@ -981,7 +981,7 @@ if ($action == 'donate_to_user' && IS_LOGGED && !empty($config['paypal_id']) && 
 }
 
 
-if ($action == 'stripe_donate' && IS_LOGGED && $config['credit_card'] == 'on' && !empty($config['stripe_id']) && !empty($config['stripe_id'])) {
+if ($action == 'stripe_donate' && (IS_LOGGED || IS_GUEST) && $config['credit_card'] == 'on' && !empty($config['stripe_id']) && !empty($config['stripe_id'])) {
     if (!empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0 && !empty($_POST['fund_id']) && is_numeric($_POST['fund_id']) && $_POST['fund_id'] > 0) {
         require_once('sys/import3p/stripe-php-3.20.0/vendor/autoload.php');
         $stripe = array(
@@ -1056,7 +1056,7 @@ if ($action == 'stripe_donate' && IS_LOGGED && $config['credit_card'] == 'on' &&
 }
 
 
-if ($action == 'paystack_donate' && IS_LOGGED && $config['paystack'] == 'on' && !empty($config['paystack_public']) && !empty($config['paystack_secret'])) {
+if ($action == 'paystack_donate' && (IS_LOGGED || IS_GUEST) && $config['paystack'] == 'on' && !empty($config['paystack_public']) && !empty($config['paystack_secret'])) {
     if (!empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0 && !empty($_POST['fund_id']) && is_numeric($_POST['fund_id']) && $_POST['fund_id'] > 0) {
 
         require_once('sys/import3p/Paystack/src/autoload.php'); 

@@ -449,6 +449,9 @@ elseif ($action == 'update_user_lastseen') {
 elseif ($action == 'get_payment_methods') 
 {
     $uObj = new User;
+    if (!empty($_POST['guest'])) {
+    	$uObj->guestLogin($_POST['guest']); 
+    }
 	$context['pay_type'] = '\'pro\'';
     $post_type = (is_array($_POST['type']) ? key($_POST['type']) : $_POST['type']);
 	$pay_type  = array('pro', 'standard', 'wallet', 'social_donation');
@@ -471,10 +474,6 @@ else if ($action == 'upload_store_image' && IS_LOGGED) {
     if (!empty($_FILES['photo'])) {
         $inserted_data = array();
         $is_ok = false;
-
-
-
-
 
         $media = new Media();
         $media->setFile(array(

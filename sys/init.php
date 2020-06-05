@@ -55,8 +55,8 @@ if ($context['loggedin'] === true) {
 	}
 	
 	$user->updateLastSeen();
+    $user->guestLogout();
 
-	
 	require_once($countries);
 	
 	$context['countries_name'] = $countries_name; 
@@ -84,6 +84,7 @@ $context['csrf_token']  = pxp_gencsrf_token();
 $context['currency_symbol']  = Pxp_GetCurrency($config['currency']);
 define('IS_LOGGED', $context['loggedin']);
 define('IS_ADMIN', $context['is_admin']);
+define('IS_GUEST', isset($_SESSION['guest']));
  
 if (!empty($_GET['ref']) && $context['loggedin'] == false && !isset($_COOKIE['src']) && $config['affiliate_system'] == 1) {
 
@@ -104,7 +105,19 @@ if (!empty($_GET['ref']) && $context['loggedin'] == false && !isset($_COOKIE['sr
         }
     }
 } 
+if (isset($_SESSION['guest']) || isset($_COOKIE['guest'])) {
+    $_GUEST = isset($_COOKIE['guest']) ? $_COOKIE['guest'] : $_SESSION['guest'];
 
+    $me = array(
+        'email'    => Generic::secure($_GUEST['email']),
+        'user_id'  => rand(80000000000,90000000000),
+        'wallet'   => 0,
+        'username' => explode('@', Generic::secure($_GUEST['email']))[0],
+        'fname'    => Generic::secure($_GUEST['firstname']),
+        'lname'    => Generic::secure($_GUEST['lastname'])
+    ); 
+}
+ 
 $context['call_action'] = array(
     '1' => 'read_more',
     '2' => 'shop_now',

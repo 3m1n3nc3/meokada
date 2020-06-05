@@ -44,12 +44,14 @@
             </li>
             <?php } ?>
 
+            <?php if (IS_LOGGED) { ?>
             <li class="pp_front_menu" id="navigation_nav">
               <a href="{{CONFIG site_url}}/navigation" data-ajax="ajax_loading.php?app=navigation&apph=navigation">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-navigation"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> 
                 <span>{{LANG challenge}}</span>
               </a>
             </li>
+            <?php } ?>
 
             <?php if($config['image_sell_system'] == 'on'){ ?>
             <li class="pp_front_menu last_menu" id="store_nav">
@@ -244,11 +246,13 @@
           </li>
         <?php } ?>
 
+        <?php if (IS_LOGGED) { ?>
           <li class="pp_front_menu" id="navigation_nav" title="{{LANG challenge}}">
             <a href="{{CONFIG site_url}}/navigation" data-ajax="ajax_loading.php?app=navigation&apph=navigation">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-navigation"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             </a>
           </li>
+        <?php } ?>
 
           <li class="hide_head_link" title="{{CONFIG site_name}} TV">
             <a href="{{CONFIG site_url}}/tv">

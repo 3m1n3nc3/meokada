@@ -1,5 +1,5 @@
 <?php
-if (IS_LOGGED !== true) {
+if (IS_LOGGED !== true && $_GET['page'] !== 'wallet') {
 	header("Location: $site_url/welcome");
 	exit;
 }
@@ -58,15 +58,20 @@ elseif ($set_page && $_GET['page'] == 'wallet') {
 	$context['page_name']  = $page;
 	$context['page_title'] = $context['lang']['social_wallet']; 
 
-	$wallet_data['title']   = $context['page_title'];
-	$wallet_data['icon']    = $wallet_icon;
+	$wallet_data = array(
+		'title'      => $context['page_title'],
+		'logged_id'  => !empty($context['user']) ? $context['user']['user_id'] : (IS_GUEST ? $me['user_id'] : null), 
+		'firstname'  => $me ? ($me['fname'] ? $me['fname'] : $me['username']) : null,
+		'lastname'   => $me ? ($me['lname'] ? $me['lname'] : '') : null,
+		'email'      => $me ? ($me['email']) : null,
+		'icon'       => $wallet_icon
+	); 
 	$context['content']     = $pixelphoto->PX_LoadPage('navigation/templates/navigation/wallet', $wallet_data);
 }
 else{
 	$context['user_ads']   = $user->GetUserAds();
 	$context['page_link']  = 'navigation';
-	$context['exjs']       = true;
-	$context['footer'] 	   = false;
+	$context['exjs']       = true; 
 	$context['app_name']   = 'navigation';
 	$context['page_title'] = $context['lang']['challenge'];
 	$context['exclusive']  = $user->listExclusivePlans();
