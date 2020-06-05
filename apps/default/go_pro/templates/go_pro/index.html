@@ -113,6 +113,41 @@
         </div>
     </div>  
     <?php endif;?>  
+	
+	<?php if ($config['coupon_system'] == 'on') { ?> 
+	<div class="container"> 
+		<form class="form pp_sett_form" id="apply-coupon-code">   
+			<h2 class="text-center">Apply Coupon</h2> 
+			<hr>  
+			<br>  
+			<div class="row">
+				<div class="col-md-2"></div>
+				<div class="col-md-8 create_ads_inputs"> 
+					<?php if ($config['coupon_system'] == 'on') { ?> 
+					<div class="bank_inputs">  
+
+						<div class="pp_mat_input account_validator mb-0 pb-0">
+							<input required="true" type="text" name="coupon_code" id="coupon_code" class="form-control" value="">
+							<span class="bar"></span>
+							<label>{{LANG coupon}} Code*</label>
+						</div> 
+
+						<div class="pp_load_loader mt-0 pt-0">
+							<button class="btn btn-info btn-lg pp_flat_btn" type="submit"><span>{{LANG use_coupon}}</span></button>
+						</div>
+						<div class="clear"></div>
+						<input type="hidden" name="type" value="coupon">
+						<input type="hidden" name="user_id" value="<?php echo($context['me']['user_id']) ?>">
+						<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>"> 
+					</div> 
+					<?php } ?> 
+				</div>
+				<div class="col-md-2"></div>
+			</div> 
+		</form>   
+	</div>
+	<?php } ?>
+
 </div>
 
 <div class="confirm--modal go_pro--modal" style="display: none !important;">
@@ -195,6 +230,39 @@
                 }
              }
     	});
+ 
+		var form = $("form#apply-coupon-code");
+		form.ajaxForm({
+			url: link('go_pro/coupon'),
+			type: 'POST',
+			dataType: 'json',
+			beforeSend: function(){
+				$(form).find('.pp_load_loader').addClass('loadingg');
+				form.find('button[type="submit"]').attr('disabled','true');
+			},
+			success: function(data){
+				if (data.status == 200) {
+					var message = data.message;
+					var type = 'success'; 
+
+				    setTimeout(function () {
+						location.href = data.url;
+					},300); 
+				} else {
+					var message = data.error;
+					var type = 'danger';
+				}
+				$.toast(message,{
+                	duration: 5000, 
+                	type: type,
+                	align: 'bottom',
+                	singleton: true
+                });
+				$(form).find('.pp_load_loader').removeClass('loadingg');
+				form.find('button[type="submit"]').removeAttr('disabled');
+			}
+		});
+ 
     });
 
 	$(document).on('click', '.send_bank', function(event) {
