@@ -290,16 +290,16 @@ class User extends Generic{
             $user  = o2array(self::$me);
         }
         $pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0)));
-        $community     = self::listCommunityPlans($user['community']);
-        $ver_community = self::listCommunityPlans($set_community);
+        $user_community = self::listCommunityPlans($user['community']);
+        $ver_community  = self::listCommunityPlans($set_community);
 
-        $community_price     = !empty($community['price']) ? $community['price'] : 0;
-        $community_price_ver = !empty($ver_community['price']) ? $ver_community['price'] : 0; 
+        $user_community_price = !empty($user_community['price']) ? $user_community['price'] : 0;
+        $ver_community_price  = !empty($ver_community['price']) ? $ver_community['price'] : 0; 
 
         return array(
             'pro_level' => $pro_level, 
             'community' => $user['community'],  
-            'community_access' => ($community_price >= $community_price_ver),
+            'community_access' => ($user_community_price > 0),
         ); 
     }
 
