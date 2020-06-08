@@ -3,17 +3,17 @@ if (IS_LOGGED !== true) {
 	header("Location: $site_url/welcome");
 	exit;
 }
-
-$this_tv    = isset($_GET['channel']) ? $_GET['channel'] : null;
+ 
+$channel    = isset($_GET['channel']) ? $_GET['channel'] : null;
 $restricted = false;
-$context['this_tv']    = $this_tv;
+$context['this_tv']    = $channel;
 $context['restricted'] = $restricted;
 
 $context['posts']  = array();
 $posts             = new Posts(); 
 $posts->limit      = 3;
 $posts->comm_limit = 4;
-$tlposts           = $posts->setUserById($me['user_id'])->getTvPosts(false, 5, $this_tv);
+$tlposts           = $posts->setUserById($me['user_id'])->getTvPosts(false, 5, $channel);
 $boost_post_query = $db->where('boosted',1)->orderBy('RAND()')->getOne(T_POSTS);
 $boost_post = array();
 if (!empty($boost_post_query)) {

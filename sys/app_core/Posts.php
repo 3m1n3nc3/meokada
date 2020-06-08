@@ -285,27 +285,26 @@ class Posts extends User{
 		
 		return $data;
 	}
-	public function getTvPosts($offset = false,$limit = 5, $tv = false, $restricted = false){
+	public function getTvPosts($offset = false,$limit = 5, $channel = false, $restricted = false){
 		if (empty(IS_LOGGED)) {
 			return false;
 		}
 
 		$data    = array();
-		$user_id = self::$me->user_id;
-		$tv      = ($tv ? $tv : $user_id);
+		$user_id = self::$me->user_id; 
 		$sql     = pxp_sqltepmlate('posts/get.tv.posts',array(
 			't_posts' => T_POSTS,
-			't_conn' => T_CONNECTIV,
+			't_conn'  => T_CONNECTIV,
 			't_likes' => T_POST_LIKES,
-			't_comm' => T_POST_COMMENTS,
+			't_comm'  => T_POST_COMMENTS,
 			't_blocks' => T_PROF_BLOCKS,
-			't_users' => T_USERS,
-			'user_id' => $user_id,
-			'tv' => $tv,
+			't_users'  => T_USERS,
+			'tv'       => 1,
+			'channel'  => $channel,
+			'user_id'  => $user_id,
 			'restricted' => $restricted,
-			'channel' => $tv,
 			'total_limit' => $limit,
-			'offset' => $offset,
+			'offset'      => $offset,
 		));
 
 		try {
@@ -314,7 +313,7 @@ class Posts extends User{
 		catch (Exception $e) {
 			$posts = array();
 		}
-
+ 
 		foreach ($posts as $key => $post_data) {
 			$post_data = $this->postData($post_data);
 			$data[]    = $post_data;

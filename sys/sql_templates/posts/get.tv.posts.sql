@@ -9,14 +9,14 @@ SELECT p.*,u.`avatar`,u.`username`,(SELECT COUNT(l.`id`) FROM  `{%t_likes%}` l W
 	WHERE 
 	( 
 		{%if tv%} 
-				p.`tv` = '1' AND 
-
+				p.`tv` = '1'  
 			{%if channel%}
-				p.`user_id` = '{%channel%}' {%if restricted%} AND {%endif%}
+				AND p.`user_id` = '{%channel%}' 
 			{%endif%}
 		{%endif%}
 
 		{%if restricted%} 
+			AND 
 			(
 
 				p.`user_id` = '{%user_id%}' OR p.`user_id` IN (
