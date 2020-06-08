@@ -44,14 +44,16 @@ if ($set_page && $_GET['page'] == 'challenge' && !empty($page)) {
 		unset($_SESSION['_redirect_']);
 	}
 
-	$exlsv_data['icon'] = decode($exlsv_data['icon']);
+	$exlsv_data['icon']        = decode($exlsv_data['icon']);
 	$exlsv_data['description'] = decode($exlsv_data['description']);
 	$exclusive_url         = isset($_GET[$page]) ? '/' . $page . '/' . $_GET[$page] : '';
+	$ext                   = $exlsv_data ? str_ireplace(['{{LANG ', '}}'], ['',''], $exlsv_data['title'], $cec) : null;
+    $exclusive_title       = ($cec>0 ? lang($ext) : $ext);  
 	$context['page_link']  = 'navigation/challenge' . $exclusive_url;
 	$context['exjs']       = true;
 	$context['app_name']   = 'navigation';
 	$context['page_name']  = $page;
-	$context['page_title'] = $context['lang']['challenge'] . ' | ' . $exlsv_data['title'];
+	$context['page_title'] = $context['lang']['challenge'] . ($exlsv_data['title'] ? ' | ' . $exclusive_title : '');
 	$context['header']     = $pixelphoto->PX_LoadPage('navigation/templates/navigation/header', $exlsv_data);
 	$context['content']    = $pixelphoto->PX_LoadPage('navigation/templates/navigation/challenge', $exlsv_data);
 }
