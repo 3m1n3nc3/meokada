@@ -51,7 +51,7 @@ if ($set_page && $_GET['page'] == 'challenge' && !empty($page)) {
 	$context['exjs']       = true;
 	$context['app_name']   = 'navigation';
 	$context['page_name']  = $page;
-	$context['page_title'] = $context['lang']['challenge'];
+	$context['page_title'] = $context['lang']['challenge'] . ' | ' . $exlsv_data['title'];
 	$context['header']     = $pixelphoto->PX_LoadPage('navigation/templates/navigation/header', $exlsv_data);
 	$context['content']    = $pixelphoto->PX_LoadPage('navigation/templates/navigation/challenge', $exlsv_data);
 }
