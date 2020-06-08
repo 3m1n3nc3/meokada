@@ -8,6 +8,9 @@ $upload_images_off = ($config['upload_images'] == 'off') ? 'checked' : '';
 $upload_video_on = ($config['upload_videos'] == 'on') ? 'checked' : '';
 $upload_video_off = ($config['upload_videos'] == 'off') ? 'checked' : '';
 
+$downloads_on = ($config['allow_downloads'] == 'on') ? 'checked' : '';
+$downloads_off = ($config['allow_downloads'] == 'off') ? 'checked' : '';
+
 $import_video_on = ($config['import_videos'] == 'on') ? 'checked' : '';
 $import_video_off = ($config['import_videos'] == 'off') ? 'checked' : '';
 
@@ -117,6 +120,16 @@ $ffmpeg_binary = $config['ffmpeg_binary'];
                             <input type="radio" <?php echo $face_filter_off; ?> name="face_filter" id="face_filter-disabled" value="off">
                             <label for="face_filter-disabled" class="m-l-20">Disabled</label>
                         </div>
+
+                        <label for="allow_downloads">Allow Downloads</label> 
+                        <small class="text-info">(Uploaded files only)</small>
+                        <div class="form-group">
+                            <input type="radio" <?php echo $downloads_on; ?> name="allow_downloads"  value="on" id="allow_downloads-enabled">
+                            <label for="allow_downloads-enabled" id="allow_downloads-enabled">Enabled</label>
+                            <input type="radio" <?php echo $downloads_off; ?> name="allow_downloads" id="allow_downloads-disabled" value="off">
+                            <label for="allow_downloads-disabled" class="m-l-20">Disabled</label>
+                        </div>
+
                         <label for="business_account">Business Account System</label>
                         <div class="form-group">
                             <input type="radio" <?php echo ($config['business_account'] == 'on' ? 'checked' : ''); ?> name="business_account"  value="on" id="business_account-enabled">
