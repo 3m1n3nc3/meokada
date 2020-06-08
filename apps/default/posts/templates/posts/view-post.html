@@ -257,6 +257,13 @@
 										    	} ?>
 									  	</a>
 									</li>
+									<?php if ($config['allow_downloads'] === 'on') { ?>
+									<li id="download-post" data-id="<?php echo($context['post_data']['post_id']) ?>">
+									  	<a href="<?php echo(media($media_file['file'])) ?>" download>
+									  		Download
+									  	</a>
+									</li> 
+									<?php } ?>
 									<li onclick="embed_post('<?php echo($context['post_data']['post_id']) ?>',this);">
 								  		<a href="javascript:void(0);">
 								  			{{LANG embed}}

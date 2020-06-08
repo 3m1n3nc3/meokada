@@ -41,6 +41,7 @@ INSERT INTO `pxp_config` (`name`, `value`) VALUES
 ('use_coupon', 'on'),
 ('coupon_system', 'on'),
 ('homepage_posting', 'off'),
+('allow_downloads', 'on'),
 ('coupon_prefix', 'on');
 
 INSERT INTO `pxp_langs` (`ref`, `lang_key`, `english`) VALUES
