@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.1 - 2017-07-11
+
+### Fixed
+
+- A HEAD request with the curl handler can be endless
 
 ## 1.0.0 - 2016-07-18
 

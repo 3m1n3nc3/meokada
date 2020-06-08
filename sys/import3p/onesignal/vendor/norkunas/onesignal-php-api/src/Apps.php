@@ -1,16 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OneSignal;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use OneSignal\Resolver\ResolverFactory;
 
-class Apps
+class Apps extends AbstractApi
 {
-    protected $api;
+    private $resolverFactory;
 
-    public function __construct(OneSignal $api)
+    public function __construct(OneSignal $client, ResolverFactory $resolverFactory)
     {
-        $this->api = $api;
+        parent::__construct($client);
+
+        $this->resolverFactory = $resolverFactory;
     }
 
     /**
@@ -19,28 +23,26 @@ class Apps
      * User authentication key must be set.
      *
      * @param string $id ID of your application
-     *
-     * @return array
      */
-    public function getOne($id)
+    public function getOne(string $id): array
     {
-        return $this->api->request('GET', '/apps/'.$id, [
-            'Authorization' => 'Basic '.$this->api->getConfig()->getUserAuthKey(),
-        ]);
+        $request = $this->createRequest('GET', "/apps/$id");
+        $request = $request->withHeader('Authorization', "Basic {$this->client->getConfig()->getUserAuthKey()}");
+
+        return $this->client->sendRequest($request);
     }
 
     /**
      * Get information about all your created applications.
      *
      * User authentication key must be set.
-     *
-     * @return array
      */
-    public function getAll()
+    public function getAll(): array
     {
-        return $this->api->request('GET', '/apps', [
-            'Authorization' => 'Basic '.$this->api->getConfig()->getUserAuthKey(),
-        ]);
+        $request = $this->createRequest('GET', '/apps');
+        $request = $request->withHeader('Authorization', "Basic {$this->client->getConfig()->getUserAuthKey()}");
+
+        return $this->client->sendRequest($request);
     }
 
     /**
@@ -49,16 +51,17 @@ class Apps
      * User authentication key must be set.
      *
      * @param array $data Application data
-     *
-     * @return array
      */
-    public function add(array $data)
+    public function add(array $data): array
     {
-        $data = $this->resolve($data);
+        $resolvedData = $this->resolverFactory->createAppResolver()->resolve($data);
 
-        return $this->api->request('POST', '/apps', [
-            'Authorization' => 'Basic '.$this->api->getConfig()->getUserAuthKey(),
-        ], json_encode($data));
+        $request = $this->createRequest('POST', '/apps');
+        $request = $request->withHeader('Authorization', "Basic {$this->client->getConfig()->getUserAuthKey()}");
+        $request = $request->withHeader('Content-Type', 'application/json');
+        $request = $request->withBody($this->createStream($resolvedData));
+
+        return $this->client->sendRequest($request);
     }
 
     /**
@@ -68,65 +71,50 @@ class Apps
      *
      * @param string $id   ID of your application
      * @param array  $data New application data
-     *
-     * @return array
      */
-    public function update($id, array $data)
+    public function update(string $id, array $data): array
     {
-        $data = $this->resolve($data);
+        $resolvedData = $this->resolverFactory->createAppResolver()->resolve($data);
 
-        return $this->api->request('PUT', '/apps/'.$id, [
-            'Authorization' => 'Basic '.$this->api->getConfig()->getUserAuthKey(),
-        ], json_encode($data));
+        $request = $this->createRequest('PUT', "/apps/$id");
+        $request = $request->withHeader('Authorization', "Basic {$this->client->getConfig()->getUserAuthKey()}");
+        $request = $request->withHeader('Content-Type', 'application/json');
+        $request = $request->withBody($this->createStream($resolvedData));
+
+        return $this->client->sendRequest($request);
     }
 
-    protected function resolve(array $data)
+    /**
+     * Create a new segment for application with provided data.
+     *
+     * @param string $appId ID of your application
+     * @param array  $data  Segment Data
+     */
+    public function createSegment($appId, array $data): array
     {
-        $resolver = new OptionsResolver();
+        $resolvedData = $this->resolverFactory->createSegmentResolver()->resolve($data);
 
-        $resolver
-            ->setRequired('name')
-            ->setAllowedTypes('name', 'string')
-            ->setDefined('apns_env')
-            ->setAllowedTypes('apns_env', 'string')
-            ->setAllowedValues('apns_env', ['sandbox', 'production'])
-            ->setDefined('apns_p12')
-            ->setAllowedTypes('apns_p12', 'string')
-            ->setDefined('apns_p12_password')
-            ->setAllowedTypes('apns_p12_password', 'string')
-            ->setDefined('gcm_key')
-            ->setAllowedTypes('gcm_key', 'string')
-            ->setDefined('chrome_key')
-            ->setAllowedTypes('chrome_key', 'string')
-            ->setDefined('safari_apns_p12')
-            ->setAllowedTypes('safari_apns_p12', 'string')
-            ->setDefined('chrome_web_key')
-            ->setAllowedTypes('chrome_web_key', 'string')
-            ->setDefined('safari_apns_p12_password')
-            ->setAllowedTypes('safari_apns_p12_password', 'string')
-            ->setDefined('site_name')
-            ->setAllowedTypes('site_name', 'string')
-            ->setDefined('safari_site_origin')
-            ->setAllowedTypes('safari_site_origin', 'string')
-            ->setDefined('safari_icon_16_16')
-            ->setAllowedTypes('safari_icon_16_16', 'string')
-            ->setDefined('safari_icon_32_32')
-            ->setAllowedTypes('safari_icon_32_32', 'string')
-            ->setDefined('safari_icon_64_64')
-            ->setAllowedTypes('safari_icon_64_64', 'string')
-            ->setDefined('safari_icon_128_128')
-            ->setAllowedTypes('safari_icon_128_128', 'string')
-            ->setDefined('safari_icon_256_256')
-            ->setAllowedTypes('safari_icon_256_256', 'string')
-            ->setDefined('chrome_web_origin')
-            ->setAllowedTypes('chrome_web_origin', 'string')
-            ->setDefined('chrome_web_gcm_sender_id')
-            ->setAllowedTypes('chrome_web_gcm_sender_id', 'string')
-            ->setDefined('chrome_web_default_notification_icon')
-            ->setAllowedTypes('chrome_web_default_notification_icon', 'string')
-            ->setDefined('chrome_web_sub_domain')
-            ->setAllowedTypes('chrome_web_sub_domain', 'string');
+        $request = $this->createRequest('POST', "/apps/$appId/segments");
+        $request = $request->withHeader('Authorization', "Basic {$this->client->getConfig()->getApplicationAuthKey()}");
+        $request = $request->withHeader('Content-Type', 'application/json');
+        $request = $request->withBody($this->createStream($resolvedData));
 
-        return $resolver->resolve($data);
+        return $this->client->sendRequest($request);
+    }
+
+    /**
+     * Delete existing segment from your application.
+     *
+     * Application auth key must be set.
+     *
+     * @param string $appId     Application ID
+     * @param string $segmentId Segment ID
+     */
+    public function deleteSegment(string $appId, string $segmentId): array
+    {
+        $request = $this->createRequest('DELETE', "/apps/$appId/segments/$segmentId");
+        $request = $request->withHeader('Authorization', "Basic {$this->client->getConfig()->getApplicationAuthKey()}");
+
+        return $this->client->sendRequest($request);
     }
 }
