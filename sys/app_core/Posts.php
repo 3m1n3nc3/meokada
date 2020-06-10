@@ -556,7 +556,7 @@ class Posts extends User{
 			$pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0))); 
 			$community = self::listCommunityPlans($user['community']);
 			$c_rank    = ($community && $user['community'] > 0) ? $community['price'] : 0;
-			
+
 			if ($pro_level == 3) {
 				self::$db->where('c_rank', $c_rank, '<=');
 			}
@@ -1060,7 +1060,7 @@ class Posts extends User{
 			return false;
 		}
 
-		$user_id = self::$me->user_id;
+		$user_id = isset(self::$me->user_id) ? self::$me->user_id : $this->user_id;
 		self::$db->where('user_id',$user_id);
 		return self::$db->getValue(T_SAVED_POSTS,'COUNT(*)');
 	}
