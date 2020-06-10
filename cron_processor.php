@@ -70,7 +70,7 @@ if ($auto_payout && (empty($last_auto_payouts) || $last_auto_payouts < $api_refr
         $nat_win    = false;  
         $challenges = $postC->getRecentChallenges();
 
-        if (!$challenges) 
+        if ($challenges) 
         {
             foreach ($challenges as $key => $cdata) 
             {
@@ -121,42 +121,44 @@ if ($auto_payout && (empty($last_auto_payouts) || $last_auto_payouts < $api_refr
 if ($config['auto_pay_wallet'] !== 'off' && (empty($last_auto_pay_wallet) || $last_auto_pay_wallet < $api_refreshed)) {
     $wallets = $admin->socialWallet();
     $i = 0;
-    foreach ($wallets as $key => $wallet) {
-        $i++;  
-        
-        $amount = ($wallet['balance']-$wallet['paidout']);
-        if ($wallet['account_number'] && $amount > $config['auto_pay_wallet_limit']) { 
-            $user_data = array(
-                'paidout'        => $wallet['paidout'],
-                'type'           => $wallet['account_type'],
-                'name'           => $wallet['title'],
-                'description'    => 'Social Wallet Payouts from ' . $config['site_name'],
-                'account_number' => $wallet['account_number'],
-                'bank_code'      => $wallet['bank_code'],
-                'amount'         => $amount*($config['currency'] == 'NGN' || $config['currency'] == 'GHS' ? 100 : 0)
-            );
+    if ($wallets) { 
+        foreach ($wallets as $key => $wallet) {
+            $i++;  
+            
+            $amount = ($wallet['balance']-$wallet['paidout']);
+            if ($wallet['account_number'] && $amount > $config['auto_pay_wallet_limit']) { 
+                $user_data = array(
+                    'paidout'        => $wallet['paidout'],
+                    'type'           => $wallet['account_type'],
+                    'name'           => $wallet['title'],
+                    'description'    => 'Social Wallet Payouts from ' . $config['site_name'],
+                    'account_number' => $wallet['account_number'],
+                    'bank_code'      => $wallet['bank_code'],
+                    'amount'         => $amount*($config['currency'] == 'NGN' || $config['currency'] == 'GHS' ? 100 : 0)
+                );
 
-            $create_customer = $admin->payUser('create_recipient', $user_data);
-            $recipient_code  = $create_customer['data']['recipient_code'] ?? '';
-            if ($recipient_code) {
-                $wallet_meta[] = array('recipient' => $recipient_code, 'amount' => $amount);  
-                $admin::$db->where('id',$wallet['id'])->update(T_SOCIAL_WALLET, array('recipient_code' => $recipient_code));
-            } else {
-                $wallet_meta = [];
+                $create_customer = $admin->payUser('create_recipient', $user_data);
+                $recipient_code  = $create_customer['data']['recipient_code'] ?? '';
+                if ($recipient_code) {
+                    $wallet_meta[] = array('recipient' => $recipient_code, 'amount' => $amount);  
+                    $admin::$db->where('id',$wallet['id'])->update(T_SOCIAL_WALLET, array('recipient_code' => $recipient_code));
+                } else {
+                    $wallet_meta = [];
+                } 
             } 
-        } 
-    }
+        }
 
-    if (!empty($wallet_meta)) {
-        $wallet_process = $admin->payUser('initiate_bulk_transfer', ['transfers' => $wallet_meta]);
-        if (!empty($wallet_process['data'])) {
-            foreach ($wallet_process['data'] as $request_id) 
-            {
-                $admin::$db->where('recipient_code', $request_id['recipient'])->update(T_SOCIAL_WALLET,array('paidout' => $admin::$db->inc($request_id['amount']), 'balance' => $admin::$db->dec($request_id['amount'])));
+        if (!empty($wallet_meta)) {
+            $wallet_process = $admin->payUser('initiate_bulk_transfer', ['transfers' => $wallet_meta]);
+            if (!empty($wallet_process['data'])) {
+                foreach ($wallet_process['data'] as $request_id) 
+                {
+                    $admin::$db->where('recipient_code', $request_id['recipient'])->update(T_SOCIAL_WALLET,array('paidout' => $admin::$db->inc($request_id['amount']), 'balance' => $admin::$db->dec($request_id['amount'])));
+                }
             }
         }
+        $_SESSION['last_auto_pay_wallet'] = time();
     }
-    $_SESSION['last_auto_pay_wallet'] = time();
 }
 
 
