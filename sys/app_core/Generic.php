@@ -583,8 +583,7 @@ class Generic{
 		        'content',
 		        'status',
 		        'in_pages'
-		    ));
-		    // echo self::$db->getLastQuery();
+		    )); 
 
 		    if (!$rows && $content) $content->content = decode($content->content);
 

@@ -220,4 +220,4 @@ if ($config['coupon_system'] == 'on' && $last_generic_action < $api_refreshed) {
     $_SESSION['last_generic_action'] = time();
 }
 // echo $admin::$db->getLastQuery();
-// $db->getLastError();
+// echo $db->getLastError();

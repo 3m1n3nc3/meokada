@@ -540,6 +540,13 @@ class Posts extends User{
 	public function challengeData($cid = null)
 	{ 
 		$user = o2array(self::$me);
+
+		if (!$user['admin']) 
+		{ 
+			$pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0))); 
+			$community = self::listCommunityPlans($user['community']);
+			$c_rank    = ($community && $user['community'] > 0) ? $community['price'] : 0;
+		}
  
 	    self::$db->orderBy('c_rank','ASC');
 		if (isset($cid['exclusive'])) {
@@ -553,10 +560,6 @@ class Posts extends User{
 		} 
 		elseif (!$user['admin']) 
 		{ 
-			$pro_level = ($user['community'] ? 3 : ($user['is_pro'] ? 2 : ($user['is_standard'] ? 1 : 0))); 
-			$community = self::listCommunityPlans($user['community']);
-			$c_rank    = ($community && $user['community'] > 0) ? $community['price'] : 0;
-
 			if ($pro_level == 3) {
 				self::$db->where('c_rank', $c_rank, '<=');
 			}
