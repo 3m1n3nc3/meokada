@@ -84,8 +84,8 @@ if ($auto_payout && (empty($last_auto_payouts) || $last_auto_payouts < $api_refr
                         foreach ($user_data as $key => $udata) 
                         {
                             $i++; 
-                            $win  = o2array($postC->getWinnersOnly($udata['username'], $cdata->challenge_id)); 
-                            $postC->payChallengeWinner($win['post_id'], $win['challenge_id'], $i, $nat_win); 
+                            // $win  = o2array($postC->getWinnersOnly($udata['username'], $cdata->challenge_id)); 
+                            // $postC->payChallengeWinner($win['post_id'], $win['challenge_id'], $i, $nat_win); 
                         }
                     } 
 
