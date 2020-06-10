@@ -23,7 +23,7 @@
 						<div class="pp_load_loader"><button class="btn btn-info pp_flat_btn" type="submit"><span>{{LANG save_c}}</span></button></div>
 					</div>
 				</div>
-				<input type="hidden" name="user_id" value="<?php echo($context['me']['user_id']) ?>">
+				<input type="hidden" name="user_id" value="<?php echo($context['user']['user_id']) ?>">
 				<input type="hidden" name="hash" value="<?php echo($context['csrf_token']) ?>">
 				<input type="file" name="photo" class="hidden" id="user-photo" accept="image/x-png,image/jpg,image/jpeg" required>
 			</form>
